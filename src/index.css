@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #0e1217;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+  }
+}
+
+/* =========================================================================
+   SISTEMA DE DISEÑO DE METROLOGÍA INDUSTRIAL TIPO SOLIDWORKS
+   Paleta: Aluminio Cepillado, Aceros Industriales, Acentos Naranja de Advertencia
+   Efectos: Bordes Biselados (Bevels), Sombras Internas Mecanizadas y Texturas
+   ========================================================================= */
+
+/* 1. TEXTURAS METÁLICAS */
+.cad-brushed-aluminum {
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.25) 100%),
+    repeating-linear-gradient(90deg, #2a313c 0px, #2a313c 1px, #252b35 1px, #252b35 3px);
+}
+
+.cad-industrial-steel {
+  background: 
+    linear-gradient(180deg, #1b212b 0%, #13171f 100%);
+  position: relative;
+}
+
+.cad-gunmetal {
+  background: 
+    linear-gradient(180deg, #141820 0%, #0d1016 100%);
+}
+
+.cad-chassis-faceplate {
+  background: 
+    linear-gradient(135deg, #374151 0%, #1f2937 40%, #2b3544 70%, #1a222d 100%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 2px);
+}
+
+/* 2. BISELES (BEVELS) Y SOMBRAS MECANIZADAS 3D */
+.cad-bevel-panel {
+  border: 1px solid #2d3748;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.14),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.75),
+    0 4px 16px rgba(0, 0, 0, 0.55),
+    0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.cad-bevel-panel-subtle {
+  border: 1px solid #28303d;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.09),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.65),
+    0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* Cavidad mecanizada / Ranura con sombra interna (para pantallas y osciloscopios) */
+.cad-inset-well {
+  background-color: #090c10;
+  border: 1px solid #1a222e;
+  box-shadow: 
+    inset 2px 2px 6px rgba(0, 0, 0, 0.9),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cad-inset-slot {
+  background-color: #0b0e13;
+  box-shadow: 
+    inset 1px 1px 4px rgba(0, 0, 0, 0.85),
+    inset -1px -1px 1px rgba(255, 255, 255, 0.03),
+    0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Botón táctil mecanizado con bisel superior e inferior */
+.cad-bevel-btn {
+  background: linear-gradient(180deg, #2d3542 0%, #1c222b 100%);
+  border: 1px solid #3e4856;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.18),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: all 0.12s ease-in-out;
+}
+
+.cad-bevel-btn:hover {
+  background: linear-gradient(180deg, #374151 0%, #222935 100%);
+  border-color: #4b5563;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.25),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.65),
+    0 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.cad-bevel-btn:active {
+  background: linear-gradient(180deg, #181d24 0%, #202731 100%);
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.85),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.04);
+  transform: translateY(1px);
+}
+
+/* 3. ACENTOS EN NARANJA DE ADVERTENCIA INDUSTRIAL (SOLIDWORKS SAFETY ORANGE) */
+.cad-orange-btn {
+  background: linear-gradient(180deg, #f97316 0%, #c2410c 100%);
+  border: 1px solid #ea580c;
+  color: #0f172a;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.5),
+    0 2px 6px rgba(234, 88, 12, 0.35);
+  transition: all 0.12s ease-in-out;
+}
+
+.cad-orange-btn:hover {
+  background: linear-gradient(180deg, #fb923c 0%, #d94e07 100%);
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.55),
+    0 3px 10px rgba(234, 88, 12, 0.5);
+}
+
+.cad-orange-btn:active {
+  background: linear-gradient(180deg, #9a3412 0%, #c2410c 100%);
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.7),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(1px);
+}
+
+.cad-orange-active {
+  background: linear-gradient(180deg, #3d2110 0%, #261307 100%) !important;
+  border-color: #f97316 !important;
+  color: #fed7aa !important;
+  box-shadow: 
+    inset 1px 1px 0 rgba(249, 115, 22, 0.4),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.7),
+    0 0 10px rgba(249, 115, 22, 0.35) !important;
+}
+
+.cad-orange-glow {
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.45);
+}
+
+.cad-orange-border {
+  border-color: #ea580c;
+}
+
+/* 4. ELEMENTOS DE INSTRUMENTO DE METROLOGÍA: TORNILLERÍA ALLEN Y REGLA */
+.cad-allen-bolt {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #64748b 0%, #334155 55%, #0f172a 100%);
+  box-shadow: 
+    inset 1px 1px 1px rgba(255, 255, 255, 0.35),
+    1px 1px 2px rgba(0, 0, 0, 0.8);
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.cad-allen-bolt::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  background: #0f172a;
+  border-radius: 1px;
+  box-shadow: inset 0.5px 0.5px 1px rgba(0, 0, 0, 0.9);
+}
+
+/* Escala graduada milimetrada de metrología */
+.cad-caliper-scale {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.25) 0px,
+    rgba(255, 255, 255, 0.25) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  height: 6px;
+}
+
+/* Scrollbars industriales delgados mecanizados */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0c0f14;
+}
+::-webkit-scrollbar-thumb {
+  background: #2d3748;
+  border-radius: 3px;
+  border: 1px solid #1a202c;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
+}

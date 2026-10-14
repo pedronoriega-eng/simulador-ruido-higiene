@@ -1,0 +1,6 @@
+{
+  "name": "Simulador de Sonometría e Higiene Acústica Industrial",
+  "description": "Simulador interactivo de instrumentación acústica (IEC 61672, ISO 9612, Res. 1792/1990) con síntesis Web Audio de ruido continuo, intermitente y de impacto, osciloscopio y analizador de espectro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Higiene Industrial - Sonometría y Análisis de Ruido</title>
+    <style>
+        :root {
+            --bg-main: #0e1217;
+            --bg-card: #181f2a;
+            --bg-card-inner: #0b0f15;
+            --border-color: #2b3544;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-amber: #f97316;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-cyan: #38bdf8;
+            --lcd-bg: #09120c;
+            --lcd-text: #6ee7b7;
+            --lcd-text-dim: #064e3b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: rgba(17, 24, 39, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--accent-amber);
+            color: #000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .brand-title h1 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-badges {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .brand-badges span.highlight {
+            color: var(--accent-amber);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: #1f2937;
+            color: var(--text-primary);
+            border: 1px solid #374151;
+            padding: 0.45rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.15s ease;
+        }
+
+        .btn:hover {
+            background-color: #374151;
+        }
+
+        .btn-amber {
+            background: var(--accent-amber);
+            color: #111827;
+            border-color: #d97706;
+            font-weight: 700;
+        }
+
+        .btn-amber:hover {
+            background: #d97706;
+        }
+
+        main {
+            max-width: 1380px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1080px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .distance-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--bg-card-inner);
+            padding: 0.5rem 0.85rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .distance-box input[type="range"] {
+            width: 120px;
+            accent-color: var(--accent-cyan);
+            cursor: pointer;
+        }
+
+        .machines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .machine-category-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .category-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-green { background-color: var(--accent-green); }
+        .dot-amber { background-color: var(--accent-amber); }
+        .dot-red { background-color: var(--accent-red); }
+
+        .machine-card {
+            background-color: var(--bg-card-inner);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .machine-card:hover {
+            border-color: #374151;
+            background: #0f172a;
+        }
+
+        .machine-card.active {
+            border-color: var(--accent-amber);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+            background: #1e1e24;
+        }
+
+        .machine-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .machine-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .machine-spl {
+            font-size: 0.75rem;
+            font-family: monospace;
+            background: #000;
+            color: var(--accent-amber);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            font-weight: bold;
+        }
+
+        .machine-desc {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.35;
+        }
+
+        .machine-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            border-top: 1px solid #1f2937;
+            padding-top: 0.4rem;
+        }
+
+        .animator-box {
+            background-color: #030712;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        #machineCanvas {
+            width: 100%;
+            height: 240px;
+            background: #000;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            display: block;
+            cursor: pointer;
+        }
+
+        .generator-tag-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .generator-tag-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .gen-item {
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .gen-item.active {
+            border-color: var(--accent-amber);
+            background: #1e1e24;
+        }
+
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .canvas-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .canvas-box {
+            background-color: #030712;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .canvas-title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        canvas {
+            width: 100%;
+            height: 180px;
+            background: #000;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            display: block;
+        }
+
+        .hygiene-status {
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .status-safe {
+            background-color: rgba(6, 78, 59, 0.4);
+            border-color: #059669;
+            color: #a7f3d0;
+        }
+
+        .status-action {
+            background-color: rgba(120, 53, 15, 0.4);
+            border-color: #d97706;
+            color: #fde68a;
+        }
+
+        .status-danger {
+            background-color: rgba(127, 29, 29, 0.4);
+            border-color: #dc2626;
+            color: #fecaca;
+        }
+
+        .status-peak {
+            background-color: rgba(88, 28, 135, 0.4);
+            border-color: #9333ea;
+            color: #f3e8ff;
+        }
+
+        .dose-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.85rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-family: monospace;
+            color: #fff;
+        }
+
+        .dose-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #1f2937;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .dose-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-green);
+            transition: width 0.3s;
+        }
+
+        .sonometer-wrap {
+            background: linear-gradient(180deg, #1e2530 0%, #151a23 100%);
+            border: 2px solid #ea580c;
+            border-radius: 28px;
+            padding: 1.25rem;
+            box-shadow: 
+                inset 1px 1px 0 rgba(255, 255, 255, 0.16),
+                inset -1px -1px 0 rgba(0, 0, 0, 0.8),
+                0 20px 25px -5px rgba(0, 0, 0, 0.7),
+                0 0 20px rgba(234, 88, 12, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: sticky;
+            top: 5rem;
+        }
+
+        .mic-probe {
+            width: 48px;
+            height: 54px;
+            background: linear-gradient(180deg, #e2e8f0 0%, #94a3b8 50%, #334155 100%);
+            border-radius: 24px 24px 4px 4px;
+            border: 2px solid #475569;
+            margin-top: -38px;
+            margin-bottom: 8px;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.7), 0 4px 8px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .mic-probe::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #ea580c;
+            box-shadow: 0 0 6px rgba(234,88,12,0.8);
+        }
+
+        .sonometer-brand {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: #f1f5f9;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+            font-family: monospace;
+        }
+
+        .lcd-screen {
+            width: 100%;
+            background: var(--lcd-bg);
+            border: 4px solid #0f172a;
+            border-radius: 12px;
+            padding: 0.85rem;
+            color: var(--lcd-text);
+            font-family: monospace;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .lcd-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            border-bottom: 1px solid var(--lcd-text-dim);
+            padding-bottom: 0.25rem;
+            font-weight: 700;
+        }
+
+        .lcd-main {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+
+        .lcd-digits {
+            font-size: 3.4rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            text-shadow: 0 0 10px rgba(110, 231, 183, 0.4);
+        }
+
+        .lcd-unit {
+            text-align: right;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #34d399;
+        }
+
+        .bargraph-wrap {
+            margin-bottom: 0.5rem;
+        }
+
+        .bargraph-ticks {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.55rem;
+            color: var(--lcd-text-dim);
+            margin-bottom: 2px;
+        }
+
+        .bargraph-track {
+            height: 10px;
+            background: #064e3b;
+            border: 1px solid #047857;
+            border-radius: 2px;
+            padding: 1px;
+            overflow: hidden;
+        }
+
+        .bargraph-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #ef4444 95%);
+            transition: width 0.08s ease-out;
+        }
+
+        .lcd-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.25rem;
+            font-size: 0.65rem;
+            border-top: 1px solid var(--lcd-text-dim);
+            padding-top: 0.35rem;
+            text-align: center;
+        }
+
+        .lcd-matrix-item span {
+            display: block;
+            color: var(--lcd-text-dim);
+            font-size: 0.55rem;
+        }
+
+        .sonometer-keypad {
+            width: 100%;
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 0.75rem;
+            margin-top: 0.85rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .sono-btn {
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 0.6rem 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s;
+        }
+
+        .sono-btn:active {
+            transform: scale(0.96);
+        }
+
+        .sono-btn.active {
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+        }
+
+        .btn-power {
+            background: #dc2626;
+            color: #fff;
+            border-color: #b91c1c;
+        }
+
+        .btn-cal {
+            color: #38bdf8;
+            border-color: #0284c7;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 720px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .practice-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .practice-tab {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: #1f2937;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .practice-tab.active {
+            background: var(--accent-amber);
+            color: #111827;
+        }
+
+        .practice-step {
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="brand-icon">S</div>
+            <div class="brand-title">
+                <h1>Simulador de Sonometría e Higiene Acústica</h1>
+                <div class="brand-badges">
+                    <span>IEC 61672-1:2013</span> · 
+                    <span>ISO 9612:2009</span> · 
+                    <span class="highlight">Resolución 1792 de 1990</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn" id="btnAudioMute">Audio: ON</button>
+            <button class="btn btn-amber" id="btnOpenModal">Guía de 3 Prácticas</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="left-column">
+            <!-- Planta Industrial y Fuentes -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span style="color: var(--accent-amber)">■</span> Fuentes de Ruido Ocupacional
+                    </div>
+                    <div class="distance-box">
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Distancia: <strong id="distLabel" style="color: var(--accent-cyan); font-family: monospace;">1.0 m</strong></span>
+                        <input type="range" id="distSlider" min="1.0" max="4.0" step="0.1" value="1.0">
+                        <span style="font-size: 0.7rem; color: var(--accent-amber); font-family: monospace;" id="attLabel">-0.0 dB</span>
+                    </div>
+                </div>
+
+                <div class="machines-grid">
+                    <div>
+                        <div class="machine-category-title">
+                            <span class="category-dot dot-green"></span> Ruido Continuo
+                        </div>
+                        <div class="machine-card active" data-source="compresor">
+                            <div class="machine-top">
+                                <div class="machine-name">Compresor de Tornillo</div>
+                                <div class="machine-spl">~89 dBA</div>
+                            </div>
+                            <div class="machine-desc">Zumbido motor 120 Hz, acople 1480 Hz y siseo neumático continuo.</div>
+                            <div class="machine-footer">
+                                <span style="color: var(--text-secondary)">3 focos acústicos · 1150 Hz</span>
+                                <span style="color: var(--accent-green); font-weight: bold;">ACTIVAR</span>
+                            </div>
+                        </div>
+                        <div class="machine-card" data-source="turbina" style="margin-top: 0.5rem;">
+                            <div class="machine-top">
+                                <div class="machine-name">Turbina Centrífuga</div>
+                                <div class="machine-spl">~93 dBA</div>
+                            </div>
+                            <div class="machine-desc">Flujo de aire forzado continuo y silbido aerodinámico de álabes a 2850 Hz.</div>
+                            <div class="machine-footer">
+                                <span style="color: var(--text-secondary)">3 focos acústicos · 2850 Hz</span>
+                                <span style="color: var(--accent-green); font-weight: bold;">ACTIVAR</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="machine-category-title">
+                            <span class="category-dot dot-amber"></span> Ruido Intermitente
+                        </div>
+                        <div class="machine-card" data-source="sierra">
+                            <div class="machine-top">
+                                <div class="machine-name">Sierra Circular</div>
+                                <div class="machine-spl">~97 dBA</div>
+                            </div>
+                            <div class="machine-desc">Ciclos periódicos: reposo en vacío (~82 dBA) y desgarro de madera (~97 dBA).</div>
+                            <div class="machine-footer">
+                                <span style="color: var(--text-secondary)">3 focos acústicos · 3400 Hz</span>
+                                <span style="color: var(--accent-amber); font-weight: bold;">ACTIVAR</span>
+                            </div>
+                        </div>
+                        <div class="machine-card" data-source="pulidora" style="margin-top: 0.5rem;">
+                            <div class="machine-top">
+                                <div class="machine-name">Pulidora Metalmecánica</div>
+                                <div class="machine-spl">~99 dBA</div>
+                            </div>
+                            <div class="machine-desc">Motor a 11,000 RPM y desbaste metálico abrasivo con fricción de chispas.</div>
+                            <div class="machine-footer">
+                                <span style="color: var(--text-secondary)">3 focos acústicos · 3800 Hz</span>
+                                <span style="color: var(--accent-amber); font-weight: bold;">ACTIVAR</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="machine-category-title">
+                            <span class="category-dot dot-red"></span> Ruido de Impacto / Impulso
+                        </div>
+                        <div class="machine-card" data-source="troqueladora">
+                            <div class="machine-top">
+                                <div class="machine-name">Prensa Troqueladora</div>
+                                <div class="machine-spl">&gt;132 dBC</div>
+                            </div>
+                            <div class="machine-desc">Golpe seco brutal cada 1.6s. Choque de matrices metálicas con ataque &lt;5 ms.</div>
+                            <div class="machine-footer">
+                                <span style="color: var(--text-secondary)">3 focos acústicos · &gt;132 dBC</span>
+                                <span style="color: var(--accent-red); font-weight: bold;">ACTIVAR</span>
+                            </div>
+                        </div>
+                        <div class="machine-card" data-source="martinete" style="margin-top: 0.5rem;">
+                            <div class="machine-top">
+                                <div class="machine-name">Martinete Neumático</div>
+                                <div class="machine-spl">~104 dBA</div>
+                            </div>
+                            <div class="machine-desc">Ráfagas rítmicas de percusión contra roca con escape a alta presión (6 Hz).</div>
+                            <div class="machine-footer">
+                                <span style="color: var(--text-secondary)">3 focos acústicos · 5.5 Hz</span>
+                                <span style="color: var(--accent-red); font-weight: bold;">ACTIVAR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISOR DE MAQUINARIA EN MOVIMIENTO Y FOCOS GENERADORES DE RUIDO -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span style="color: var(--accent-amber)">⚙</span> Visualizador Cinemático de la Máquina en Movimiento y Focos de Ruido
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                        Máquina: <strong id="animMachineTitle" style="color: #fff;">Compresor de Tornillo</strong> · 
+                        Ondas Acústicas: <strong id="btnToggleWaves" style="color: var(--accent-cyan); cursor: pointer;">ON</strong>
+                    </div>
+                </div>
+
+                <div class="animator-box">
+                    <canvas id="machineCanvas" width="640" height="280"></canvas>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center;">
+                        <span>Haz clic sobre el canvas o en las etiquetas para inspeccionar los focos <strong>F1, F2, F3</strong></span>
+                        <span style="font-family: monospace; color: var(--accent-green);" id="animStatusLabel">PARADA (VISTA PREVIA)</span>
+                    </div>
+
+                    <div class="generator-tag-list" id="generatorTagsContainer"></div>
+                    <div id="genDetailBox" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; font-size: 0.75rem; color: #e2e8f0; line-height: 1.4; margin-top: 0.25rem;"></div>
+                </div>
+            </div>
+
+            <!-- Señal Acústica en Tiempo Real: Osciloscopio y RTA -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span style="color: var(--accent-green)">●</span> Señal Acústica en Tiempo Real (Canvas 2D - 60 FPS)
+                    </div>
+                </div>
+                <div class="canvas-grid">
+                    <div class="canvas-box">
+                        <div class="canvas-title-bar">
+                            <span>Osciloscopio p(t) Dominio del Tiempo</span>
+                            <span style="font-family: monospace; color: var(--accent-green);">±1.0 Pa</span>
+                        </div>
+                        <canvas id="oscCanvas" width="460" height="180"></canvas>
+                    </div>
+                    <div class="canvas-box">
+                        <div class="canvas-title-bar">
+                            <span>Analizador RTA (10 Bandas de Octava)</span>
+                            <span style="font-family: monospace; color: var(--accent-cyan);" id="rtaWeightLabel">dB(A)</span>
+                        </div>
+                        <canvas id="rtaCanvas" width="460" height="180"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Higiene Ocupacional y Dosimetría -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span style="color: #60a5fa">⚖</span> Consola de Higiene y Dosimetría Ocupacional
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                        Jornada: <strong>8 Horas</strong> · Tasa q: <strong id="qLabel" style="color: var(--accent-cyan); cursor: pointer;" title="Clic para alternar 5 dB / 3 dB">5 dB (Res. 1792)</strong>
+                    </div>
+                </div>
+
+                <div class="hygiene-status status-safe" id="riskStatusBox">
+                    <div>
+                        <div style="font-size: 0.7rem; text-transform: uppercase; font-weight: bold;">Condición Normativa</div>
+                        <div style="font-size: 1.1rem; font-weight: 800;" id="riskLabel">Nivel Seguro (&lt; 80 dBA)</div>
+                        <div style="font-size: 0.75rem; margin-top: 2px;" id="riskRef">Cumple con los límites de la Resolución 1792 de 1990.</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">Leq Evaluado</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; font-family: monospace;" id="evalLeq">40.0 dBA</div>
+                    </div>
+                </div>
+
+                <div class="dose-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Dosis Diaria de Ruido (D%)</div>
+                        <div class="metric-val" id="doseVal">0.0%</div>
+                        <div class="dose-bar-container">
+                            <div class="dose-bar" id="doseBar"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-secondary); margin-top: 4px;">
+                            <span>0%</span><span>50% (Acción)</span><span>100% (Límite)</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Tiempo Máximo Permisible (T_perm)</div>
+                        <div class="metric-val" id="tpermVal" style="color: var(--accent-amber); font-size: 1.25rem;">≥ 8 horas</div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 6px;">
+                            Tiempo máximo antes de sobrepasar el TLV de 85 dBA.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card-inner); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.75rem; line-height: 1.4;">
+                    <strong style="color: var(--accent-cyan);">Recomendación Técnica de EPP Auditivo:</strong>
+                    <div id="eppText" style="margin-top: 3px; color: #d1d5db;">Condición acústica confortable. No requiere protector auditivo obligatorio.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Sonómetro Digital -->
+        <div>
+            <div class="sonometer-wrap">
+                <div class="mic-probe"></div>
+                <div class="sonometer-brand">
+                    <span>SONO-LAB 61672</span>
+                    <span style="background: #0f172a; color: #f59e0b; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem;">CLASE 1</span>
+                </div>
+
+                <!-- Pantalla LCD -->
+                <div class="lcd-screen" id="lcdScreen">
+                    <div class="lcd-top">
+                        <span id="lcdMode">dB(A) · FAST</span>
+                        <span id="lcdStatus">PAUSA · 00:00:00</span>
+                    </div>
+                    <div class="lcd-main">
+                        <div class="lcd-digits" id="lcdDigits">42.1</div>
+                        <div class="lcd-unit">
+                            <div id="lcdUnitLabel">dBA</div>
+                            <div style="font-size: 0.55rem; color: var(--lcd-text-dim);" id="lcdSubUnit">SPL RMS</div>
+                        </div>
+                    </div>
+                    <!-- Vúmetro Analógico -->
+                    <div class="bargraph-wrap">
+                        <div class="bargraph-ticks">
+                            <span>40</span><span>60</span><span style="color: #f59e0b;">80</span><span style="color: #ef4444;">85</span><span>100</span><span>120</span><span style="color: #ef4444;">140</span>
+                        </div>
+                        <div class="bargraph-track">
+                            <div class="bargraph-fill" id="lcdBargraph"></div>
+                        </div>
+                    </div>
+                    <!-- Matriz de Parámetros -->
+                    <div class="lcd-matrix">
+                        <div class="lcd-matrix-item"><span>Leq</span><strong id="valLeq">42.1</strong></div>
+                        <div class="lcd-matrix-item"><span>Lmax</span><strong id="valLmax">42.1</strong></div>
+                        <div class="lcd-matrix-item"><span>Lmin</span><strong id="valLmin">42.1</strong></div>
+                        <div class="lcd-matrix-item"><span style="color: #f87171;">Lpeak</span><strong id="valLpeak" style="color: #fca5a5;">46.2</strong></div>
+                    </div>
+                </div>
+
+                <!-- Teclado Físico Táctil -->
+                <div class="sonometer-keypad">
+                    <button class="sono-btn btn-power" id="btnPower">POWER</button>
+                    <button class="sono-btn active" id="btnWeighting">A / C</button>
+                    <button class="sono-btn" id="btnSpeed">FAST / SLOW</button>
+                    <button class="sono-btn" id="btnPeak">PEAK</button>
+                    <button class="sono-btn btn-cal" id="btnCal">CAL 94dB</button>
+                    <button class="sono-btn" id="btnLeqRun">START Leq</button>
+                    <button class="sono-btn" id="btnReset" style="grid-column: span 3;">RESET MEDICIÓN</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Prácticas de Laboratorio -->
+    <div class="modal-overlay" id="labModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff;">Guía de Laboratorio de Higiene Acústica</h3>
+                <button class="btn" id="btnCloseModal" style="padding: 0.2rem 0.6rem;">✕</button>
+            </div>
+            <div class="practice-nav">
+                <button class="practice-tab active" data-tab="0">Práctica 1: FAST vs SLOW</button>
+                <button class="practice-tab" data-tab="1">Práctica 2: Curvas A / C e Impacto</button>
+                <button class="practice-tab" data-tab="2">Práctica 3: Ley Inverso y Dosis</button>
+            </div>
+            <div id="practiceContent"></div>
+            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button class="btn btn-amber" id="btnLoadPractice">Cargar Máquina de la Práctica</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null;
+        let masterGain = null;
+        let distanceGain = null;
+        let analyser = null;
+        let calOsc = null;
+        let calGain = null;
+        let pinkBuffer = null;
+        let whiteBuffer = null;
+
+        let isPowered = true;
+        let isMuted = false;
+        let freqWeighting = 'A';
+        let timeWeighting = 'FAST';
+        let isCalibrating = false;
+        let isLeqRunning = false;
+        let distance = 1.0;
+        let activeSource = null;
+        let selectedMachine = 'compresor';
+
+        let leqEnergySum = 0;
+        let leqSamples = 0;
+        let leqStartTime = 0;
+        let lmax = 40.0;
+        let lmin = 140.0;
+        let lpeak = 40.0;
+        let peakHoldDisplay = 40.0;
+        let pFastPower = 1e-6;
+        let pSlowPower = 1e-6;
+        let lastTimeMs = performance.now();
+        let exchangeRate = 5;
+
+        const activeNodes = new Map();
+        let sourceIntervals = [];
+
+        const machineMetadata = {
+            compresor: {
+                name: "Compresor de Tornillo (Kaeser CSDX 165)",
+                category: "continuo",
+                generators: [
+                    { id: 'f1', name: 'Bloque Compresor Helicoidal (Air-End)', type: 'Fricción y Cizallamiento', relX: 33, relY: 62, spl: 88, freq: '1150 - 1500 Hz', desc: 'Choque dinámico y compresión de aire a alta presión entre los lóbulos de los tornillos helicoidales macho y hembra.' },
+                    { id: 'f2', name: 'Chimenea Silenciadora de Admisión', type: 'Aerodinámico / Vórtices', relX: 29, relY: 22, spl: 85, freq: '800 - 2500 Hz', desc: 'Ruido aerodinámico de succión de aire a alta velocidad a través de la torre con silenciador de chapa microperforada.' },
+                    { id: 'f3', name: 'Motor Eléctrico Trifásico Aletado', type: 'Electromecánico y Ventilador', relX: 57, relY: 62, spl: 82, freq: '120 - 450 Hz', desc: 'Fuerzas electromagnéticas en el estator del motor a 60 Hz y vórtices del ventilador de enfriamiento posterior.' },
+                    { id: 'f4', name: 'Campana y Acoplamiento Elástico', type: 'Resonancia Mecánica Torsional', relX: 45, relY: 64, spl: 80, freq: '60 - 300 Hz', desc: 'Resonancia mecánica de rotación a 3000-3600 RPM y transmisión de torque a través del elastómero de acople.' },
+                    { id: 'f5', name: 'Tanque Separador Aire/Aceite', type: 'Fluido Dinámico Bifásico', relX: 15, relY: 58, spl: 79, freq: '400 - 1200 Hz', desc: 'Turbulencia por choque del flujo bifásico aire-aceite a 8-11 bar y descompresión en la válvula de presión mínima.' }
+                ]
+            },
+            turbina: {
+                name: "Turbina Centrífuga",
+                category: "continuo",
+                generators: [
+                    { id: 'f1', name: 'Paso de Álabes del Rodete (BPF)', type: 'Interacción aerodinámica periódica', relX: 44, relY: 50, spl: 92, freq: '2800 - 3200 Hz', desc: 'Paso continuo de los 12 álabes del rodete girando a alta velocidad cortando la lengüeta de la voluta (Blade Pass Frequency).' },
+                    { id: 'f2', name: 'Difusor y Boca de Impulsión', type: 'Turbulencia de gas y choque de vórtices', relX: 62, relY: 22, spl: 87, freq: '800 - 2000 Hz', desc: 'Desprendimiento de capa límite y turbulencia de alta velocidad en la transición entre la voluta y el conducto de salida.' },
+                    { id: 'f3', name: 'Cojinetes y Resonancia de Bancada', type: 'Vibración estructural', relX: 25, relY: 50, spl: 79, freq: '60 - 250 Hz', desc: 'Fuerzas dinámicas desbalanceadas transmitidas por los rodamientos del eje a la placa base y tuberías acopladas.' }
+                ]
+            },
+            sierra: {
+                name: "Sierra Circular de Madera",
+                category: "intermitente",
+                generators: [
+                    { id: 'f1', name: 'Fricción Diente-Madera en Corte', type: 'Impacto y desgarro abrasivo', relX: 52, relY: 52, spl: 96, freq: '3000 - 4500 Hz', desc: 'Micro-impactos repetitivos a 4000 impactos/segundo de las puntas de carburo de tungsteno arrancando virutas de madera.' },
+                    { id: 'f2', name: 'Resonancia y Flexión del Disco', type: 'Vibración aeroacústica de placa', relX: 55, relY: 38, spl: 88, freq: '2200 - 2600 Hz', desc: 'Modos propios de vibración flexional de la chapa de acero del disco excitados por el flujo de aire y esfuerzos laterales.' },
+                    { id: 'f3', name: 'Motor Eléctrico y Transmisión', type: 'Mecánico rotativo continuo', relX: 52, relY: 76, spl: 80, freq: '120 - 1800 Hz', desc: 'Zumbido del motor de inducción y fricción de correas trapezoidales de transmisión de potencia.' }
+                ]
+            },
+            pulidora: {
+                name: "Pulidora Metalmecánica",
+                category: "intermitente",
+                generators: [
+                    { id: 'f1', name: 'Desbaste Abrasivo de Acero', type: 'Fricción abrasiva y choque de virutas', relX: 50, relY: 64, spl: 98, freq: '3200 - 4500 Hz', desc: 'Granos de óxido de aluminio arrancando microvirutas incandescentes del acero a 80 m/s de velocidad periférica.' },
+                    { id: 'f2', name: 'Motor Universal a 11,000 RPM', type: 'Conmutador y colector de delgas', relX: 42, relY: 38, spl: 91, freq: '5000 - 7000 Hz', desc: 'Chisporroteo y conmutación de escobillas de carbón en el inducido sumado a la turbina centrífuga interna de ventilación.' },
+                    { id: 'f3', name: 'Engranajes Cónicos Helicoidales', type: 'Contacto mecánico de dientes', relX: 48, relY: 54, spl: 86, freq: '1800 - 2500 Hz', desc: 'Acoplamiento angular de piñón y corona reductora con cargas de empuje intermitentes.' }
+                ]
+            },
+            troqueladora: {
+                name: "Prensa Troqueladora Excéntrica",
+                category: "impacto",
+                generators: [
+                    { id: 'f1', name: 'Choque de Matrices y Corte de Chapa', type: 'Colisión mecánica no estacionaria (Peak)', relX: 50, relY: 64, spl: 133, freq: '40 Hz - 8000 Hz (Transitorio)', desc: 'Liberación violenta de energía elástica al cizallar la chapa metálica en menos de 4 milisegundos (Peak > 132 dBC).' },
+                    { id: 'f2', name: 'Volante de Inercia y Embrague', type: 'Mecánico rotativo / Neumático', relX: 50, relY: 30, spl: 84, freq: '60 - 500 Hz', desc: 'Desacople neumático brusco de zapatas de freno y arrastre inercial de la masa del volante superior.' },
+                    { id: 'f3', name: 'Bastidor en C y Columnas de Guía', type: 'Resonancia estructural y ondas de choque', relX: 28, relY: 50, spl: 89, freq: '250 - 1200 Hz', desc: 'Vibración transversal y flexión de las toneladas de fundición del bastidor estructural que actúa como radiador acústico.' }
+                ]
+            },
+            martinete: {
+                name: "Martinete Neumático",
+                category: "impacto",
+                generators: [
+                    { id: 'f1', name: 'Choque del Cincel con Concreto', type: 'Impacto percusivo de alta energía', relX: 50, relY: 67, spl: 104, freq: '200 - 6000 Hz', desc: 'Ondas de compresión de alta velocidad propagándose entre el pistón de acero y la fractura de la masa de concreto (5.5 golpes/seg).' },
+                    { id: 'f2', name: 'Descarga de Escape Neumático', type: 'Chorro neumático transitorio expansivo', relX: 58, relY: 42, spl: 99, freq: '1500 - 4000 Hz', desc: 'Escape a la atmósfera de aire comprimido a 7 bar tras cada carrera de retorno del pistón interno.' },
+                    { id: 'f3', name: 'Cilindro y Cámara de Expansión', type: 'Resonador cilíndrico metálico', relX: 50, relY: 35, spl: 91, freq: '300 - 1000 Hz', desc: 'Oscilación de presión interna en la cámara de conmutación de la válvula distribuidora.' }
+                ]
+            }
+        };
+
+        let currentSelectedGen = 0;
+        let showSoundWaves = true;
+
+        const machineAnimState = {
+            angle: 0,
+            timer: 0,
+            isImpacting: false,
+            particles: [],
+            waveRings: []
+        };
+
+        function initAudioEngine() {
+            if (audioCtx) {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                return;
+            }
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioCtx();
+            
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0.08;
+
+            distanceGain = audioCtx.createGain();
+            distanceGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+
+            distanceGain.connect(masterGain);
+            masterGain.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            generateNoiseBuffers();
+        }
+
+        function generateNoiseBuffers() {
+            const sr = audioCtx.sampleRate;
+            const len = sr * 3;
+
+            whiteBuffer = audioCtx.createBuffer(1, len, sr);
+            const wData = whiteBuffer.getChannelData(0);
+            for (let i = 0; i < len; i++) wData[i] = (Math.random() * 2 - 1) * 0.5;
+
+            pinkBuffer = audioCtx.createBuffer(1, len, sr);
+            const pData = pinkBuffer.getChannelData(0);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < len; i++) {
+                const w = (Math.random() * 2 - 1) * 0.5;
+                b0 = 0.99886 * b0 + w * 0.0555179;
+                b1 = 0.99332 * b1 + w * 0.0750759;
+                b2 = 0.96900 * b2 + w * 0.1538520;
+                b3 = 0.86650 * b3 + w * 0.3104856;
+                b4 = 0.55000 * b4 + w * 0.5329522;
+                b5 = -0.7616 * b5 - w * 0.0168980;
+                pData[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.15;
+                b6 = w * 0.115926;
+            }
+        }
+
+        function getAWeight(f) {
+            if (f < 10) return -70;
+            const f2 = f * f;
+            const num = 12194 * 12194 * f2 * f2;
+            const den = (f2 + 20.6 * 20.6) * Math.sqrt((f2 + 107.7 * 107.7) * (f2 + 737.9 * 737.9)) * (f2 + 12194 * 12194);
+            return 20 * Math.log10(num / den) + 2.0;
+        }
+
+        function getCWeight(f) {
+            if (f < 10) return -50;
+            const f2 = f * f;
+            const num = 12194 * 12194 * f2;
+            const den = (f2 + 20.6 * 20.6) * (f2 + 12194 * 12194);
+            return 20 * Math.log10(num / den) + 0.06;
+        }
+
+        function stopAllSources() {
+            activeNodes.forEach(node => {
+                try { node.stop(); } catch(e) {}
+            });
+            activeNodes.clear();
+            sourceIntervals.forEach(t => clearInterval(t));
+            sourceIntervals = [];
+            if (isCalibrating) stopCalibrator();
+            document.querySelectorAll('.machine-card').forEach(c => c.classList.remove('active'));
+            activeSource = null;
+            document.getElementById('animStatusLabel').textContent = 'PARADA (VISTA PREVIA)';
+            document.getElementById('animStatusLabel').style.color = '#94a3b8';
+        }
+
+        function playCompressor() {
+            stopAllSources();
+            const src = audioCtx.createBufferSource();
+            src.buffer = pinkBuffer;
+            src.loop = true;
+
+            const bpass = audioCtx.createBiquadFilter();
+            bpass.type = 'bandpass';
+            bpass.frequency.setValueAtTime(1150, audioCtx.currentTime);
+            bpass.Q.setValueAtTime(1.8, audioCtx.currentTime);
+
+            const motor = audioCtx.createOscillator();
+            motor.type = 'triangle';
+            motor.frequency.setValueAtTime(120, audioCtx.currentTime);
+            const mGain = audioCtx.createGain();
+            mGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+
+            const screw = audioCtx.createOscillator();
+            screw.type = 'sine';
+            screw.frequency.setValueAtTime(1480, audioCtx.currentTime);
+            const sGain = audioCtx.createGain();
+            sGain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+
+            const outGain = audioCtx.createGain();
+            outGain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+
+            src.connect(bpass); bpass.connect(outGain);
+            motor.connect(mGain); mGain.connect(outGain);
+            screw.connect(sGain); sGain.connect(outGain);
+            outGain.connect(distanceGain);
+
+            src.start(); motor.start(); screw.start();
+            activeNodes.set('compresor', {
+                stop: () => { src.stop(); motor.stop(); screw.stop(); outGain.disconnect(); }
+            });
+        }
+
+        function playTurbine() {
+            stopAllSources();
+            const pSrc = audioCtx.createBufferSource();
+            pSrc.buffer = pinkBuffer;
+            pSrc.loop = true;
+
+            const low = audioCtx.createBiquadFilter();
+            low.type = 'lowpass';
+            low.frequency.setValueAtTime(450, audioCtx.currentTime);
+
+            const wSrc = audioCtx.createBufferSource();
+            wSrc.buffer = whiteBuffer;
+            wSrc.loop = true;
+
+            const bpass = audioCtx.createBiquadFilter();
+            bpass.type = 'bandpass';
+            bpass.frequency.setValueAtTime(2850, audioCtx.currentTime);
+            bpass.Q.setValueAtTime(3.5, audioCtx.currentTime);
+
+            const outGain = audioCtx.createGain();
+            outGain.gain.setValueAtTime(1.1, audioCtx.currentTime);
+
+            pSrc.connect(low); low.connect(outGain);
+            wSrc.connect(bpass); bpass.connect(outGain);
+            outGain.connect(distanceGain);
+
+            pSrc.start(); wSrc.start();
+            activeNodes.set('turbina', {
+                stop: () => { pSrc.stop(); wSrc.stop(); outGain.disconnect(); }
+            });
+        }
+
+        function playSaw() {
+            stopAllSources();
+            const motor = audioCtx.createOscillator();
+            motor.type = 'sawtooth';
+            motor.frequency.setValueAtTime(2350, audioCtx.currentTime);
+
+            const wSrc = audioCtx.createBufferSource();
+            wSrc.buffer = whiteBuffer;
+            wSrc.loop = true;
+
+            const woodFilter = audioCtx.createBiquadFilter();
+            woodFilter.type = 'bandpass';
+            woodFilter.frequency.setValueAtTime(3400, audioCtx.currentTime);
+
+            const woodGain = audioCtx.createGain();
+            woodGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+
+            const outGain = audioCtx.createGain();
+            outGain.gain.setValueAtTime(0.42, audioCtx.currentTime);
+
+            motor.connect(outGain);
+            wSrc.connect(woodFilter); woodFilter.connect(woodGain); woodGain.connect(outGain);
+            outGain.connect(distanceGain);
+
+            motor.start(); wSrc.start();
+
+            let cutting = false;
+            const timer = setInterval(() => {
+                cutting = !cutting;
+                const t = audioCtx.currentTime;
+                if (cutting) {
+                    outGain.gain.setTargetAtTime(1.35, t, 0.08);
+                    woodGain.gain.setTargetAtTime(0.9, t, 0.05);
+                } else {
+                    outGain.gain.setTargetAtTime(0.42, t, 0.12);
+                    woodGain.gain.setTargetAtTime(0.08, t, 0.1);
+                }
+            }, 2200);
+            sourceIntervals.push(timer);
+
+            activeNodes.set('sierra', {
+                stop: () => { motor.stop(); wSrc.stop(); outGain.disconnect(); clearInterval(timer); }
+            });
+        }
+
+        function playGrinder() {
+            stopAllSources();
+            const motor = audioCtx.createOscillator();
+            motor.type = 'sawtooth';
+            motor.frequency.setValueAtTime(5600, audioCtx.currentTime);
+
+            const wSrc = audioCtx.createBufferSource();
+            wSrc.buffer = whiteBuffer;
+            wSrc.loop = true;
+
+            const high = audioCtx.createBiquadFilter();
+            high.type = 'highpass';
+            high.frequency.setValueAtTime(3500, audioCtx.currentTime);
+
+            const outGain = audioCtx.createGain();
+            outGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+
+            motor.connect(outGain);
+            wSrc.connect(high); high.connect(outGain);
+            outGain.connect(distanceGain);
+
+            motor.start(); wSrc.start();
+
+            let grinding = false;
+            const timer = setInterval(() => {
+                grinding = !grinding;
+                const t = audioCtx.currentTime;
+                if (grinding) {
+                    outGain.gain.setTargetAtTime(1.5, t, 0.05);
+                } else {
+                    outGain.gain.setTargetAtTime(0.5, t, 0.1);
+                }
+            }, 2800);
+            sourceIntervals.push(timer);
+
+            activeNodes.set('pulidora', {
+                stop: () => { motor.stop(); wSrc.stop(); outGain.disconnect(); clearInterval(timer); }
+            });
+        }
+
+        function playStampingPress() {
+            stopAllSources();
+            const masterStrike = audioCtx.createGain();
+            masterStrike.gain.setValueAtTime(1.0, audioCtx.currentTime);
+            masterStrike.connect(distanceGain);
+
+            const strike = () => {
+                const t = audioCtx.currentTime;
+                const sub = audioCtx.createOscillator();
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(80, t);
+                sub.frequency.exponentialRampToValueAtTime(35, t + 0.12);
+
+                const sGain = audioCtx.createGain();
+                sGain.gain.setValueAtTime(0.001, t);
+                sGain.gain.linearRampToValueAtTime(3.8, t + 0.004);
+                sGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+
+                sub.connect(sGain); sGain.connect(masterStrike);
+                sub.start(t); sub.stop(t + 0.2);
+
+                const clang = audioCtx.createOscillator();
+                clang.type = 'square';
+                clang.frequency.setValueAtTime(920, t);
+                clang.frequency.exponentialRampToValueAtTime(500, t + 0.1);
+
+                const cFilter = audioCtx.createBiquadFilter();
+                cFilter.type = 'bandpass';
+                cFilter.frequency.setValueAtTime(1850, t);
+                cFilter.Q.setValueAtTime(6.0, t);
+
+                const cGain = audioCtx.createGain();
+                cGain.gain.setValueAtTime(0.001, t);
+                cGain.gain.linearRampToValueAtTime(2.6, t + 0.003);
+                cGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+
+                clang.connect(cFilter); cFilter.connect(cGain); cGain.connect(masterStrike);
+                clang.start(t); clang.stop(t + 0.25);
+            };
+
+            strike();
+            const timer = setInterval(strike, 1600);
+            sourceIntervals.push(timer);
+
+            activeNodes.set('troqueladora', {
+                stop: () => { masterStrike.disconnect(); clearInterval(timer); }
+            });
+        }
+
+        function playHammer() {
+            stopAllSources();
+            const masterHammer = audioCtx.createGain();
+            masterHammer.gain.setValueAtTime(1.0, audioCtx.currentTime);
+            masterHammer.connect(distanceGain);
+
+            const blow = () => {
+                const t = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(320, t);
+                osc.frequency.exponentialRampToValueAtTime(90, t + 0.05);
+
+                const g = audioCtx.createGain();
+                g.gain.setValueAtTime(0.001, t);
+                g.gain.linearRampToValueAtTime(2.8, t + 0.003);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+                osc.connect(g); g.connect(masterHammer);
+                osc.start(t); osc.stop(t + 0.09);
+            };
+
+            blow();
+            const timer = setInterval(blow, 180);
+            sourceIntervals.push(timer);
+
+            activeNodes.set('martinete', {
+                stop: () => { masterHammer.disconnect(); clearInterval(timer); }
+            });
+        }
+
+        function startCalibrator() {
+            stopAllSources();
+            isCalibrating = true;
+            calOsc = audioCtx.createOscillator();
+            calOsc.type = 'sine';
+            calOsc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+
+            calGain = audioCtx.createGain();
+            calGain.gain.setValueAtTime(0.42, audioCtx.currentTime);
+
+            calOsc.connect(calGain);
+            calGain.connect(analyser);
+            calGain.connect(masterGain);
+            calOsc.start();
+        }
+
+        function stopCalibrator() {
+            isCalibrating = false;
+            if (calOsc) {
+                try { calOsc.stop(); calOsc.disconnect(); } catch(e){}
+                calOsc = null;
+            }
+        }
+
+        function updateMachineUI() {
+            const data = machineMetadata[selectedMachine];
+            document.getElementById('animMachineTitle').textContent = data.name;
+            const container = document.getElementById('generatorTagsContainer');
+            container.innerHTML = '';
+
+            data.generators.forEach((g, idx) => {
+                const div = document.createElement('div');
+                div.className = `gen-item ${idx === currentSelectedGen ? 'active' : ''}`;
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fff;">
+                        <span style="color:var(--accent-amber);">F${idx+1}: ${g.name}</span>
+                        <span style="color:var(--accent-cyan); font-family:monospace;">~${g.spl} dB</span>
+                    </div>
+                    <div style="color:#94a3b8; font-size:0.65rem; margin-top:2px;">${g.freq} · ${g.type}</div>
+                `;
+                div.addEventListener('click', () => {
+                    currentSelectedGen = idx;
+                    updateMachineUI();
+                });
+                container.appendChild(div);
+            });
+
+            const sel = data.generators[currentSelectedGen] || data.generators[0];
+            document.getElementById('genDetailBox').innerHTML = `
+                <strong style="color:var(--accent-amber);">Foco F${currentSelectedGen + 1}: ${sel.name} (${sel.type})</strong><br>
+                <span>${sel.desc}</span>
+            `;
+        }
+
+        document.getElementById('btnToggleWaves').addEventListener('click', () => {
+            showSoundWaves = !showSoundWaves;
+            document.getElementById('btnToggleWaves').textContent = showSoundWaves ? 'ON' : 'OFF';
+            document.getElementById('btnToggleWaves').style.color = showSoundWaves ? 'var(--accent-cyan)' : 'var(--text-secondary)';
+        });
+
+        document.querySelectorAll('.machine-card').forEach(card => {
+            card.addEventListener('click', () => {
+                initAudioEngine();
+                const srcId = card.getAttribute('data-source');
+                selectedMachine = srcId;
+                currentSelectedGen = 0;
+                updateMachineUI();
+
+                if (activeSource === srcId) {
+                    stopAllSources();
+                    return;
+                }
+                card.classList.add('active');
+                activeSource = srcId;
+                document.getElementById('animStatusLabel').textContent = 'OPERANDO EN TIEMPO REAL';
+                document.getElementById('animStatusLabel').style.color = '#34d399';
+
+                if (srcId === 'compresor') playCompressor();
+                if (srcId === 'turbina') playTurbine();
+                if (srcId === 'sierra') playSaw();
+                if (srcId === 'pulidora') playGrinder();
+                if (srcId === 'troqueladora') playStampingPress();
+                if (srcId === 'martinete') playHammer();
+            });
+        });
+
+        const distSlider = document.getElementById('distSlider');
+        const distLabel = document.getElementById('distLabel');
+        const attLabel = document.getElementById('attLabel');
+
+        distSlider.addEventListener('input', (e) => {
+            distance = parseFloat(e.target.value);
+            distLabel.textContent = distance.toFixed(1) + ' m';
+            const att = 20 * Math.log10(distance);
+            attLabel.textContent = `-${att.toFixed(1)} dB`;
+            if (distanceGain && audioCtx) {
+                distanceGain.gain.setTargetAtTime(1.0 / distance, audioCtx.currentTime, 0.05);
+            }
+        });
+
+        const btnPower = document.getElementById('btnPower');
+        const btnWeighting = document.getElementById('btnWeighting');
+        const btnSpeed = document.getElementById('btnSpeed');
+        const btnPeak = document.getElementById('btnPeak');
+        const btnCal = document.getElementById('btnCal');
+        const btnLeqRun = document.getElementById('btnLeqRun');
+        const btnReset = document.getElementById('btnReset');
+
+        btnPower.addEventListener('click', () => {
+            initAudioEngine();
+            isPowered = !isPowered;
+            if (!isPowered) {
+                stopAllSources();
+                document.getElementById('lcdDigits').textContent = '---';
+            }
+        });
+
+        btnWeighting.addEventListener('click', () => {
+            freqWeighting = freqWeighting === 'A' ? 'C' : 'A';
+            document.getElementById('lcdUnitLabel').textContent = 'dB' + freqWeighting;
+            document.getElementById('rtaWeightLabel').textContent = 'dB(' + freqWeighting + ')';
+            updateLcdModeHeader();
+        });
+
+        btnSpeed.addEventListener('click', () => {
+            timeWeighting = timeWeighting === 'FAST' ? 'SLOW' : 'FAST';
+            btnPeak.classList.remove('active');
+            updateLcdModeHeader();
+        });
+
+        btnPeak.addEventListener('click', () => {
+            timeWeighting = timeWeighting === 'PEAK' ? 'FAST' : 'PEAK';
+            btnPeak.classList.toggle('active', timeWeighting === 'PEAK');
+            updateLcdModeHeader();
+        });
+
+        btnCal.addEventListener('click', () => {
+            initAudioEngine();
+            if (isCalibrating) {
+                stopCalibrator();
+                btnCal.classList.remove('active');
+            } else {
+                startCalibrator();
+                btnCal.classList.add('active');
+            }
+        });
+
+        btnLeqRun.addEventListener('click', () => {
+            isLeqRunning = !isLeqRunning;
+            if (isLeqRunning && leqSamples === 0) leqStartTime = performance.now();
+            btnLeqRun.textContent = isLeqRunning ? 'PAUSE Leq' : 'START Leq';
+            btnLeqRun.classList.toggle('active', isLeqRunning);
+        });
+
+        btnReset.addEventListener('click', () => {
+            leqEnergySum = 0;
+            leqSamples = 0;
+            leqStartTime = performance.now();
+            lmax = 40.0;
+            lmin = 140.0;
+            lpeak = 40.0;
+        });
+
+        function updateLcdModeHeader() {
+            document.getElementById('lcdMode').textContent = `dB(${freqWeighting}) · ${timeWeighting}`;
+            document.getElementById('lcdSubUnit').textContent = timeWeighting === 'PEAK' ? 'PEAK INST' : 'SPL RMS';
+        }
+
+        document.getElementById('qLabel').addEventListener('click', () => {
+            exchangeRate = exchangeRate === 5 ? 3 : 5;
+            document.getElementById('qLabel').textContent = exchangeRate === 5 ? '5 dB (Res. 1792)' : '3 dB (NIOSH)';
+        });
+
+        document.getElementById('btnAudioMute').addEventListener('click', () => {
+            initAudioEngine();
+            isMuted = !isMuted;
+            document.getElementById('btnAudioMute').textContent = isMuted ? 'Audio: MUTE' : 'Audio: ON';
+            if (masterGain && audioCtx) {
+                masterGain.gain.setTargetAtTime(isMuted ? 0 : 0.7, audioCtx.currentTime, 0.02);
+            }
+        });
+
+        const oscCanvas = document.getElementById('oscCanvas');
+        const oscCtx = oscCanvas.getContext('2d');
+        const rtaCanvas = document.getElementById('rtaCanvas');
+        const rtaCtx = rtaCanvas.getContext('2d');
+        const machineCanvas = document.getElementById('machineCanvas');
+        const mCtx = machineCanvas.getContext('2d');
+
+        machineCanvas.addEventListener('click', (e) => {
+            const rect = machineCanvas.getBoundingClientRect();
+            const clickX = ((e.clientX - rect.left) / rect.width) * machineCanvas.width;
+            const clickY = ((e.clientY - rect.top) / rect.height) * machineCanvas.height;
+            const data = machineMetadata[selectedMachine];
+
+            data.generators.forEach((g, idx) => {
+                const gx = (g.relX / 100) * machineCanvas.width;
+                const gy = (g.relY / 100) * machineCanvas.height;
+                if (Math.hypot(clickX - gx, clickY - gy) < 24) {
+                    currentSelectedGen = idx;
+                    updateMachineUI();
+                }
+            });
+        });
+
+        const octaveCenters = [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
+        const octaveLabels = ['31.5', '63', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'];
+        const peakHoldBands = new Array(10).fill(30);
+
+        function acousticLoop() {
+            const now = performance.now();
+            const dt = Math.max(0.005, (now - lastTimeMs) / 1000);
+            lastTimeMs = now;
+
+            let instantSPL = 40.0;
+            let rawPeakDb = 40.0;
+
+            if (isCalibrating) {
+                instantSPL = 94.0;
+                rawPeakDb = 97.01;
+            } else if (analyser && isPowered && (activeSource || isCalibrating)) {
+                const fData = new Float32Array(analyser.frequencyBinCount);
+                analyser.getFloatFrequencyData(fData);
+
+                const tData = new Float32Array(analyser.fftSize);
+                analyser.getFloatTimeDomainData(tData);
+
+                let maxT = 0;
+                for (let i = 0; i < tData.length; i++) {
+                    const absV = Math.abs(tData[i]);
+                    if (absV > maxT) maxT = absV;
+                }
+                rawPeakDb = maxT > 1e-5 ? 20 * Math.log10(maxT) + 128 : 40.0;
+
+                const binSize = 48000 / analyser.fftSize;
+                let pSum = 0;
+                for (let i = 2; i < analyser.frequencyBinCount; i++) {
+                    const db = fData[i];
+                    if (db > -120) {
+                        const freq = i * binSize;
+                        const weight = freqWeighting === 'A' ? getAWeight(freq) : getCWeight(freq);
+                        pSum += Math.pow(10, (db + weight) / 10);
+                    }
+                }
+                const rawSPL = pSum > 1e-12 ? 10 * Math.log10(pSum) + 118 : 39.0;
+
+                const alphaFast = 1 - Math.exp(-dt / 0.125);
+                const alphaSlow = 1 - Math.exp(-dt / 1.000);
+                const pInst = Math.pow(10, rawSPL / 10);
+
+                pFastPower = (1 - alphaFast) * pFastPower + alphaFast * pInst;
+                pSlowPower = (1 - alphaSlow) * pSlowPower + alphaSlow * pInst;
+
+                if (timeWeighting === 'FAST') instantSPL = 10 * Math.log10(pFastPower);
+                else if (timeWeighting === 'SLOW') instantSPL = 10 * Math.log10(pSlowPower);
+                else {
+                    peakHoldDisplay = Math.max(rawPeakDb, peakHoldDisplay - 2.5 * dt);
+                    instantSPL = peakHoldDisplay;
+                }
+            }
+
+            instantSPL = Math.max(38.0, Math.min(142.0, instantSPL));
+            lpeak = Math.max(lpeak, rawPeakDb);
+
+            if (isLeqRunning) {
+                leqEnergySum += Math.pow(10, instantSPL / 10);
+                leqSamples++;
+                lmax = Math.max(lmax, instantSPL);
+                lmin = Math.min(lmin, instantSPL);
+            }
+
+            const currentLeq = leqSamples > 0 ? 10 * Math.log10(leqEnergySum / leqSamples) : instantSPL;
+
+            if (isPowered) {
+                document.getElementById('lcdDigits').textContent = instantSPL.toFixed(1);
+                document.getElementById('valLeq').textContent = currentLeq.toFixed(1);
+                document.getElementById('valLmax').textContent = lmax.toFixed(1);
+                document.getElementById('valLmin').textContent = (lmin === 140 ? instantSPL : lmin).toFixed(1);
+                document.getElementById('valLpeak').textContent = lpeak.toFixed(1);
+
+                const bargraphPct = Math.max(0, Math.min(100, ((instantSPL - 40) / 100) * 100));
+                document.getElementById('lcdBargraph').style.width = bargraphPct + '%';
+
+                const timerSec = isLeqRunning ? Math.floor((now - leqStartTime) / 1000) : 0;
+                const m = Math.floor(timerSec / 60).toString().padStart(2, '0');
+                const s = (timerSec % 60).toString().padStart(2, '0');
+                document.getElementById('lcdStatus').textContent = (isLeqRunning ? 'REC · ' : 'PAUSA · ') + `00:${m}:${s}`;
+            }
+
+            updateHygieneConsole(currentLeq, lpeak);
+
+            drawMachineVisualizer(dt);
+            drawOscilloscope();
+            drawRTA();
+
+            requestAnimationFrame(acousticLoop);
+        }
+
+        function drawMachineVisualizer(dt) {
+            const w = machineCanvas.width;
+            const h = machineCanvas.height;
+            const isRunning = isPowered && (activeSource === selectedMachine);
+            const speedFactor = isRunning ? 1.0 : 0.08;
+
+            machineAnimState.angle += (Math.PI * 4 * speedFactor) * dt;
+            machineAnimState.timer += dt;
+
+            mCtx.fillStyle = '#060a13';
+            mCtx.fillRect(0, 0, w, h);
+
+            mCtx.strokeStyle = 'rgba(30, 41, 59, 0.4)';
+            mCtx.lineWidth = 1;
+            for (let x = 0; x < w; x += 30) {
+                mCtx.beginPath(); mCtx.moveTo(x, 0); mCtx.lineTo(x, h); mCtx.stroke();
+            }
+            for (let y = 0; y < h; y += 30) {
+                mCtx.beginPath(); mCtx.moveTo(0, y); mCtx.lineTo(w, y); mCtx.stroke();
+            }
+
+            if (selectedMachine === 'compresor') drawCompresorMec(mCtx, w, h, machineAnimState, isRunning);
+            else if (selectedMachine === 'turbina') drawTurbinaMec(mCtx, w, h, machineAnimState, isRunning);
+            else if (selectedMachine === 'sierra') drawSierraMec(mCtx, w, h, machineAnimState, isRunning);
+            else if (selectedMachine === 'pulidora') drawPulidoraMec(mCtx, w, h, machineAnimState, isRunning);
+            else if (selectedMachine === 'troqueladora') drawTroqueladoraMec(mCtx, w, h, machineAnimState, isRunning);
+            else if (selectedMachine === 'martinete') drawMartineteMec(mCtx, w, h, machineAnimState, isRunning);
+
+            updateParticlesMec(mCtx, dt);
+
+            if (showSoundWaves) updateWavesMec(mCtx, dt);
+
+            const data = machineMetadata[selectedMachine];
+            data.generators.forEach((g, idx) => {
+                const gx = (g.relX / 100) * w;
+                const gy = (g.relY / 100) * h;
+                const isSelected = idx === currentSelectedGen;
+
+                if (isRunning) {
+                    mCtx.beginPath();
+                    mCtx.arc(gx, gy, 12 + Math.sin(machineAnimState.angle * 2 + idx) * 4, 0, Math.PI * 2);
+                    mCtx.fillStyle = 'rgba(245, 158, 11, 0.2)';
+                    mCtx.fill();
+                }
+
+                mCtx.beginPath();
+                mCtx.arc(gx, gy, isSelected ? 12 : 9, 0, Math.PI * 2);
+                mCtx.fillStyle = isSelected ? '#f59e0b' : '#0284c7';
+                mCtx.strokeStyle = '#ffffff';
+                mCtx.lineWidth = 2;
+                mCtx.fill(); mCtx.stroke();
+
+                mCtx.fillStyle = '#ffffff';
+                mCtx.font = 'bold 9px monospace';
+                mCtx.textAlign = 'center';
+                mCtx.textBaseline = 'middle';
+                mCtx.fillText(`F${idx + 1}`, gx, gy);
+            });
+            mCtx.textAlign = 'left';
+
+            // Marca de Agua SolidWorks CAD Viewport
+            mCtx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            mCtx.fillRect(10, 10, 230, 22);
+            mCtx.strokeStyle = '#0284c7';
+            mCtx.lineWidth = 1;
+            mCtx.strokeRect(10, 10, 230, 22);
+            mCtx.fillStyle = '#38bdf8';
+            mCtx.font = 'bold 10px monospace';
+            mCtx.fillText('SOLIDWORKS 3D CAD · ' + selectedMachine.toUpperCase() + '.SLDASM', 16, 25);
+
+            // Tríada de Coordenadas SolidWorks X-Y-Z en la esquina inferior izquierda
+            const tx = 36, ty = h - 36;
+            mCtx.lineWidth = 2.5;
+            // Eje X (Rojo)
+            mCtx.strokeStyle = '#ef4444';
+            mCtx.beginPath(); mCtx.moveTo(tx, ty); mCtx.lineTo(tx + 24, ty); mCtx.stroke();
+            mCtx.fillStyle = '#ef4444'; mCtx.font = 'bold 9px sans-serif'; mCtx.fillText('X', tx + 27, ty + 3);
+            // Eje Y (Verde)
+            mCtx.strokeStyle = '#10b981';
+            mCtx.beginPath(); mCtx.moveTo(tx, ty); mCtx.lineTo(tx, ty - 24); mCtx.stroke();
+            mCtx.fillStyle = '#10b981'; mCtx.font = 'bold 9px sans-serif'; mCtx.fillText('Y', tx - 3, ty - 27);
+            // Eje Z (Azul - proyección isométrica)
+            mCtx.strokeStyle = '#0284c7';
+            mCtx.beginPath(); mCtx.moveTo(tx, ty); mCtx.lineTo(tx - 15, ty + 15); mCtx.stroke();
+            mCtx.fillStyle = '#0284c7'; mCtx.font = 'bold 9px sans-serif'; mCtx.fillText('Z', tx - 25, ty + 20);
+            // Origen
+            mCtx.fillStyle = '#ffffff';
+            mCtx.beginPath(); mCtx.arc(tx, ty, 3, 0, Math.PI * 2); mCtx.fill();
+            mCtx.fillStyle = '#94a3b8';
+            mCtx.font = '8px monospace';
+            mCtx.fillText('TRIADA ISO', tx + 10, ty + 22);
+        }
+
+        function drawCompresorMec(ctx, w, h, st, isRunning) {
+            // Suelo de taller industrial
+            const groundY = 210;
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, groundY - 10, w, h - groundY + 10);
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.beginPath(); ctx.ellipse(320, groundY + 10, 240, 8, 0, 0, Math.PI * 2); ctx.fill();
+
+            // Skid / Bancada de acero azul Kaeser
+            const skidX = 50, skidY = 195, skidW = 540, skidH = 18;
+            ctx.fillStyle = '#1e3a8a'; ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1.5;
+            ctx.fillRect(skidX, skidY, skidW, skidH); ctx.strokeRect(skidX, skidY, skidW, skidH);
+            for (let sx = skidX + 50; sx < skidX + skidW; sx += 70) {
+                ctx.fillStyle = '#172554'; ctx.fillRect(sx, skidY, 10, skidH);
+            }
+
+            // Izquierda: Tanque separador aire/aceite
+            const sepX = 70, sepY = 65, sepW = 55, sepH = 130;
+            const sepGrad = ctx.createLinearGradient(sepX, 0, sepX + sepW, 0);
+            sepGrad.addColorStop(0, '#334155'); sepGrad.addColorStop(0.5, '#64748b'); sepGrad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = sepGrad; ctx.fillRect(sepX, sepY + 10, sepW, sepH - 10);
+            ctx.beginPath(); ctx.ellipse(sepX + sepW/2, sepY + 10, sepW/2, 8, 0, 0, Math.PI * 2); ctx.fill();
+            // Mirilla de nivel
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(sepX + 8, sepY + 45, 6, 45);
+            ctx.fillStyle = '#eab308'; ctx.fillRect(sepX + 9, sepY + 60, 4, 28);
+            // Válvula de alivio
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(sepX + sepW/2 - 4, sepY - 8, 8, 10);
+
+            // Centro: Bloque compresor de tornillos (Air-End)
+            const compX = 150, compY = 110, compW = 125, compH = 85;
+            ctx.fillStyle = '#64748b'; ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(compX, compY, compW, compH, 8); ctx.fill(); ctx.stroke();
+            // Ventana de inspección con rotores helicoidales girando
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(compX + 12, compY + 18, compW - 24, 46);
+            drawRotorScrew(ctx, compX + 16, compY + 22, compW - 32, 16, st.angle, '#64748b', '#94a3b8');
+            drawRotorScrew(ctx, compX + 16, compY + 42, compW - 32, 16, -st.angle * 1.25, '#475569', '#cbd5e1');
+
+            // Centro-Superior: Chimenea cilíndrica silenciadora de admisión con chapa microperforada (COMO EN LA FOTO)
+            const chimX = compX + 22, chimY = 16, chimW = 48, chimH = 95;
+            const chimGrad = ctx.createLinearGradient(chimX, 0, chimX + chimW, 0);
+            chimGrad.addColorStop(0, '#475569'); chimGrad.addColorStop(0.5, '#94a3b8'); chimGrad.addColorStop(1, '#334155');
+            ctx.fillStyle = chimGrad; ctx.fillRect(chimX, chimY, chimW, chimH);
+            ctx.beginPath(); ctx.ellipse(chimX + chimW/2, chimY, chimW/2, 6, 0, 0, Math.PI * 2); ctx.fillStyle = '#64748b'; ctx.fill();
+            // Textura perforada
+            ctx.fillStyle = '#0f172a';
+            for (let py = chimY + 8; py < chimY + chimH - 8; py += 7) {
+                const shift = (py % 14 === 0) ? 0 : 3;
+                for (let px = chimX + 6 + shift; px < chimX + chimW - 6; px += 6) {
+                    ctx.fillRect(px, py, 2, 2);
+                }
+            }
+
+            // Centro-Derecha: Campana de acoplamiento elástico azul
+            const coupX = compX + compW - 5, coupY = compY + 14, coupW = 40, coupH = 68;
+            ctx.fillStyle = '#2563eb'; ctx.fillRect(coupX, coupY, coupW, coupH); ctx.strokeRect(coupX, coupY, coupW, coupH);
+            ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(coupX + coupW/2, coupY + coupH/2, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.save(); ctx.translate(coupX + coupW/2, coupY + coupH/2); ctx.rotate(st.angle * 2.5);
+            ctx.fillStyle = '#f59e0b'; ctx.fillRect(-4, -12, 8, 24); ctx.restore();
+
+            // Derecha: Motor eléctrico trifásico aletado
+            const motX = coupX + coupW - 5, motY = compY - 5, motW = 110, motH = 90;
+            const motGrad = ctx.createLinearGradient(0, motY, 0, motY + motH);
+            motGrad.addColorStop(0, '#475569'); motGrad.addColorStop(0.5, '#64748b'); motGrad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = motGrad; ctx.beginPath(); ctx.roundRect(motX, motY, motW, motH, 8); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#1e293b';
+            for (let my = motY + 10; my < motY + motH - 10; my += 7) {
+                ctx.fillRect(motX + 10, my, motW - 25, 2.5);
+            }
+            // Ventilador motor
+            ctx.save(); ctx.translate(motX + motW - 10, motY + motH/2); ctx.rotate(st.angle * 3);
+            for (let b = 0; b < 6; b++) { ctx.rotate(Math.PI / 3); ctx.fillStyle = '#38bdf8'; ctx.fillRect(0, -2, 10, 4); }
+            ctx.restore();
+
+            // Extremo Derecho: Gabinete Eléctrico KAESER CSDX 165
+            const cabX = motX + motW + 12, cabY = 48, cabW = 95, cabH = 158;
+            ctx.fillStyle = '#1d4ed8'; ctx.fillRect(cabX, cabY + 70, cabW, cabH - 70); ctx.strokeRect(cabX, cabY + 70, cabW, cabH - 70);
+            ctx.fillStyle = '#e2e8f0'; ctx.fillRect(cabX, cabY, cabW, 70); ctx.strokeRect(cabX, cabY, cabW, 70);
+            // Letras Kaeser
+            ctx.fillStyle = '#ffffff'; ctx.font = '900 10px sans-serif'; ctx.fillText('KAESER', cabX + 8, cabY + 95);
+            ctx.fillStyle = '#93c5fd'; ctx.font = 'bold 9px monospace'; ctx.fillText('CSDX 165', cabX + 8, cabY + 110);
+            // Pantalla digital
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(cabX + 8, cabY + 10, cabW - 16, 26);
+            ctx.fillStyle = isRunning ? '#22c55e' : '#64748b'; ctx.font = 'bold 8px monospace';
+            ctx.fillText(isRunning ? 'P: 8.2bar' : 'P: 0.0bar', cabX + 12, cabY + 22);
+            // Manómetros analógicos redondos
+            [cabY + 44, cabY + 58].forEach((gY, idx) => {
+                const gX = cabX + 68;
+                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(gX, gY, 6, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.stroke();
+                const ang = isRunning ? (idx === 0 ? 0.6 : 0.8) + (Math.random()-0.5)*0.08 : -0.8;
+                ctx.strokeStyle = '#ef4444'; ctx.beginPath(); ctx.moveTo(gX, gY); ctx.lineTo(gX + Math.cos(ang)*5, gY + Math.sin(ang)*5); ctx.stroke();
+            });
+
+            // Tuberías de interconexión
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(sepX + sepW/2, sepY + sepH - 5); ctx.lineTo(sepX + sepW/2, skidY - 6); ctx.lineTo(compX, skidY - 6); ctx.stroke();
+
+            // Ondas sonoras acústicas
+            if (isRunning && showSoundWaves && Math.random() < 0.16) {
+                machineAnimState.waveRings.push({ x: compX + compW/2, y: compY + compH/2, r: 8, maxR: 120, alpha: 0.8, col: '#f59e0b' });
+                machineAnimState.waveRings.push({ x: chimX + chimW/2, y: chimY + 25, r: 6, maxR: 90, alpha: 0.6, col: '#06b6d4' });
+                machineAnimState.waveRings.push({ x: motX + motW/2, y: motY + motH/2, r: 6, maxR: 90, alpha: 0.5, col: '#38bdf8' });
+            }
+        }
+
+        function drawTurbinaMec(ctx, w, h, st, isRunning) {
+            const cx = 280, cy = 140, rad = 75;
+            ctx.beginPath(); ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 4;
+            ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx + 30, cy - rad - 30, 90, 50); ctx.strokeRect(cx + 30, cy - rad - 30, 90, 50);
+
+            ctx.save(); ctx.translate(cx, cy); ctx.rotate(st.angle * 2.5);
+            for (let i = 0; i < 12; i++) {
+                ctx.rotate(Math.PI / 6);
+                ctx.beginPath(); ctx.moveTo(10, 0); ctx.quadraticCurveTo(35, 15, 60, 5);
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5; ctx.stroke();
+            }
+            ctx.restore();
+
+            if (isRunning) {
+                for (let k = 0; k < 2; k++) {
+                    machineAnimState.particles.push({ x: cx + 75 + Math.random() * 30, y: cy - rad - 5, vx: Math.random() * 80 + 100, vy: -(Math.random() * 80 + 50), life: 0, maxLife: 0.5, col: '#67e8f9', sz: 3 });
+                }
+                if (showSoundWaves && Math.random() < 0.18) {
+                    machineAnimState.waveRings.push({ x: cx, y: cy, r: 10, maxR: 150, alpha: 0.7, col: '#06b6d4' });
+                }
+            }
+        }
+
+        function drawSierraMec(ctx, w, h, st, isRunning) {
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(80, 160, 480, 70); ctx.strokeRect(80, 160, 480, 70);
+            ctx.fillStyle = '#b45309'; ctx.fillRect(100, 140, 230, 20);
+
+            const sx = 330, sy = 145, rad = 65;
+            ctx.save(); ctx.translate(sx, sy); ctx.rotate(st.angle * 3);
+            ctx.beginPath();
+            for (let t = 0; t < 20; t++) {
+                const a1 = (t / 20) * Math.PI * 2;
+                const a2 = ((t + 0.6) / 20) * Math.PI * 2;
+                ctx.lineTo(Math.cos(a1) * rad, Math.sin(a1) * rad);
+                ctx.lineTo(Math.cos(a2) * (rad - 12), Math.sin(a2) * (rad - 12));
+            }
+            ctx.closePath(); ctx.fillStyle = '#94a3b8'; ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+            ctx.restore();
+
+            const isCutting = Math.floor(st.timer / 2.2) % 2 === 1;
+            if (isRunning && isCutting) {
+                for (let s = 0; s < 4; s++) {
+                    machineAnimState.particles.push({ x: sx - 5 + Math.random() * 10, y: sy + 10, vx: Math.random() * 70 + 50, vy: -(Math.random() * 60 + 20), life: 0, maxLife: 0.45, col: '#fde68a', sz: 2.5 });
+                }
+                if (showSoundWaves && Math.random() < 0.2) {
+                    machineAnimState.waveRings.push({ x: sx, y: sy, r: 8, maxR: 130, alpha: 0.8, col: '#f59e0b' });
+                }
+            }
+        }
+
+        function drawPulidoraMec(ctx, w, h, st, isRunning) {
+            ctx.fillStyle = '#334155'; ctx.fillRect(120, 180, 400, 45); ctx.strokeRect(120, 180, 400, 45);
+            const px = 320, py = 180;
+            ctx.save(); ctx.translate(px, py); ctx.rotate(-Math.PI / 4);
+            ctx.fillStyle = '#0f766e'; ctx.fillRect(-25, -110, 50, 90);
+            ctx.save(); ctx.rotate(st.angle * 4);
+            ctx.beginPath(); ctx.arc(0, 0, 36, 0, Math.PI * 2);
+            ctx.fillStyle = '#78350f'; ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+            ctx.restore(); ctx.restore();
+
+            const isGrinding = Math.floor(st.timer / 2.8) % 2 === 1;
+            if (isRunning && isGrinding) {
+                for (let sp = 0; sp < 6; sp++) {
+                    machineAnimState.particles.push({ x: px, y: py - 4, vx: Math.random() * 120 + 70, vy: (Math.random() - 0.7) * 80, life: 0, maxLife: 0.5, col: '#f59e0b', sz: 2 });
+                }
+                if (showSoundWaves && Math.random() < 0.2) {
+                    machineAnimState.waveRings.push({ x: px, y: py, r: 8, maxR: 140, alpha: 0.8, col: '#f59e0b' });
+                }
+            }
+        }
+
+        function drawTroqueladoraMec(ctx, w, h, st, isRunning) {
+            const cx = 320;
+            ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#475569'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.roundRect(cx - 120, 30, 240, 220, 12); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(cx - 70, 80, 140, 130);
+
+            ctx.save(); ctx.translate(cx, 60); ctx.rotate(st.angle * 1.5);
+            ctx.beginPath(); ctx.arc(0, 0, 35, 0, Math.PI * 2); ctx.fillStyle = '#334155'; ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+            ctx.restore();
+
+            const phase = (st.timer % 1.6) / 1.6;
+            const ramOffset = phase < 0.2 ? Math.sin((phase / 0.2) * Math.PI) * 45 : 0;
+            const ramY = 90 + ramOffset;
+
+            ctx.fillStyle = '#64748b'; ctx.fillRect(cx - 40, ramY, 80, 50); ctx.strokeRect(cx - 40, ramY, 80, 50);
+
+            if (isRunning && ramOffset > 40 && !machineAnimState.isImpacting) {
+                machineAnimState.isImpacting = true;
+                if (showSoundWaves) {
+                    machineAnimState.waveRings.push({ x: cx, y: 180, r: 8, maxR: 180, alpha: 1.0, col: '#ef4444' });
+                }
+            } else if (ramOffset < 15) {
+                machineAnimState.isImpacting = false;
+            }
+        }
+
+        function drawMartineteMec(ctx, w, h, st, isRunning) {
+            const cx = 320;
+            ctx.fillStyle = '#334155'; ctx.fillRect(180, 200, 280, 60);
+            const strike = isRunning ? Math.abs(Math.sin(st.timer * 35)) * 12 : 0;
+            const by = 60 + strike;
+
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(cx - 60, by - 15, 120, 14);
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - 20, by, 40, 80); ctx.strokeRect(cx - 20, by, 40, 80);
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(cx - 8, by + 80, 16, 50 - strike);
+
+            if (isRunning && strike > 8) {
+                machineAnimState.particles.push({ x: cx + 20, y: by + 40, vx: 50, vy: -10, life: 0, maxLife: 0.3, col: '#94a3b8', sz: 3 });
+                if (showSoundWaves && Math.random() < 0.2) {
+                    machineAnimState.waveRings.push({ x: cx, y: 200, r: 8, maxR: 140, alpha: 0.9, col: '#ef4444' });
+                }
+            }
+        }
+
+        function drawRotorScrew(ctx, x, y, w, h, ang, c1, c2) {
+            ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, w, h, 6); ctx.clip();
+            ctx.fillStyle = c1; ctx.fillRect(x, y, w, h);
+            ctx.strokeStyle = c2; ctx.lineWidth = 6;
+            const shift = (ang * 15) % 20;
+            for (let s = -20; s < w + 20; s += 20) {
+                ctx.beginPath(); ctx.moveTo(x + s + shift, y); ctx.lineTo(x + s + shift + 18, y + h); ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function updateParticlesMec(ctx, dt) {
+            for (let i = machineAnimState.particles.length - 1; i >= 0; i--) {
+                const p = machineAnimState.particles[i];
+                p.life += dt;
+                if (p.life >= p.maxLife) { machineAnimState.particles.splice(i, 1); continue; }
+                p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 60 * dt;
+                ctx.fillStyle = p.col; ctx.globalAlpha = 1 - p.life / p.maxLife;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function updateWavesMec(ctx, dt) {
+            for (let i = machineAnimState.waveRings.length - 1; i >= 0; i--) {
+                const w = machineAnimState.waveRings[i];
+                w.r += 130 * dt;
+                const prog = w.r / w.maxR;
+                if (prog >= 1.0) { machineAnimState.waveRings.splice(i, 1); continue; }
+                ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2);
+                ctx.strokeStyle = w.col; ctx.globalAlpha = w.alpha * (1 - prog);
+                ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function drawOscilloscope() {
+            const w = oscCanvas.width;
+            const h = oscCanvas.height;
+            oscCtx.fillStyle = '#06130b';
+            oscCtx.fillRect(0, 0, w, h);
+
+            oscCtx.strokeStyle = 'rgba(16, 185, 129, 0.15)';
+            oscCtx.lineWidth = 1;
+            for (let i = 0; i <= 8; i++) {
+                oscCtx.beginPath();
+                oscCtx.moveTo(0, (h / 8) * i); oscCtx.lineTo(w, (h / 8) * i);
+                oscCtx.stroke();
+            }
+            for (let j = 0; j <= 10; j++) {
+                oscCtx.beginPath();
+                oscCtx.moveTo((w / 10) * j, 0); oscCtx.lineTo((w / 10) * j, h);
+                oscCtx.stroke();
+            }
+
+            oscCtx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+            oscCtx.beginPath(); oscCtx.moveTo(0, h / 2); oscCtx.lineTo(w, h / 2); oscCtx.stroke();
+
+            if (analyser && isPowered && (activeSource || isCalibrating)) {
+                const tData = new Float32Array(analyser.fftSize);
+                analyser.getFloatTimeDomainData(tData);
+
+                oscCtx.strokeStyle = isCalibrating ? '#38bdf8' : '#22c55e';
+                oscCtx.lineWidth = 2;
+                oscCtx.shadowBlur = 8;
+                oscCtx.shadowColor = isCalibrating ? '#38bdf8' : '#22c55e';
+                oscCtx.beginPath();
+
+                const slice = w / (analyser.fftSize / 2);
+                let x = 0;
+                for (let i = 0; i < analyser.fftSize / 2; i++) {
+                    const y = (h / 2) - (tData[i] * 1.8 * (h / 2.2));
+                    if (i === 0) oscCtx.moveTo(x, y);
+                    else oscCtx.lineTo(x, y);
+                    x += slice;
+                }
+                oscCtx.stroke();
+                oscCtx.shadowBlur = 0;
+            } else {
+                // Onda de ruido ambiente industrial viva en reposo (~42 dBA)
+                oscCtx.strokeStyle = 'rgba(34, 197, 94, 0.75)';
+                oscCtx.lineWidth = 1.8;
+                oscCtx.beginPath();
+                const p = performance.now() * 0.006;
+                for (let x = 0; x < w; x += 2) {
+                    const y = (h / 2) + Math.sin(x * 0.04 + p) * 5 + Math.sin(x * 0.1 - p * 1.6) * 3 + (Math.random() - 0.5) * 3;
+                    if (x === 0) oscCtx.moveTo(x, y);
+                    else oscCtx.lineTo(x, y);
+                }
+                oscCtx.stroke();
+            }
+        }
+
+        function drawRTA() {
+            const w = rtaCanvas.width;
+            const h = rtaCanvas.height;
+            rtaCtx.fillStyle = '#0a101d';
+            rtaCtx.fillRect(0, 0, w, h);
+
+            rtaCtx.strokeStyle = 'rgba(51, 65, 85, 0.4)';
+            rtaCtx.lineWidth = 1;
+            [110, 90, 70, 50, 30].forEach(db => {
+                const y = (1 - (db - 30) / 90) * (h - 26) + 8;
+                rtaCtx.beginPath(); rtaCtx.moveTo(35, y); rtaCtx.lineTo(w - 5, y); rtaCtx.stroke();
+                rtaCtx.fillStyle = '#64748b'; rtaCtx.font = '9px monospace';
+                rtaCtx.fillText(db + 'dB', 2, y + 3);
+            });
+
+            const bandVals = new Array(10).fill(30);
+            if (analyser && isPowered && (activeSource || isCalibrating)) {
+                const fData = new Float32Array(analyser.frequencyBinCount);
+                analyser.getFloatFrequencyData(fData);
+                const binSize = 48000 / analyser.fftSize;
+
+                octaveCenters.forEach((fc, idx) => {
+                    const fLow = fc / Math.SQRT2;
+                    const fHigh = fc * Math.SQRT2;
+                    let pSum = 0;
+                    for (let k = Math.floor(fLow / binSize); k <= Math.ceil(fHigh / binSize); k++) {
+                        if (fData[k] && fData[k] > -120) {
+                            const w = freqWeighting === 'A' ? getAWeight(k * binSize) : getCWeight(k * binSize);
+                            pSum += Math.pow(10, (fData[k] + w) / 10);
+                        }
+                    }
+                    const bDb = pSum > 1e-12 ? 10 * Math.log10(pSum) + 115 : 30;
+                    bandVals[idx] = Math.max(30, Math.min(125, bDb));
+
+                    if (bandVals[idx] > peakHoldBands[idx]) peakHoldBands[idx] = bandVals[idx];
+                    else peakHoldBands[idx] = Math.max(30, peakHoldBands[idx] - 0.35);
+                });
+            } else {
+                // Espectro de ruido de fondo ambiental dinámico en reposo
+                const p = performance.now() * 0.003;
+                for (let i = 0; i < 10; i++) {
+                    const ambientB = 38 + Math.sin(p + i * 0.7) * 3 + Math.random() * 2;
+                    bandVals[i] = ambientB;
+                    if (ambientB > peakHoldBands[i]) peakHoldBands[i] = ambientB;
+                    else peakHoldBands[i] = Math.max(30, peakHoldBands[i] - 0.4);
+                }
+            }
+
+            const chartLeft = 38;
+            const barW = (w - chartLeft - 10 - 9 * 5) / 10;
+            const bottomY = h - 20;
+
+            bandVals.forEach((val, idx) => {
+                const x = chartLeft + idx * (barW + 5);
+                const barH = ((val - 30) / 90) * (bottomY - 8);
+                const y = bottomY - barH;
+
+                const grad = rtaCtx.createLinearGradient(0, bottomY, 0, y);
+                if (val >= 85) { grad.addColorStop(0, '#10b981'); grad.addColorStop(0.7, '#f59e0b'); grad.addColorStop(1, '#ef4444'); }
+                else if (val >= 80) { grad.addColorStop(0, '#10b981'); grad.addColorStop(1, '#eab308'); }
+                else { grad.addColorStop(0, '#047857'); grad.addColorStop(1, '#10b981'); }
+
+                rtaCtx.fillStyle = grad;
+                rtaCtx.fillRect(x, y, barW, barH);
+
+                const pY = bottomY - ((peakHoldBands[idx] - 30) / 90) * (bottomY - 8);
+                rtaCtx.fillStyle = '#f87171';
+                rtaCtx.fillRect(x, pY - 1, barW, 2);
+
+                rtaCtx.fillStyle = '#94a3b8';
+                rtaCtx.font = '9px monospace';
+                rtaCtx.textAlign = 'center';
+                rtaCtx.fillText(octaveLabels[idx], x + barW / 2, h - 6);
+            });
+            rtaCtx.textAlign = 'left';
+        }
+
+        function updateHygieneConsole(leq, peak) {
+            document.getElementById('evalLeq').textContent = leq.toFixed(1) + ' dBA';
+
+            let tperm = 8 / Math.pow(2, (leq - 85) / exchangeRate);
+            if (leq <= 80) tperm = 24;
+            else if (leq >= 120) tperm = 0.01;
+
+            const dose = (8 / tperm) * 100;
+            document.getElementById('doseVal').textContent = dose.toFixed(1) + '%';
+            document.getElementById('doseBar').style.width = Math.min(100, dose) + '%';
+            document.getElementById('doseBar').style.background = dose >= 100 ? '#ef4444' : dose >= 50 ? '#f59e0b' : '#10b981';
+
+            if (tperm >= 8) document.getElementById('tpermVal').textContent = '≥ 8 horas (Jornada)';
+            else if (tperm >= 1) {
+                const hrs = Math.floor(tperm);
+                const mins = Math.round((tperm - hrs) * 60);
+                document.getElementById('tpermVal').textContent = `${hrs}h ${mins}m`;
+            } else {
+                const m = Math.floor(tperm * 60);
+                const s = Math.round((tperm * 60 - m) * 60);
+                document.getElementById('tpermVal').textContent = `${m}m ${s}s`;
+            }
+
+            const box = document.getElementById('riskStatusBox');
+            box.className = 'hygiene-status';
+
+            if (peak >= 140.0) {
+                box.classList.add('status-peak');
+                document.getElementById('riskLabel').textContent = '¡PELIGRO! Pico Excede 140 dBC';
+                document.getElementById('riskRef').textContent = 'Infracción Crítica: Res. 1792/1990 Art. 1 prohíbe exposición a picos > 140 dBC.';
+                document.getElementById('eppText').textContent = 'Doble Protección Auditiva Obligatoria: Tapones de inserción (NRR ≥ 28) + Orejeras de alta atenuación (NRR ≥ 30). Reducir exposición de inmediato.';
+            } else if (leq >= 85 || dose >= 100) {
+                box.classList.add('status-danger');
+                document.getElementById('riskLabel').textContent = 'Nivel Crítico (Excede TLV 85 dBA)';
+                document.getElementById('riskRef').textContent = 'Supera el límite legal para 8 horas. Alto riesgo de Hipoacusia Neurosensorial.';
+                document.getElementById('eppText').textContent = 'Protector tipo Copa / Orejera industrial (NRR ≥ 27 dB). Rotación de puestos y pausas en cabina silenciada.';
+            } else if (leq >= 80 || dose >= 50) {
+                box.classList.add('status-action');
+                document.getElementById('riskLabel').textContent = 'Nivel de Acción (80 - 84.9 dBA)';
+                document.getElementById('riskRef').textContent = 'GATISO-HNIR: Obliga a ingresar a Programa de Conservación Auditiva.';
+                document.getElementById('eppText').textContent = 'Tapones premoldeados o de silicona (NRR ≥ 18 dB). Capacitación en correcta inserción.';
+            } else {
+                box.classList.add('status-safe');
+                document.getElementById('riskLabel').textContent = 'Nivel Seguro (< 80 dBA)';
+                document.getElementById('riskRef').textContent = 'Cumple con los límites de la Resolución 1792 de 1990 y valores ACGIH.';
+                document.getElementById('eppText').textContent = 'Condición acústica confortable. No requiere EPP auditivo obligatorio.';
+            }
+        }
+
+        const practices = [
+            {
+                title: "Práctica 1: Balística FAST vs SLOW en Ruido Intermitente",
+                source: "sierra",
+                desc: "Objetivo: Analizar la constante de tiempo tau = 125 ms (FAST) frente a tau = 1000 ms (SLOW) en una Sierra Circular con ciclos de corte.",
+                steps: [
+                    "1. Enciende la Sierra Circular de Madera en el panel de máquinas.",
+                    "2. En el sonómetro, pulsa el botón FAST/SLOW para observar en FAST las oscilaciones abruptas entre vacío (~82 dBA) y corte (~97 dBA).",
+                    "3. Cambia a SLOW: observa cómo la inercia temporal de 1 segundo suaviza la lectura promediando las variaciones dinámicas.",
+                    "4. Conclusión: FAST refleja la agilidad dinámica; SLOW se exige para estabilidad en mediciones higiénicas continuas."
+                ]
+            },
+            {
+                title: "Práctica 2: Curvas A vs C en Ruido de Impacto e Impulso",
+                source: "troqueladora",
+                desc: "Objetivo: Demostrar por qué la Curva A subestima la energía de impacto y la necesidad del detector PEAK según la Res. 1792 de 1990.",
+                steps: [
+                    "1. Activa la Prensa Troqueladora Excéntrica.",
+                    "2. Selecciona la Curva A: observa que el SPL apenas llega a ~89 dBA debido a la fuerte atenuación en bajas frecuencias.",
+                    "3. Conmuta a Curva C: la lectura se eleva instantáneamente a más de 105 dBC.",
+                    "4. Pulsa PEAK: el detector de cresta registra picos superiores a 132 dBC Peak.",
+                    "5. Conclusión: Para evaluar riesgo de trauma acústico agudo por impacto se requiere Curva C y detector Peak."
+                ]
+            },
+            {
+                title: "Práctica 3: Ley del Inverso al Cuadrado y Dosis Diaria de Ruido",
+                source: "compresor",
+                desc: "Objetivo: Comprobar la atenuación de 6 dB por duplicación de distancia y calcular la Dosis Diaria acumulada (Leq).",
+                steps: [
+                    "1. Enciende el Compresor de Tornillo a 1.0 m de distancia.",
+                    "2. Presiona START Leq y espera 5 segundos (Leq inicial ~89 dBA, Dosis > 170%).",
+                    "3. Mueve el control deslizante a 2.0 m: observa la caída de ~6 dB (nivel resultante ~83 dBA).",
+                    "4. Aumenta a 4.0 m: la atenuación acumulada alcanza ~12 dB, reduciendo el riesgo a nivel seguro.",
+                    "5. Conclusión: El control de distancia es una medida de ingeniería efectiva para reducir la dosis laboral."
+                ]
+            }
+        ];
+
+        let currentPractice = 0;
+        function renderPractice() {
+            const p = practices[currentPractice];
+            document.getElementById('practiceContent').innerHTML = `
+                <h4 style="font-size: 1rem; color: #f59e0b; font-weight: 800; margin-bottom: 0.5rem;">${p.title}</h4>
+                <p style="font-size: 0.8rem; color: #9ca3af; margin-bottom: 1rem;">${p.desc}</p>
+                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    ${p.steps.map(s => `<div class="practice-step">${s}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        document.querySelectorAll('.practice-tab').forEach((tab, idx) => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.practice-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentPractice = idx;
+                renderPractice();
+            });
+        });
+
+        document.getElementById('btnOpenModal').addEventListener('click', () => {
+            document.getElementById('labModal').style.display = 'flex';
+            renderPractice();
+        });
+
+        document.getElementById('btnCloseModal').addEventListener('click', () => {
+            document.getElementById('labModal').style.display = 'none';
+        });
+
+        document.getElementById('btnLoadPractice').addEventListener('click', () => {
+            initAudioEngine();
+            const src = practices[currentPractice].source;
+            const card = document.querySelector(`.machine-card[data-source="${src}"]`);
+            if (card) card.click();
+            document.getElementById('labModal').style.display = 'none';
+            if (!isLeqRunning) btnLeqRun.click();
+        });
+
+        updateMachineUI();
+        requestAnimationFrame(acousticLoop);
+    </script>
+</body>
+</html>
