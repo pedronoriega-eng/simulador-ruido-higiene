@@ -488,14 +488,14 @@
             font-size: 0.78rem;
         }
 
-        /* CAJAS DE INSTRUMENTACIÓN INFERIORES: OSCILOSCOPIO + RTA */
+        /* CAJAS DE INSTRUMENTACIÓN INFERIORES: 3 GRÁFICAS SIMULTÁNEAS */
         .charts-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.85rem;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: 1200px) {
             .charts-row { grid-template-columns: 1fr; }
         }
 
@@ -503,27 +503,83 @@
             background: var(--bg-panel);
             border: 1px solid var(--border-panel);
             border-radius: 12px;
-            padding: 0.85rem;
+            padding: 0.75rem 0.85rem;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
 
         .chart-header {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
-            font-weight: 700;
+            align-items: center;
+            font-size: 0.76rem;
+            font-weight: 800;
             color: #e2e8f0;
+        }
+
+        .chart-sub-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.64rem;
+            color: var(--text-dim);
+            font-family: monospace;
+            margin-top: -2px;
         }
 
         .chart-canvas {
             width: 100%;
-            height: 160px;
+            height: 155px;
             background: #040810;
             border: 1px solid #1e293b;
             border-radius: 8px;
             display: block;
+        }
+
+        /* FOTOGRAFÍAS INDUSTRIALES HIPERREALISTAS */
+        .machine-photo-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+            border-radius: 8px;
+        }
+
+        .machine-real-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            filter: contrast(1.04) saturate(1.05);
+            transition: transform 0.4s ease;
+        }
+
+        .photo-ambient-vignette {
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.65), inset 0 -35px 45px rgba(0,0,0,0.85);
+            pointer-events: none;
+        }
+
+        .photo-badge-overlay {
+            position: absolute;
+            bottom: 12px;
+            left: 14px;
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid #0284c7;
+            color: #38bdf8;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            backdrop-filter: blur(6px);
+            letter-spacing: 0.5px;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
 
         /* =========================================================================
@@ -1047,18 +1103,21 @@
             padding: 0 0.5rem;
         }
 
-        /* CONSOLA DE HIGIENE INFERIOR */
+        /* CONSOLA DE HIGIENE INFERIOR (NORMATIVA COLOMBIANA GATISO-HNIR & RES. 2844) */
         .section-hygiene {
             background: var(--bg-panel);
             border: 1px solid var(--border-panel);
             border-radius: 14px;
             padding: 1.25rem 1.5rem;
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1.25rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.15rem;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1250px) {
+            .section-hygiene { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
             .section-hygiene { grid-template-columns: 1fr; }
         }
 
@@ -1149,7 +1208,7 @@
                     <span class="badge-version">v3 Hiperrealista</span>
                 </h1>
                 <div class="brand-sub">
-                    <span>Marco Colombia: <strong>Res. 1792/90 (q=5)</strong> · <strong>GATISO-HNIR</strong></span> ·
+                    <span>Marco Legal Colombia: <strong>Res. 2844/07 (GATISO-HNIR)</strong> · <strong>Res. 1792/90 (q=5)</strong> · <strong>Res. 2400/79</strong></span> ·
                     <span>Sonómetro Clase 2: <strong>EXTECH 407780A</strong></span>
                 </div>
             </div>
@@ -1179,14 +1238,14 @@
             </div>
 
             <div class="sector-tabs">
-                <div class="sector-tab active" data-sec="A">
+                <div class="sector-tab" data-sec="A">
                     <div class="sector-icon">🏗️</div>
                     <div class="sector-info">
                         <h3>Sector A: Construcción</h3>
                         <p>Infraestructura y Vías</p>
                     </div>
                 </div>
-                <div class="sector-tab" data-sec="B">
+                <div class="sector-tab active" data-sec="B">
                     <div class="sector-icon">⚙️</div>
                     <div class="sector-info">
                         <h3>Sector B: Manufactura</h3>
@@ -1276,22 +1335,45 @@
                     </div>
                 </div>
 
-                <!-- GRÁFICAS DE SEÑAL: OSCILOSCOPIO + RTA BANDAS DE OCTAVA -->
+                <!-- GRÁFICAS DE SEÑAL: LAS TRES GRÁFICAS EXIGIDAS SIMULTÁNEAMENTE -->
                 <div class="charts-row">
+                    <!-- GRÁFICA 1: ONDA DE PRESIÓN p(t) [Presión en Pascales (Pa)] -->
                     <div class="chart-box">
                         <div class="chart-header">
-                            <span>📈 Osciloscopio Temporal p(t)</span>
-                            <span style="font-family:monospace; color:var(--text-dim);">Fósforo Verde 60 FPS</span>
+                            <span>📈 Onda de Presión p(t)</span>
+                            <span id="pInstantVal" style="font-family:monospace; color:#4ade80;">0.000 Pa (RMS)</span>
                         </div>
-                        <canvas class="chart-canvas" id="oscCanvas" width="440" height="160"></canvas>
+                        <div class="chart-sub-header">
+                            <span>Presión en Pascales (Pa)</span>
+                            <span id="pPeakVal" style="color:#f59e0b;">Pico: 0.000 Pa</span>
+                        </div>
+                        <canvas class="chart-canvas" id="oscCanvas" width="380" height="155"></canvas>
                     </div>
 
+                    <!-- GRÁFICA 2: REGISTRO TEMPORAL Lp EN EL TIEMPO [dB vs t] -->
                     <div class="chart-box">
                         <div class="chart-header">
-                            <span>📊 Analizador de Espectro RTA (Bandas de Octava)</span>
+                            <span>📉 Nivel Lp en el Tiempo</span>
+                            <span style="font-family:monospace; color:#38bdf8;">Últimos 30 s</span>
+                        </div>
+                        <div class="chart-sub-header">
+                            <span style="color:#ef4444;">-- 85 dB (TLV Res.1792)</span>
+                            <span style="color:#f59e0b;">-- 80 dB (Acción Res.2844)</span>
+                        </div>
+                        <canvas class="chart-canvas" id="trendCanvas" width="380" height="155"></canvas>
+                    </div>
+
+                    <!-- GRÁFICA 3: ANALIZADOR DE ESPECTRO RTA (BANDAS DE OCTAVA) -->
+                    <div class="chart-box">
+                        <div class="chart-header">
+                            <span>📊 Espectro RTA (Bandas de Octava)</span>
                             <span id="rtaWeightingTag" style="font-family:monospace; color:#38bdf8;">Filtro: dB(A)</span>
                         </div>
-                        <canvas class="chart-canvas" id="rtaCanvas" width="440" height="160"></canvas>
+                        <div class="chart-sub-header">
+                            <span>10 Bandas Normalizadas</span>
+                            <span style="color:#34d399;">IEC 61260</span>
+                        </div>
+                        <canvas class="chart-canvas" id="rtaCanvas" width="380" height="155"></canvas>
                     </div>
                 </div>
 
@@ -1486,6 +1568,7 @@
 
         <!-- SECCIÓN 3: CONSOLA DE DIAGNÓSTICO DE HIGIENE INDUSTRIAL (COLOMBIA) -->
         <section class="section-hygiene">
+            <!-- TARJETA 1: DIAGNÓSTICO LEGAL (RES. 1792/90 Y RES. 2400/79) -->
             <div class="hygiene-card">
                 <h4>Diagnóstico Legal (Res. 1792/90)</h4>
                 <div class="risk-badge risk-safe" id="riskBadge">
@@ -1494,38 +1577,89 @@
                         Nivel de confort acústico. No hay riesgo de Hipoacusia Neurosensorial Inducida por Ruido.
                     </span>
                 </div>
-                <div style="font-size:0.7rem; color:var(--text-dim); margin-top:auto;">
-                    Art. 1 Res. 1792: Prohibido exponerse a picos continuos &gt; 140 dBC Peak.
+                <div style="font-size:0.68rem; color:var(--text-dim); margin-top:auto; display:flex; flex-direction:column; gap:2px;">
+                    <span>• Límite 8h: <strong>85 dBA</strong> (Res. 1792)</span>
+                    <span>• Límite Impacto: <strong>140 dBC Peak</strong></span>
+                    <span>• Res. 2400/79: Prioridad control en fuente y medio.</span>
                 </div>
             </div>
 
+            <!-- TARJETA 2: NIVEL DE ACCIÓN Y VIGILANCIA (RES. 2844/07 - GATISO-HNIR) -->
+            <div class="hygiene-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4>Vigilancia GATISO-HNIR (Res. 2844)</h4>
+                    <span id="gatisoActionBadge" style="font-size:0.62rem; padding:2px 6px; border-radius:4px; background:#064e3b; color:#34d399; font-weight:800;">
+                        PCA INACTIVO
+                    </span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.73rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted);">Nivel de Acción Legal:</span>
+                        <strong style="color:#f59e0b;">80 dBA (Dosis 50%)</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted);">Programa Conservación:</span>
+                        <strong id="pcaStatusText" style="color:#34d399;">Preventivo General</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted);">Audiometría Periódica:</span>
+                        <strong id="audioPeriodText" style="color:#38bdf8;">Rutinaria de Ingreso</strong>
+                    </div>
+                </div>
+                <div id="gatisoAlertBox" style="font-size:0.68rem; color:#94a3b8; background:rgba(0,0,0,0.35); padding:6px 8px; border-radius:6px; border-left:3px solid #34d399; margin-top:auto;">
+                    GATISO-HNIR Recom. 6.2: Exposición &lt; 80 dBA no requiere audiometría periódica tamiz de seguimiento.
+                </div>
+            </div>
+
+            <!-- TARJETA 3: DOSIMETRÍA DIARIA 8H (TASA DE CAMBIO q=5 dB) -->
             <div class="hygiene-card">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <h4>Dosimetría Diaria (8 Horas)</h4>
-                    <button class="btn-top" id="btnToggleQ" style="padding:2px 6px; font-size:0.65rem;">
+                    <button class="btn-top" id="btnToggleQ" style="padding:2px 6px; font-size:0.62rem;">
                         Tasa: Res. 1792 (q=5)
                     </button>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:baseline; margin:0.3rem 0;">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin:0.15rem 0;">
                     <span style="font-size:0.75rem; color:var(--text-muted);">Dosis Ocupacional:</span>
                     <strong id="dosePct" style="font-family:monospace; font-size:1.25rem; color:#22c55e;">0.0%</strong>
                 </div>
                 <div style="width:100%; height:8px; background:#1e293b; border-radius:4px; overflow:hidden;">
                     <div id="doseBar" style="height:100%; width:0%; background:#22c55e; transition:width 0.3s;"></div>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:baseline; font-size:0.75rem; margin-top:0.3rem;">
-                    <span>Tiempo Permisible:</span>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; font-size:0.75rem; margin-top:0.25rem;">
+                    <span style="color:var(--text-muted);">Tiempo Permisible:</span>
                     <strong id="tpermVal" style="color:#38bdf8; font-family:monospace;">≥ 8h 00m</strong>
+                </div>
+                <div style="font-size:0.66rem; color:var(--text-dim); margin-top:auto;">
+                    Fórmula Res. 1792: T = 8 / 2^((Leq - 85)/5) h
                 </div>
             </div>
 
+            <!-- TARJETA 4: ATENUACIÓN REAL DE EPP EN OÍDO (DERATING GATISO-HNIR) -->
             <div class="hygiene-card">
-                <h4>Protección Auditiva (GATISO-HNIR)</h4>
-                <div id="eppText" style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
-                    <strong>Confort:</strong> No requiere protector auditivo obligatorio. Mantener monitoreo periódico según SG-SST.
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4>Protección en Oído (EPP Real)</h4>
+                    <span id="eppStatusTag" style="font-size:0.62rem; padding:2px 6px; border-radius:4px; background:#064e3b; color:#34d399; font-weight:800;">
+                        ÓPTIMO
+                    </span>
                 </div>
-                <div style="font-size:0.68rem; color:var(--text-dim); margin-top:auto;">
-                    Jerarquía de Controles (Dec. 1072/15): Eliminación y sustitución antes que EPP.
+                <div style="display:flex; flex-direction:column; gap:0.35rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.72rem; color:var(--text-muted);">Protector:</span>
+                        <select id="eppSelect" style="background:#0b111c; color:#e2e8f0; border:1px solid #334155; border-radius:4px; font-size:0.68rem; padding:2px 4px; max-width:160px;">
+                            <option value="none">Sin Protector (0 dB)</option>
+                            <option value="plug" selected>Tapón Premoldeado (NRR 25 -> Real: 12.5 dB)</option>
+                            <option value="muff">Orejera Tipo Copa (NRR 29 -> Real: 16.5 dB)</option>
+                            <option value="dual">Doble Protección: Tapón + Copa (Real: 21.5 dB)</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <span style="font-size:0.72rem; color:var(--text-muted);">Nivel en Tímpano L(oído):</span>
+                        <strong id="earDbVal" style="font-family:monospace; font-size:1.1rem; color:#38bdf8;">--.- dBA</strong>
+                    </div>
+                </div>
+                <div id="eppText" style="font-size:0.68rem; color:var(--text-muted); line-height:1.35; margin-top:auto; background:rgba(0,0,0,0.3); padding:5px 7px; border-radius:5px;">
+                    GATISO Criterio: Nivel en tímpano ideal entre 70 y 80 dBA.
                 </div>
             </div>
         </section>
@@ -1577,11 +1711,11 @@
             'B': {
                 name: "Industria Manufacturera y Metalmecánica",
                 machines: [
-                    { id: 'prensa_troqueladora', name: 'Prensa Troqueladora Excéntrica', type: 'impacto', splRange: '94 dBA base', peak: '136 dBC Peak', baseSpl: 95.0, desc: 'Golpe de embutición profunda de 120t con onda de choque violenta.', synth: 'punch', illustration: 'punch' },
-                    { id: 'torno_cnc', name: 'Centro de Mecanizado CNC de Alta Velocidad', type: 'continuo', splRange: '84-88 dBA', peak: '95 dBC Peak', baseSpl: 86.0, desc: 'Husillo electro-mandril a 12000 RPM con zumbido tonal puro.', synth: 'cnc', illustration: 'cnc' },
-                    { id: 'esmeriladora_angular', name: 'Esmeriladora Angular en Desbaste', type: 'intermitente', splRange: '96-100 dBA', peak: '110 dBC Peak', baseSpl: 98.0, desc: 'Disco abrasivo a 11000 RPM desbastando cordón de soldadura.', synth: 'grinder', illustration: 'grinder' },
-                    { id: 'cizalla_guillotina', name: 'Cizalla Guillotina Neumática', type: 'impacto', splRange: '98-102 dBA', peak: '128 dBC Peak', baseSpl: 100.0, desc: 'Corte de chapa 1/4" con descarga de aire comprimido.', synth: 'shear', illustration: 'shear' },
-                    { id: 'compresor_industrial', name: 'Compresor de Tornillo Kaeser CSDX', type: 'continuo', splRange: '88-92 dBA', peak: '99 dBC Peak', baseSpl: 90.0, desc: 'Rotores helicoidales acoplados con purga continua sibilante.', synth: 'compressor', illustration: 'compressor' }
+                    { id: 'prensa_excentrica_ep500', name: 'Prensa Excéntrica EP-500 (Precision Metalworks)', type: 'impacto', splRange: '94-98 dBA base', peak: '136.5 dBC Peak', baseSpl: 95.0, desc: 'Prensa mecánica industrial de 500 kN con volante de inercia y matriz de estampado.', synth: 'punch', photo: 'assets/machines/prensa_excentrica_ep500.jpg', photoTag: 'EP-500 MECHANICAL PRESS' },
+                    { id: 'martinete_forja_industrial', name: 'Martinete de Forja Pesada con Acero Incandescente', type: 'impacto', splRange: '102-106 dBA', peak: '138.2 dBC Peak', baseSpl: 104.0, desc: 'Golpeo de maza neumática sobre lingote incandescente a 1100°C con lluvia de esquirlas.', synth: 'forging', photo: 'assets/machines/martinete_forja_industrial.jpg', photoTag: 'FORGING HAMMER 1100°C' },
+                    { id: 'pulidora_bosch_gws', name: 'Amoladora Angular Bosch Professional GWS', type: 'intermitente', splRange: '98-102 dBA', peak: '112 dBC Peak', baseSpl: 99.0, desc: 'Disco abrasivo de 230 mm desbastando cordón de soldadura a 8500 RPM.', synth: 'grinder', photo: 'assets/machines/pulidora_bosch_gws.jpg', photoTag: 'BOSCH PROFESSIONAL 230mm' },
+                    { id: 'compresor_kaeser_csdx165', name: 'Compresor de Tornillo Kaeser CSDX 165 (Skid Abierto)', type: 'continuo', splRange: '88-92 dBA', peak: '101 dBC Peak', baseSpl: 90.5, desc: 'Rotores helicoidales Sigma Profile acoplados a motor trifásico de 90 kW.', synth: 'compressor', photo: 'assets/machines/compresor_kaeser_csdx165.jpg', photoTag: 'KAESER CSDX 165 ROTARY' },
+                    { id: 'ventilador_centrifugo_industrial', name: 'Ventilador Centrífugo Industrial de Tiro Forzado', type: 'continuo', splRange: '86-90 dBA', peak: '98 dBC Peak', baseSpl: 88.0, desc: 'Rodete multipala con paso de álabes (BPF a 480 Hz) y succión aerodinámica masiva.', synth: 'blower', photo: 'assets/machines/ventilador_centrifugo_industrial.jpg', photoTag: 'INDUSTRIAL BLOWER FAN' }
                 ]
             },
             'C': {
@@ -1620,6 +1754,32 @@
         // 2. FOCOS ACÚSTICOS ISO 9612 POR MÁQUINA
         // ==========================================
         const MACHINE_HOTSPOTS = {
+            'prensa_excentrica_ep500': [
+                { name: 'Volante de Inercia y Embrague', spl: 89, band: '60-180 Hz', desc: 'Masa rotativa de 1.2m disipando energía cinética.', x: 58, y: 28 },
+                { name: 'Zona de Matriz y Estampado EP-500', spl: 104, band: 'Pico 136.5 dBC', desc: 'Impacto directo de fractura y embutición en chapa.', x: 45, y: 55 },
+                { name: 'Mesa de Alimentación de Chapa', spl: 86, band: '1200-3500 Hz', desc: 'Vibración de chapa y avance neumático.', x: 75, y: 65 }
+            ],
+            'martinete_forja_industrial': [
+                { name: 'Impacto Maza-Yunque (Lingote 1100°C)', spl: 106, band: 'Pico 138.2 dBC', desc: 'Onda de choque extrema de forja al rojo vivo.', x: 53, y: 72 },
+                { name: 'Cilindro Neumático Superior', spl: 96, band: '400-1600 Hz', desc: 'Presión pulsante de aire a 7 bar accionando maza.', x: 48, y: 22 },
+                { name: 'Horno de Caldeo de Forja', spl: 85, band: '80-350 Hz', desc: 'Quemador de gas y atmósfera de combustión.', x: 70, y: 50 }
+            ],
+            'pulidora_bosch_gws': [
+                { name: 'Fricción Disco 230mm en Acero', spl: 101, band: '3000-6000 Hz', desc: 'Cizallamiento abrasivo de corindón a alta velocidad.', x: 34, y: 82 },
+                { name: 'Caja de Engranajes Cónicos Bosch', spl: 92, band: '1200-2800 Hz', desc: 'Engrane espiral en baño de grasa a 8500 RPM.', x: 28, y: 52 },
+                { name: 'Motor Universal 2400W', spl: 90, band: '5200 Hz tonal', desc: 'Zumbido de escobillas y turbina de refrigeración.', x: 62, y: 32 }
+            ],
+            'compresor_kaeser_csdx165': [
+                { name: 'Unidad Compresora (Air-End Sigma)', spl: 91, band: '1200-1800 Hz', desc: 'Compresión helicoidal de tornillo rotativo.', x: 38, y: 52 },
+                { name: 'Motor Eléctrico Trifásico Kaeser', spl: 86, band: '120-450 Hz', desc: 'Fuerzas electromagnéticas y rodamiento a 3600 RPM.', x: 64, y: 46 },
+                { name: 'Silenciador y Chimenea Vertical', spl: 84, band: '800-2400 Hz', desc: 'Descarga sibilante de enfriamiento.', x: 33, y: 22 },
+                { name: 'Tablero de Control Eléctrico Kaeser', spl: 74, band: '60 Hz tonal', desc: 'Contactores y variador de frecuencia.', x: 80, y: 35 }
+            ],
+            'ventilador_centrifugo_industrial': [
+                { name: 'Rodete Multipala / Paso de Álabes (BPF)', spl: 90, band: '480 Hz tonal', desc: 'Frecuencia de paso de palas f = (RPM × N)/60.', x: 58, y: 46 },
+                { name: 'Boca de Aspiración Cónica', spl: 87, band: '250-1000 Hz', desc: 'Turbulencia y depresión aerodinámica.', x: 36, y: 56 },
+                { name: 'Chumacera y Eje de Transmisión', spl: 82, band: '150-600 Hz', desc: 'Fricción de rodamiento mecánico en eje macizo.', x: 23, y: 63 }
+            ],
             'compresor_industrial': [
                 { name: 'Bloque Helicoidal (Air-End)', spl: 89, band: '1150-1500 Hz', desc: 'Choque de aire entre los tornillos macho y hembra.', x: 42, y: 55 },
                 { name: 'Torre de Admisión Silenciada', spl: 84, band: '800-2500 Hz', desc: 'Succión aerodinámica de aire exterior a alta velocidad.', x: 32, y: 28 },
@@ -1712,7 +1872,7 @@
         // 4. ESTADO DE OPERACIÓN
         // ==========================================
         let currentSector = 'B';
-        let currentMachine = SECTORS['B'].machines[4]; // Compresor Kaeser por defecto
+        let currentMachine = SECTORS['B'].machines[2]; // Amoladora Angular Bosch Professional GWS (Foto 1)
         let isAudioMuted = false;
 
         // Sonómetro
@@ -1953,6 +2113,81 @@
                     bSrc.start(now); bSrc.stop(now + 0.03);
                 }, 38);
                 synthIntervals.push(timer);
+            } else if (type === 'forging') {
+                // Martinete de forja pesada con acero incandescente
+                const pSrc = audioCtx.createBufferSource();
+                pSrc.buffer = pinkBuffer; pSrc.loop = true;
+                const lp = audioCtx.createBiquadFilter();
+                lp.type = 'lowpass'; lp.frequency.setValueAtTime(220, t);
+                const lpg = audioCtx.createGain(); lpg.gain.setValueAtTime(0.35, t);
+                pSrc.connect(lp); lp.connect(lpg); lpg.connect(out);
+                pSrc.start();
+                activeSynths.push(pSrc);
+
+                const strikeForge = () => {
+                    const now = audioCtx.currentTime;
+                    const sub = audioCtx.createOscillator();
+                    sub.type = 'sine'; sub.frequency.setValueAtTime(65, now);
+                    sub.frequency.exponentialRampToValueAtTime(24, now + 0.18);
+                    const sg = audioCtx.createGain();
+                    sg.gain.setValueAtTime(0.001, now);
+                    sg.gain.linearRampToValueAtTime(5.5, now + 0.002);
+                    sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                    sub.connect(sg); sg.connect(out);
+                    sub.start(now); sub.stop(now + 0.28);
+
+                    const anvil = audioCtx.createOscillator();
+                    anvil.type = 'triangle'; anvil.frequency.setValueAtTime(860, now);
+                    anvil.frequency.exponentialRampToValueAtTime(320, now + 0.12);
+                    const ag = audioCtx.createGain();
+                    ag.gain.setValueAtTime(0.001, now);
+                    ag.gain.linearRampToValueAtTime(3.8, now + 0.001);
+                    ag.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+                    anvil.connect(ag); ag.connect(out);
+                    anvil.start(now); anvil.stop(now + 0.35);
+
+                    const wSrc = audioCtx.createBufferSource();
+                    wSrc.buffer = whiteBuffer;
+                    const bp = audioCtx.createBiquadFilter();
+                    bp.type = 'bandpass'; bp.frequency.setValueAtTime(2400, now); bp.Q.setValueAtTime(1.8, now);
+                    const wg = audioCtx.createGain();
+                    wg.gain.setValueAtTime(0.001, now);
+                    wg.gain.linearRampToValueAtTime(2.2, now + 0.01);
+                    wg.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    wSrc.connect(bp); bp.connect(wg); wg.connect(out);
+                    wSrc.start(now); wSrc.stop(now + 0.18);
+                };
+                strikeForge();
+                const timer = setInterval(strikeForge, 1350);
+                synthIntervals.push(timer);
+            } else if (type === 'blower') {
+                // Ventilador centrífugo industrial
+                const bpf = audioCtx.createOscillator();
+                bpf.type = 'sine'; bpf.frequency.setValueAtTime(480, t);
+                const bg = audioCtx.createGain(); bg.gain.setValueAtTime(0.38, t);
+                bpf.connect(bg); bg.connect(out); bpf.start();
+                activeSynths.push(bpf);
+
+                const bpf2 = audioCtx.createOscillator();
+                bpf2.type = 'sine'; bpf2.frequency.setValueAtTime(960, t);
+                const bg2 = audioCtx.createGain(); bg2.gain.setValueAtTime(0.14, t);
+                bpf2.connect(bg2); bg2.connect(out); bpf2.start();
+                activeSynths.push(bpf2);
+
+                const pSrc = audioCtx.createBufferSource();
+                pSrc.buffer = pinkBuffer; pSrc.loop = true;
+                const bp = audioCtx.createBiquadFilter();
+                bp.type = 'bandpass'; bp.frequency.setValueAtTime(750, t); bp.Q.setValueAtTime(1.2, t);
+                const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.48, t);
+                pSrc.connect(bp); bp.connect(pg); pg.connect(out);
+                pSrc.start();
+                activeSynths.push(pSrc);
+
+                const rumble = audioCtx.createOscillator();
+                rumble.type = 'triangle'; rumble.frequency.setValueAtTime(32, t);
+                const rg = audioCtx.createGain(); rg.gain.setValueAtTime(0.18, t);
+                rumble.connect(rg); rg.connect(out); rumble.start();
+                activeSynths.push(rumble);
             } else {
                 // Síntesis general de apoyo
                 const pSrc = audioCtx.createBufferSource();
@@ -2003,6 +2238,18 @@
             const container = document.getElementById('machineSvgContainer');
             document.getElementById('stageMachineName').textContent = currentMachine.name;
             const id = currentMachine.id;
+
+            if (currentMachine.photo) {
+                container.innerHTML = `
+                    <div class="machine-photo-wrapper">
+                        <img src="${currentMachine.photo}" alt="${currentMachine.name}" class="machine-real-photo" onerror="this.style.display='none';">
+                        <div class="photo-ambient-vignette"></div>
+                        <div class="photo-badge-overlay">📷 REGISTRO INDUSTRIAL REAL · ${currentMachine.photoTag || 'ALTA DEFINICIÓN'}</div>
+                    </div>
+                `;
+                renderHotspotBeacons();
+                return;
+            }
 
             if (id === 'compresor_industrial') {
                 container.innerHTML = `
@@ -2424,36 +2671,84 @@
 
             if (!isPowered) return;
 
-            // 1. Chispas balísticas para esmeriladora y cortadora de disco
-            if (currentMachine.id === 'esmeriladora_angular' || currentMachine.id === 'cortadora_disco') {
-                const ox = currentMachine.id === 'esmeriladora_angular' ? w * 0.47 : w * 0.40;
-                const oy = currentMachine.id === 'esmeriladora_angular' ? h * 0.72 : h * 0.76;
-                const count = currentMachine.id === 'esmeriladora_angular' ? 8 : 12;
+            // 1. Chispas balísticas para amoladora Bosch GWS, esmeriladora y cortadora de disco
+            if (currentMachine.id === 'pulidora_bosch_gws' || currentMachine.id === 'esmeriladora_angular' || currentMachine.id === 'cortadora_disco') {
+                const ox = currentMachine.id === 'pulidora_bosch_gws' ? w * 0.32 : currentMachine.id === 'esmeriladora_angular' ? w * 0.47 : w * 0.40;
+                const oy = currentMachine.id === 'pulidora_bosch_gws' ? h * 0.84 : currentMachine.id === 'esmeriladora_angular' ? h * 0.72 : h * 0.76;
+                const count = 10;
 
                 for (let i = 0; i < count; i++) {
-                    const ang = Math.PI * 0.12 + (Math.random() - 0.5) * 0.55;
-                    const spd = 7 + Math.random() * 12;
+                    const ang = Math.PI * 0.15 + (Math.random() - 0.5) * 0.65;
+                    const spd = 8 + Math.random() * 14;
                     sparks.push({
                         x: ox, y: oy,
-                        vx: Math.cos(ang) * spd + (Math.random() - 0.5) * 2,
-                        vy: Math.sin(ang) * spd + (Math.random() - 0.5) * 2,
+                        vx: Math.cos(ang) * spd + (Math.random() - 0.5) * 3,
+                        vy: Math.sin(ang) * spd + (Math.random() - 0.5) * 3,
                         alpha: 1.0, life: 0, maxLife: 32 + Math.random() * 22,
-                        color: Math.random() > 0.4 ? '#fed7aa' : '#ffffff'
+                        color: Math.random() > 0.3 ? '#fed7aa' : '#ffffff'
                     });
                 }
 
-                // Zona afectada por el calor (resplandor térmico)
-                const radGrad = fxCtx.createRadialGradient(ox, oy, 4, ox, oy, 70);
-                radGrad.addColorStop(0, 'rgba(255, 237, 213, 0.9)');
-                radGrad.addColorStop(0.35, 'rgba(249, 115, 22, 0.55)');
+                // Zona afectada por el calor (resplandor de fricción abrasiva)
+                const radGrad = fxCtx.createRadialGradient(ox, oy, 4, ox, oy, 75);
+                radGrad.addColorStop(0, 'rgba(255, 237, 213, 0.95)');
+                radGrad.addColorStop(0.35, 'rgba(249, 115, 22, 0.65)');
                 radGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
                 fxCtx.fillStyle = radGrad;
                 fxCtx.beginPath();
-                fxCtx.arc(ox, oy, 70, 0, Math.PI * 2);
+                fxCtx.arc(ox, oy, 75, 0, Math.PI * 2);
                 fxCtx.fill();
             }
 
-            // 2. Fragmentos y polvo de concreto para martillo neumático
+            // 2. Martinete de forja: Acero incandescente a 1100°C con lluvia de esquirlas y resplandor térmico de horno
+            if (currentMachine.id === 'martinete_forja_industrial') {
+                const ox = w * 0.53, oy = h * 0.72; // Punto del yunque y lingote incandescente
+                // Emisión continua de esquirlas incandescentes
+                for (let i = 0; i < 7; i++) {
+                    const ang = -Math.PI * 0.5 + (Math.random() - 0.5) * 2.2;
+                    const spd = 6 + Math.random() * 16;
+                    sparks.push({
+                        x: ox + (Math.random() - 0.5) * 20,
+                        y: oy,
+                        vx: Math.cos(ang) * spd,
+                        vy: Math.sin(ang) * spd + 1.2,
+                        alpha: 1.0, life: 0, maxLife: 38 + Math.random() * 25,
+                        color: Math.random() > 0.4 ? '#ffedd5' : '#ea580c'
+                    });
+                }
+
+                // Resplandor térmico masivo del lingote incandescente (1100°C)
+                const forgeGrad = fxCtx.createRadialGradient(ox, oy, 8, ox, oy, 130);
+                forgeGrad.addColorStop(0, 'rgba(254, 240, 138, 0.95)');
+                forgeGrad.addColorStop(0.25, 'rgba(249, 115, 22, 0.75)');
+                forgeGrad.addColorStop(0.65, 'rgba(220, 38, 38, 0.35)');
+                forgeGrad.addColorStop(1, 'rgba(153, 27, 27, 0)');
+                fxCtx.fillStyle = forgeGrad;
+                fxCtx.beginPath();
+                fxCtx.arc(ox, oy, 130, 0, Math.PI * 2);
+                fxCtx.fill();
+            }
+
+            // 3. Prensa excéntrica EP-500: Onda de cizallamiento y micro-esquirlas de matriz
+            if (currentMachine.id === 'prensa_excentrica_ep500' || currentMachine.id === 'prensa_troqueladora') {
+                const ox = currentMachine.id === 'prensa_excentrica_ep500' ? w * 0.45 : w * 0.52;
+                const oy = currentMachine.id === 'prensa_excentrica_ep500' ? h * 0.55 : h * 0.68;
+                if (Math.random() > 0.7) {
+                    for (let i = 0; i < 6; i++) {
+                        const ang = (Math.random() - 0.5) * Math.PI;
+                        const spd = 5 + Math.random() * 10;
+                        sparks.push({
+                            x: ox, y: oy,
+                            vx: Math.cos(ang) * spd,
+                            vy: Math.sin(ang) * spd,
+                            alpha: 1.0, life: 0, maxLife: 24 + Math.random() * 16,
+                            color: '#cbd5e1'
+                        });
+                    }
+                }
+            }
+
+            // 4. Fragmentos y polvo de concreto para martillo neumático
             if (currentMachine.id === 'martillo_neumatico') {
                 const ox = w * 0.50, oy = h * 0.82;
                 if (Math.random() > 0.3) {
@@ -2471,19 +2766,36 @@
                 }
             }
 
-            // 3. Vapor y humo para compresor, café y motores diésel
-            if (currentMachine.id === 'compresor_industrial' || currentMachine.id === 'cafeteria_corporativa' || currentMachine.id === 'dumper_minero') {
-                const vx = currentMachine.id === 'cafeteria_corporativa' ? w * 0.76 : currentMachine.id === 'compresor_industrial' ? w * 0.33 : w * 0.72;
-                const vy = currentMachine.id === 'cafeteria_corporativa' ? h * 0.70 : currentMachine.id === 'compresor_industrial' ? h * 0.20 : h * 0.40;
+            // 5. Vapores, calor y humo para compresor Kaeser CSDX, café y motores
+            if (currentMachine.id === 'compresor_kaeser_csdx165' || currentMachine.id === 'compresor_industrial' || currentMachine.id === 'cafeteria_corporativa' || currentMachine.id === 'dumper_minero') {
+                const vx = currentMachine.id === 'cafeteria_corporativa' ? w * 0.76 : currentMachine.id === 'compresor_kaeser_csdx165' ? w * 0.33 : currentMachine.id === 'compresor_industrial' ? w * 0.33 : w * 0.72;
+                const vy = currentMachine.id === 'cafeteria_corporativa' ? h * 0.70 : currentMachine.id === 'compresor_kaeser_csdx165' ? h * 0.22 : currentMachine.id === 'compresor_industrial' ? h * 0.20 : h * 0.40;
 
                 if (Math.random() > 0.35) {
                     vapors.push({
-                        x: vx + (Math.random() - 0.5) * 14,
+                        x: vx + (Math.random() - 0.5) * 16,
                         y: vy,
                         vx: (Math.random() - 0.5) * 1.2,
                         vy: -1.8 - Math.random() * 2.2,
                         radius: 6 + Math.random() * 10,
                         alpha: 0.75
+                    });
+                }
+            }
+
+            // 6. Flujo aerodinámico en torbellino para ventilador centrífugo
+            if (currentMachine.id === 'ventilador_centrifugo_industrial') {
+                const cx = w * 0.58, cy = h * 0.46;
+                const swirlAng = fxTime * 14;
+                const swirlR = 25 + Math.random() * 55;
+                if (Math.random() > 0.3) {
+                    sparks.push({
+                        x: cx + Math.cos(swirlAng) * swirlR,
+                        y: cy + Math.sin(swirlAng) * swirlR,
+                        vx: -Math.sin(swirlAng) * 6,
+                        vy: Math.cos(swirlAng) * 6,
+                        alpha: 0.65, life: 0, maxLife: 20 + Math.random() * 15,
+                        color: 'rgba(56, 189, 248, 0.75)'
                     });
                 }
             }
@@ -2674,48 +2986,225 @@
                 document.getElementById('lcdTimer').textContent = `${hh}:${mm}:${ss}`;
             }
 
+            recordTrendSample(now, instantSPL, currentLeq);
             updateHygieneAssessment(currentLeq, lpeak);
             updateAndDrawParticles(dt);
-            drawOscilloscope();
+            drawOscilloscope(instantSPL, lpeak);
+            drawLpTrend(instantSPL, currentLeq);
             drawRTA();
 
             requestAnimationFrame(acousticLoop);
         }
 
-        // ==========================================
-        // 10. VISORES CANVAS: OSCILOSCOPIO Y RTA
-        // ==========================================
+        // =========================================================================
+        // 10. VISORES CANVAS: ONDA p(t) [Pa], HISTOGRAMA Lp vs t, Y RTA OCTAVAS
+        // =========================================================================
         const oscCanvas = document.getElementById('oscCanvas');
         const oscCtx = oscCanvas.getContext('2d');
+        const trendCanvas = document.getElementById('trendCanvas');
+        const trendCtx = trendCanvas.getContext('2d');
         const rtaCanvas = document.getElementById('rtaCanvas');
         const rtaCtx = rtaCanvas.getContext('2d');
 
-        function drawOscilloscope() {
+        // Buffer de histórico para gráfica Lp vs t (30 segundos @ 4 Hz = 120 puntos)
+        const lpTrendHistory = [];
+        let lastTrendSampleTime = 0;
+
+        function recordTrendSample(now, lp, leq) {
+            if (now - lastTrendSampleTime >= 250) {
+                lastTrendSampleTime = now;
+                lpTrendHistory.push({ lp: lp, leq: leq });
+                if (lpTrendHistory.length > 120) {
+                    lpTrendHistory.shift();
+                }
+            }
+        }
+
+        // -------------------------------------------------------------
+        // GRÁFICA 1: ONDA DE PRESIÓN p(t) [Presión en Pascales (Pa)]
+        // -------------------------------------------------------------
+        function drawOscilloscope(instantSPL, lpeak) {
             const w = oscCanvas.width, h = oscCanvas.height;
             oscCtx.fillStyle = '#050a12';
             oscCtx.fillRect(0, 0, w, h);
 
-            oscCtx.strokeStyle = 'rgba(34, 197, 94, 0.15)';
-            for (let x = 0; x < w; x += 35) { oscCtx.beginPath(); oscCtx.moveTo(x,0); oscCtx.lineTo(x,h); oscCtx.stroke(); }
-            for (let y = 0; y < h; y += 25) { oscCtx.beginPath(); oscCtx.moveTo(0,y); oscCtx.lineTo(w,y); oscCtx.stroke(); }
+            // Umbral de referencia auditiva p0 = 20 µPa = 20e-6 Pa
+            const p0 = 20e-6;
+            const pRms = p0 * Math.pow(10, instantSPL / 20);
+            const pPeak = p0 * Math.pow(10, lpeak / 20);
+
+            // Actualizar lecturas métricas en cabecera
+            const instantText = pRms < 0.1 ? (pRms * 1000).toFixed(2) + ' mPa' : pRms.toFixed(3) + ' Pa';
+            const peakText = pPeak < 0.1 ? (pPeak * 1000).toFixed(2) + ' mPa' : pPeak.toFixed(3) + ' Pa';
+            const pInstEl = document.getElementById('pInstantVal');
+            const pPeakEl = document.getElementById('pPeakVal');
+            if (pInstEl) pInstEl.textContent = instantText + ' (RMS)';
+            if (pPeakEl) pPeakEl.textContent = 'Pico: ' + peakText;
+
+            // Escala física dinámica según nivel de presión
+            let pMaxScale = 0.1;
+            if (pRms > 20.0) pMaxScale = 100.0;
+            else if (pRms > 5.0) pMaxScale = 50.0;
+            else if (pRms > 1.0) pMaxScale = 10.0;
+            else if (pRms > 0.2) pMaxScale = 2.0;
+            else if (pRms > 0.05) pMaxScale = 0.5;
+
+            // Rejilla de osciloscopio
+            oscCtx.strokeStyle = 'rgba(34, 197, 94, 0.12)';
+            oscCtx.lineWidth = 1;
+            for (let x = 0; x < w; x += 38) {
+                oscCtx.beginPath(); oscCtx.moveTo(x, 0); oscCtx.lineTo(x, h); oscCtx.stroke();
+            }
+
+            const yMid = h / 2;
+            oscCtx.strokeStyle = 'rgba(34, 197, 94, 0.45)';
+            oscCtx.beginPath(); oscCtx.moveTo(0, yMid); oscCtx.lineTo(w, yMid); oscCtx.stroke();
+
+            const yPos = yMid - (h * 0.38);
+            const yNeg = yMid + (h * 0.38);
+            oscCtx.strokeStyle = 'rgba(34, 197, 94, 0.2)';
+            oscCtx.beginPath(); oscCtx.moveTo(0, yPos); oscCtx.lineTo(w, yPos); oscCtx.stroke();
+            oscCtx.beginPath(); oscCtx.moveTo(0, yNeg); oscCtx.lineTo(w, yNeg); oscCtx.stroke();
+
+            // Rótulos de escala en Pascales
+            oscCtx.fillStyle = '#64748b';
+            oscCtx.font = '8px monospace';
+            oscCtx.textAlign = 'left';
+            const scaleLabel = pMaxScale >= 1 ? `${pMaxScale.toFixed(0)} Pa` : `${(pMaxScale*1000).toFixed(0)} mPa`;
+            oscCtx.fillText(`+${scaleLabel}`, 5, yPos - 2);
+            oscCtx.fillText(`0 Pa`, 5, yMid - 2);
+            oscCtx.fillText(`-${scaleLabel}`, 5, yNeg - 2);
 
             if (analyser && isPowered) {
                 const tData = new Float32Array(analyser.fftSize);
                 analyser.getFloatTimeDomainData(tData);
+
                 oscCtx.strokeStyle = isCalibrating ? '#38bdf8' : '#22c55e';
-                oscCtx.lineWidth = 2;
+                oscCtx.lineWidth = 1.8;
+                oscCtx.shadowColor = isCalibrating ? '#38bdf8' : '#22c55e';
+                oscCtx.shadowBlur = 4;
                 oscCtx.beginPath();
+
                 const slice = w / (analyser.fftSize / 2);
                 let x = 0;
+                const ampNorm = Math.min(1.8, Math.max(0.2, (pRms * Math.SQRT2) / pMaxScale));
+
                 for (let i = 0; i < analyser.fftSize / 2; i++) {
-                    const y = (h / 2) - (tData[i] * 1.8 * (h / 2.2));
+                    const pVal = tData[i] * ampNorm;
+                    const y = yMid - (pVal * (h * 0.38));
                     if (i === 0) oscCtx.moveTo(x, y); else oscCtx.lineTo(x, y);
                     x += slice;
                 }
                 oscCtx.stroke();
+                oscCtx.shadowBlur = 0;
             }
         }
 
+        // -------------------------------------------------------------
+        // GRÁFICA 2: REGISTRO TEMPORAL Lp EN EL TIEMPO [dB vs t]
+        // -------------------------------------------------------------
+        function drawLpTrend(instantSPL, currentLeq) {
+            const w = trendCanvas.width, h = trendCanvas.height;
+            trendCtx.fillStyle = '#050a12';
+            trendCtx.fillRect(0, 0, w, h);
+
+            const minDb = 40, maxDb = 130;
+            const dbToY = (db) => h - ((db - minDb) / (maxDb - minDb)) * (h - 22) - 10;
+
+            // Rejilla de dB
+            trendCtx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+            trendCtx.lineWidth = 1;
+            [40, 60, 80, 85, 100, 120].forEach(db => {
+                const y = dbToY(db);
+                trendCtx.beginPath(); trendCtx.moveTo(0, y); trendCtx.lineTo(w, y); trendCtx.stroke();
+            });
+
+            // LÍNEA NORMATIVA: TLV 85 dBA (Resolución 1792 de 1990)
+            const y85 = dbToY(85);
+            trendCtx.strokeStyle = 'rgba(239, 68, 68, 0.85)';
+            trendCtx.lineWidth = 1.5;
+            trendCtx.setLineDash([5, 4]);
+            trendCtx.beginPath(); trendCtx.moveTo(0, y85); trendCtx.lineTo(w, y85); trendCtx.stroke();
+
+            trendCtx.fillStyle = '#f87171';
+            trendCtx.font = '8px monospace';
+            trendCtx.textAlign = 'left';
+            trendCtx.fillText('TLV 85 dB (Res.1792)', 6, y85 - 3);
+
+            // LÍNEA NORMATIVA: NIVEL DE ACCIÓN 80 dBA (Res. 2844 de 2007 - GATISO)
+            const y80 = dbToY(80);
+            trendCtx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
+            trendCtx.lineWidth = 1.5;
+            trendCtx.beginPath(); trendCtx.moveTo(0, y80); trendCtx.lineTo(w, y80); trendCtx.stroke();
+            trendCtx.setLineDash([]);
+
+            trendCtx.fillStyle = '#f59e0b';
+            trendCtx.font = '8px monospace';
+            trendCtx.textAlign = 'left';
+            trendCtx.fillText('Acción 80 dB (GATISO Res.2844)', 6, y80 - 3);
+
+            if (lpTrendHistory.length < 2) return;
+
+            const step = w / 120;
+            const startX = w - lpTrendHistory.length * step;
+
+            // Área gradiente bajo curva de Lp
+            const areaGrad = trendCtx.createLinearGradient(0, 0, 0, h);
+            areaGrad.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+            areaGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
+            trendCtx.fillStyle = areaGrad;
+            trendCtx.beginPath();
+            trendCtx.moveTo(startX, h);
+            for (let i = 0; i < lpTrendHistory.length; i++) {
+                const x = startX + i * step;
+                const y = dbToY(lpTrendHistory[i].lp);
+                trendCtx.lineTo(x, y);
+            }
+            trendCtx.lineTo(w, h);
+            trendCtx.closePath();
+            trendCtx.fill();
+
+            // Curva instantánea Lp (Azul cian)
+            trendCtx.strokeStyle = '#38bdf8';
+            trendCtx.lineWidth = 1.8;
+            trendCtx.beginPath();
+            for (let i = 0; i < lpTrendHistory.length; i++) {
+                const x = startX + i * step;
+                const y = dbToY(lpTrendHistory[i].lp);
+                if (i === 0) trendCtx.moveTo(x, y); else trendCtx.lineTo(x, y);
+            }
+            trendCtx.stroke();
+
+            // Curva acumulada Leq (Amarilla a rayas)
+            trendCtx.strokeStyle = '#facc15';
+            trendCtx.lineWidth = 1.5;
+            trendCtx.setLineDash([3, 3]);
+            trendCtx.beginPath();
+            for (let i = 0; i < lpTrendHistory.length; i++) {
+                const x = startX + i * step;
+                const y = dbToY(lpTrendHistory[i].leq);
+                if (i === 0) trendCtx.moveTo(x, y); else trendCtx.lineTo(x, y);
+            }
+            trendCtx.stroke();
+            trendCtx.setLineDash([]);
+
+            // Indicador numérico en el punto más reciente
+            const lastY = dbToY(instantSPL);
+            trendCtx.fillStyle = '#38bdf8';
+            trendCtx.beginPath();
+            trendCtx.arc(w - 4, lastY, 3, 0, Math.PI * 2);
+            trendCtx.fill();
+
+            trendCtx.fillStyle = '#e2e8f0';
+            trendCtx.font = 'bold 9px monospace';
+            trendCtx.textAlign = 'right';
+            trendCtx.fillText(`${instantSPL.toFixed(1)} dB`, w - 10, Math.max(12, lastY - 4));
+        }
+
+        // -------------------------------------------------------------
+        // GRÁFICA 3: ANALIZADOR RTA EN BANDAS DE OCTAVA (IEC 61260)
+        // -------------------------------------------------------------
         const octaveCenters = [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
         const octaveLabels = ['31.5', '63', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'];
 
@@ -2723,6 +3212,28 @@
             const w = rtaCanvas.width, h = rtaCanvas.height;
             rtaCtx.fillStyle = '#060b14';
             rtaCtx.fillRect(0, 0, w, h);
+
+            const dbToY = (db) => h - 18 - ((db - 30) / 95) * (h - 32);
+
+            // Rejilla
+            rtaCtx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            rtaCtx.lineWidth = 1;
+            [40, 60, 80, 85, 100, 120].forEach(db => {
+                const y = dbToY(db);
+                rtaCtx.beginPath(); rtaCtx.moveTo(15, y); rtaCtx.lineTo(w - 5, y); rtaCtx.stroke();
+            });
+
+            // Líneas de referencia normativas 85 dB y 80 dB
+            const y85 = dbToY(85);
+            rtaCtx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+            rtaCtx.lineWidth = 1;
+            rtaCtx.setLineDash([4, 4]);
+            rtaCtx.beginPath(); rtaCtx.moveTo(15, y85); rtaCtx.lineTo(w - 5, y85); rtaCtx.stroke();
+
+            const y80 = dbToY(80);
+            rtaCtx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+            rtaCtx.beginPath(); rtaCtx.moveTo(15, y80); rtaCtx.lineTo(w - 5, y80); rtaCtx.stroke();
+            rtaCtx.setLineDash([]);
 
             if (analyser && isPowered) {
                 const fData = new Float32Array(analyser.frequencyBinCount);
@@ -2741,12 +3252,19 @@
                         }
                     }
                     const bDb = pSum > 1e-12 ? 10 * Math.log10(pSum) + 115.0 : 30;
-                    const barH = Math.max(4, ((bDb - 30) / 95) * (h - 25));
+                    const barH = Math.max(4, ((bDb - 30) / 95) * (h - 32));
                     const x = 15 + idx * barW;
                     const y = h - 18 - barH;
 
                     rtaCtx.fillStyle = bDb >= 85 ? '#ef4444' : bDb >= 80 ? '#f59e0b' : '#10b981';
                     rtaCtx.fillRect(x + 2, y, barW - 4, barH);
+
+                    if (bDb > 35) {
+                        rtaCtx.fillStyle = bDb >= 85 ? '#fca5a5' : bDb >= 80 ? '#fde68a' : '#6ee7b7';
+                        rtaCtx.font = '7px monospace';
+                        rtaCtx.textAlign = 'center';
+                        rtaCtx.fillText(bDb.toFixed(0), x + barW / 2, Math.max(10, y - 2));
+                    }
 
                     rtaCtx.fillStyle = '#64748b';
                     rtaCtx.font = '8px monospace';
@@ -2756,55 +3274,156 @@
             }
         }
 
-        // ==========================================
-        // 11. EVALUACIÓN LEGAL DE HIGIENE INDUSTRIAL
-        // ==========================================
+        // =========================================================================
+        // 11. EVALUACIÓN LEGAL DE HIGIENE INDUSTRIAL (GATISO-HNIR & RES. 2844 / RES. 1792)
+        // =========================================================================
         function updateHygieneAssessment(leq, peak) {
+            // 1. Dosimetría Diaria con Tasa de Cambio (Res. 1792 q=5 dB)
             let tperm = 8 / Math.pow(2, (leq - 85) / exchangeRateQ);
             if (leq <= 80) tperm = 24.0;
             else if (leq >= 125) tperm = 0.005;
 
             const dose = (8 / tperm) * 100;
-            document.getElementById('dosePct').textContent = dose.toFixed(1) + '%';
-            document.getElementById('dosePct').style.color = dose >= 100 ? '#ef4444' : dose >= 50 ? '#f59e0b' : '#22c55e';
-
-            document.getElementById('doseBar').style.width = Math.min(100, dose) + '%';
-            document.getElementById('doseBar').style.background = dose >= 100 ? '#ef4444' : dose >= 50 ? '#f59e0b' : '#22c55e';
-
-            if (tperm >= 8) document.getElementById('tpermVal').textContent = '≥ 8h 00m';
-            else if (tperm >= 1) {
-                const hrs = Math.floor(tperm);
-                const mins = Math.round((tperm - hrs) * 60);
-                document.getElementById('tpermVal').textContent = `${hrs}h ${mins}m`;
-            } else {
-                const mins = Math.floor(tperm * 60);
-                const secs = Math.round((tperm * 60 - mins) * 60);
-                document.getElementById('tpermVal').textContent = `${mins}m ${secs}s`;
+            const doseEl = document.getElementById('dosePct');
+            if (doseEl) {
+                doseEl.textContent = dose.toFixed(1) + '%';
+                doseEl.style.color = dose >= 100 ? '#ef4444' : dose >= 50 ? '#f59e0b' : '#22c55e';
             }
 
-            const badge = document.getElementById('riskBadge');
-            badge.className = 'risk-badge';
+            const doseBar = document.getElementById('doseBar');
+            if (doseBar) {
+                doseBar.style.width = Math.min(100, dose) + '%';
+                doseBar.style.background = dose >= 100 ? '#ef4444' : dose >= 50 ? '#f59e0b' : '#22c55e';
+            }
 
-            if (peak >= 140.0) {
-                badge.classList.add('risk-peak');
-                document.getElementById('riskTitle').textContent = '⚠️ ¡PELIGRO CRÍTICO! Pico > 140 dBC';
-                document.getElementById('riskDesc').textContent = 'Art. 1 Res. 1792/90: Prohibida exposición a picos > 140 dBC. Suspensión preventiva del puesto.';
-                document.getElementById('eppText').innerHTML = '<strong>Doble Protección:</strong> Tapones elastoméricos (NRR ≥ 28) + Orejeras de copa de alta atenuación.';
-            } else if (leq >= 85.0 || dose >= 100) {
-                badge.classList.add('risk-danger');
-                document.getElementById('riskTitle').textContent = '🚨 Nivel Crítico (Supera TLV 85 dBA)';
-                document.getElementById('riskDesc').textContent = 'Excede el límite legal de 8 horas. Alto riesgo de hipoacusia neurosensorial.';
-                document.getElementById('eppText').innerHTML = '<strong>Orejeras Tipo Copa (NRR ≥ 27 dB):</strong> Obligatorias. Vigilancia epidemiológica con audiometrías periódicas.';
-            } else if (leq >= 80.0 || dose >= 50) {
-                badge.classList.add('risk-action');
-                document.getElementById('riskTitle').textContent = '⚠️ Nivel de Acción (80 - 84.9 dBA)';
-                document.getElementById('riskDesc').textContent = 'GATISO-HNIR: Activar Programa de Conservación Auditiva (PCA).';
-                document.getElementById('eppText').innerHTML = '<strong>Tapones Premoldeados (NRR ≥ 18 dB):</strong> Suministro y capacitación en técnica de inserción.';
-            } else {
-                badge.classList.add('risk-safe');
-                document.getElementById('riskTitle').textContent = '🛡️ Condición Segura (< 80 dBA)';
-                document.getElementById('riskDesc').textContent = 'Nivel de confort acústico. Cumple con la Resolución 1792 de 1990.';
-                document.getElementById('eppText').innerHTML = '<strong>Confort:</strong> No requiere protector auditivo obligatorio.';
+            const tpermEl = document.getElementById('tpermVal');
+            if (tpermEl) {
+                if (tperm >= 8) tpermEl.textContent = '≥ 8h 00m';
+                else if (tperm >= 1) {
+                    const hrs = Math.floor(tperm);
+                    const mins = Math.round((tperm - hrs) * 60);
+                    tpermEl.textContent = `${hrs}h ${mins}m`;
+                } else {
+                    const mins = Math.floor(tperm * 60);
+                    const secs = Math.round((tperm * 60 - mins) * 60);
+                    tpermEl.textContent = `${mins}m ${secs}s`;
+                }
+            }
+
+            // 2. Diagnóstico Legal (Res. 1792/90 y Res. 2400/79)
+            const badge = document.getElementById('riskBadge');
+            if (badge) {
+                badge.className = 'risk-badge';
+                if (peak >= 140.0) {
+                    badge.classList.add('risk-peak');
+                    document.getElementById('riskTitle').textContent = '⚠️ ¡PELIGRO CRÍTICO! Pico > 140 dBC';
+                    document.getElementById('riskDesc').textContent = 'Art. 1 Res. 1792/90: Límite absoluto superado (>140 dBC Peak). Suspensión inmediata y control prioritario en fuente (Res. 2400/79).';
+                } else if (leq >= 85.0 || dose >= 100) {
+                    badge.classList.add('risk-danger');
+                    document.getElementById('riskTitle').textContent = '🚨 Nivel Crítico (Supera TLV 85 dBA)';
+                    document.getElementById('riskDesc').textContent = 'Res. 1792/90: Excede TLV de 8 horas. Obligatorio control de ingeniería en fuente/medio (Res. 2400) y EPP certificado.';
+                } else if (leq >= 80.0 || dose >= 50) {
+                    badge.classList.add('risk-action');
+                    document.getElementById('riskTitle').textContent = '⚠️ Nivel de Acción (80 - 84.9 dBA)';
+                    document.getElementById('riskDesc').textContent = 'GATISO-HNIR (Res. 2844/07): Dosis ≥ 50%. Activar Programa de Conservación Auditiva (PCA) y dotación preventiva de EPP.';
+                } else {
+                    badge.classList.add('risk-safe');
+                    document.getElementById('riskTitle').textContent = '🛡️ Condición Segura (< 80 dBA)';
+                    document.getElementById('riskDesc').textContent = 'Nivel de confort acústico según Res. 1792/90. Sin riesgo relevante de hipoacusia neurosensorial inducida por ruido.';
+                }
+            }
+
+            // 3. Vigilancia Médica GATISO-HNIR (Res. 2844 de 2007)
+            const pcaBadge = document.getElementById('gatisoActionBadge');
+            const pcaStatus = document.getElementById('pcaStatusText');
+            const audioPeriod = document.getElementById('audioPeriodText');
+            const gatisoAlert = document.getElementById('gatisoAlertBox');
+
+            if (pcaBadge && pcaStatus && audioPeriod && gatisoAlert) {
+                if (peak >= 140.0 || leq >= 85.0) {
+                    pcaBadge.textContent = 'PCA OBLIGATORIO';
+                    pcaBadge.style.background = '#7f1d1d';
+                    pcaBadge.style.color = '#fca5a5';
+                    pcaStatus.textContent = 'Prioritario Activo';
+                    pcaStatus.style.color = '#ef4444';
+                    audioPeriod.textContent = 'ANUAL Obligatoria';
+                    audioPeriod.style.color = '#f87171';
+                    gatisoAlert.innerHTML = '<strong>GATISO-HNIR Recom. 6.2:</strong> Exposiciones ≥ 85 dBA o turnos extendidos requieren audiometría tamiz anual y controles de ingeniería.';
+                    gatisoAlert.style.borderLeftColor = '#ef4444';
+                } else if (leq >= 80.0) {
+                    pcaBadge.textContent = 'PCA ACTIVO';
+                    pcaBadge.style.background = '#78350f';
+                    pcaBadge.style.color = '#fde68a';
+                    pcaStatus.textContent = 'Preventivo Activo';
+                    pcaStatus.style.color = '#f59e0b';
+                    audioPeriod.textContent = 'BIANUAL (Cada 2 Años)';
+                    audioPeriod.style.color = '#fbbf24';
+                    gatisoAlert.innerHTML = '<strong>GATISO-HNIR Recom. 6.2:</strong> Exposiciones entre 80 y 84.9 dBA requieren audiometría periódica cada 2 años e inclusión en el PCA.';
+                    gatisoAlert.style.borderLeftColor = '#f59e0b';
+                } else {
+                    pcaBadge.textContent = 'PCA INACTIVO';
+                    pcaBadge.style.background = '#064e3b';
+                    pcaBadge.style.color = '#34d399';
+                    pcaStatus.textContent = 'Preventivo General';
+                    pcaStatus.style.color = '#34d399';
+                    audioPeriod.textContent = 'Pre-ocupacional Rutinaria';
+                    audioPeriod.style.color = '#38bdf8';
+                    gatisoAlert.innerHTML = '<strong>GATISO-HNIR:</strong> &lt; 80 dBA no requiere audiometría periódica tamiz de seguimiento.';
+                    gatisoAlert.style.borderLeftColor = '#34d399';
+                }
+            }
+
+            // 4. Calculadora de Atenuación Real de EPP en Oído (Derating GATISO-HNIR)
+            const eppSelect = document.getElementById('eppSelect');
+            const earDbVal = document.getElementById('earDbVal');
+            const eppStatusTag = document.getElementById('eppStatusTag');
+            const eppText = document.getElementById('eppText');
+
+            if (eppSelect && earDbVal && eppStatusTag && eppText) {
+                const choice = eppSelect.value;
+                let deratedAtten = 0;
+                if (choice === 'plug') deratedAtten = 12.5; // NRR 25 * 0.5 (Derating GATISO 50% tapones)
+                else if (choice === 'muff') deratedAtten = 16.5; // (NRR 29 - 7) * 0.75 (Derating GATISO orejeras)
+                else if (choice === 'dual') deratedAtten = 21.5; // Doble protección combinada
+
+                const earLevel = Math.max(30.0, leq - deratedAtten);
+                earDbVal.textContent = earLevel.toFixed(1) + ' dBA';
+
+                if (choice === 'none') {
+                    if (leq >= 80.0) {
+                        eppStatusTag.textContent = 'SIN PROTECCIÓN';
+                        eppStatusTag.style.background = '#7f1d1d';
+                        eppStatusTag.style.color = '#fca5a5';
+                        earDbVal.style.color = '#ef4444';
+                        eppText.innerHTML = '<strong>¡Alerta!</strong> El trabajador no porta EPP. Exposición directa en el tímpano sin atenuación.';
+                    } else {
+                        eppStatusTag.textContent = 'NO REQUERIDO';
+                        eppStatusTag.style.background = '#064e3b';
+                        eppStatusTag.style.color = '#34d399';
+                        earDbVal.style.color = '#34d399';
+                        eppText.innerHTML = '<strong>Confort:</strong> Nivel inferior a 80 dBA. No requiere protector auditivo obligatorio.';
+                    }
+                } else {
+                    if (earLevel > 80.0) {
+                        eppStatusTag.textContent = 'INSUFICIENTE';
+                        eppStatusTag.style.background = '#7f1d1d';
+                        eppStatusTag.style.color = '#fca5a5';
+                        earDbVal.style.color = '#ef4444';
+                        eppText.innerHTML = '<strong>Protección Insuficiente (GATISO):</strong> El nivel residual en el tímpano supera 80 dBA. Se requiere mayor atenuación o doble protección.';
+                    } else if (earLevel >= 70.0 && earLevel <= 80.0) {
+                        eppStatusTag.textContent = 'ÓPTIMO (GATISO)';
+                        eppStatusTag.style.background = '#064e3b';
+                        eppStatusTag.style.color = '#34d399';
+                        earDbVal.style.color = '#34d399';
+                        eppText.innerHTML = '<strong>Protección Idónea:</strong> Atenuación real adecuada (70-80 dBA en oído) según recomendación de la GATISO-HNIR.';
+                    } else {
+                        eppStatusTag.textContent = 'SOBREPROTECCIÓN';
+                        eppStatusTag.style.background = '#78350f';
+                        eppStatusTag.style.color = '#fde68a';
+                        earDbVal.style.color = '#f59e0b';
+                        eppText.innerHTML = '<strong>Sobreprotección (&lt; 70 dBA):</strong> El trabajador queda aislado del entorno. Dificultad para oír alarmas o comunicarse.';
+                    }
+                }
             }
         }
 
@@ -2983,11 +3602,22 @@
             }
         });
 
-        // Tasa q
+        // Tasa q (Res. 1792 q=5 vs ACGIH q=3)
         document.getElementById('btnToggleQ').addEventListener('click', () => {
             exchangeRateQ = exchangeRateQ === 5 ? 3 : 5;
             document.getElementById('btnToggleQ').textContent = exchangeRateQ === 5 ? 'Tasa: Res. 1792 (q=5)' : 'Tasa: ACGIH (q=3)';
+            const currentLeq = leqSamples > 0 ? 10 * Math.log10(leqEnergySum / leqSamples) : 40.0;
+            updateHygieneAssessment(currentLeq, lpeak);
         });
+
+        // Selector EPP Auditivo (GATISO-HNIR)
+        const eppSelectEl = document.getElementById('eppSelect');
+        if (eppSelectEl) {
+            eppSelectEl.addEventListener('change', () => {
+                const currentLeq = leqSamples > 0 ? 10 * Math.log10(leqEnergySum / leqSamples) : 40.0;
+                updateHygieneAssessment(currentLeq, lpeak);
+            });
+        }
 
         // Mute
         document.getElementById('btnAudioMute').addEventListener('click', () => {
