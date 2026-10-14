@@ -1,6 +1,6 @@
 {
-  "name": "Simulador de Sonometría e Higiene Acústica Industrial",
-  "description": "Simulador interactivo de instrumentación acústica (IEC 61672, ISO 9612, Res. 1792/1990) con síntesis Web Audio de ruido continuo, intermitente y de impacto, osciloscopio y analizador de espectro.",
+  "name": "Simulador de Sonometría e Higiene Acústica Industrial (Colombia)",
+  "description": "Simulador web interactivo de instrumentación acústica y evaluación higiénica conforme a la legislación colombiana (Res. 2844 de 2007 - GATISO-HNIR, Res. 1792 de 1990 con q=5 dB, Res. 2400 de 1979) e internacional (IEC 61672, IEC 61260, ISO 9612). Incluye 5 máquinas industriales con fotografías reales, réplica del sonómetro EXTECH 407780A, y 3 gráficas simultáneas: Onda de Presión p(t) en Pascales (Pa), Registro Temporal Lp en el tiempo (dB vs t con líneas de TLV 85 dB y Acción 80 dB), y Analizador de Espectro RTA en bandas de octava.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
