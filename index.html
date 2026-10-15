@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Virtual de Higiene Industrial: Simulador Acústico Multisectorial v3</title>
+    <title>Laboratorio Virtual de Higiene Industrial y Ruido Ocupacional | Tecnológica del Oriente</title>
+    <!-- Tipografía Institucional Tecnológica del Oriente (tecnologicadeloriente.edu.co) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
     <!-- Librerías de Generación de Informes PDF Metrológicos (Offline + Fallback CDN) -->
     <script src="assets/js/jspdf.umd.min.js"></script>
     <script src="assets/js/jspdf.plugin.autotable.min.js"></script>
@@ -15,17 +19,26 @@
     </script>
     <style>
         :root {
-            --bg-body: #080c14;
-            --bg-panel: #0f1522;
-            --bg-card: #141b2a;
+            /* Paleta Institucional Corporación Tecnológica del Oriente (tecnologicadeloriente.edu.co) */
+            --bg-body: #070c16;
+            --bg-panel: #0d1527;
+            --bg-card: #131f36;
             --border-panel: #1e293b;
             --border-bright: #334155;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --text-dim: #64748b;
             
-            /* Colores Extech y Normativos */
-            --extech-orange: #f97316;
+            /* Identidad Institucional Tecnológica del Oriente */
+            --ceto-orange: #e67817;
+            --ceto-orange-hover: #cf670c;
+            --ceto-orange-glow: rgba(230, 120, 23, 0.4);
+            --ceto-green: #16943f;
+            --ceto-green-hover: #127933;
+            --ceto-green-glow: rgba(22, 148, 63, 0.35);
+
+            /* Colores de Instrumento y Normativos */
+            --extech-orange: #e67817;
             --lcd-bg-backlit: #03140a;
             --lcd-bg-reflective: #6f8565;
             --lcd-text-backlit: #34d399;
@@ -37,19 +50,23 @@
             --color-intermitente: #fbbf24;
             --color-impacto: #f87171;
             
-            --sec-const: #f59e0b;
-            --sec-manuf: #06b6d4;
+            --sec-const: #e67817;
+            --sec-manuf: #0284c7;
             --sec-comer: #a855f7;
-            --sec-minas: #eab308;
-            --sec-admin: #10b981;
+            --sec-minas: #ca8a04;
+            --sec-admin: #16943f;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6, .brand-text h1, .ceto-title {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
         }
 
         body {
@@ -59,6 +76,278 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+        }
+
+        /* =========================================================================
+           PORTAL DE ACCESO INSTITUCIONAL POR CONTRASEÑA (TECNOLÓGICA DEL ORIENTE)
+           ========================================================================= */
+        .ceto-auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: radial-gradient(circle at center, rgba(13, 21, 39, 0.98) 0%, rgba(7, 12, 22, 0.99) 100%);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .ceto-auth-card {
+            background: linear-gradient(180deg, #131f36 0%, #0d1527 100%);
+            border: 1px solid rgba(230, 120, 23, 0.35);
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            padding: 2.2rem 2.4rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(230, 120, 23, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+            text-align: center;
+            position: relative;
+            animation: cetoCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cetoCardEntrance {
+            from { opacity: 0; transform: scale(0.92) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .ceto-auth-card.ceto-unlock-success {
+            border-color: #22c55e;
+            box-shadow: 0 0 45px rgba(34, 197, 94, 0.4);
+            transform: scale(0.98);
+        }
+
+        .ceto-logo-box {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            max-width: 290px;
+        }
+
+        .ceto-modal-logo {
+            max-width: 100%;
+            height: auto;
+            max-height: 48px;
+            object-fit: contain;
+        }
+
+        .ceto-auth-header h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+            line-height: 1.3;
+        }
+
+        .ceto-auth-sub {
+            font-size: 0.84rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .ceto-auth-badge {
+            display: inline-block;
+            background: rgba(230, 120, 23, 0.15);
+            border: 1px solid var(--ceto-orange);
+            color: var(--ceto-orange);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 3px 12px;
+            border-radius: 9999px;
+            margin-top: 0.6rem;
+        }
+
+        .ceto-auth-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+            text-align: left;
+        }
+
+        .ceto-input-group label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .ceto-password-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .ceto-password-wrap input {
+            width: 100%;
+            background: #090e1a;
+            border: 1.5px solid #334155;
+            color: #ffffff;
+            padding: 0.85rem 3rem 0.85rem 1rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .ceto-password-wrap input:focus {
+            border-color: var(--ceto-orange);
+            box-shadow: 0 0 0 3px rgba(230, 120, 23, 0.25);
+        }
+
+        .btn-toggle-eye {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 4px;
+            user-select: none;
+        }
+
+        .ceto-auth-error-msg {
+            color: #f87171;
+            font-size: 0.76rem;
+            font-weight: 600;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background: rgba(239, 68, 68, 0.12);
+            border-left: 3px solid #ef4444;
+            border-radius: 4px;
+        }
+
+        .input-shake {
+            animation: cetoShake 0.4s ease-in-out;
+        }
+
+        @keyframes cetoShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .ceto-hint-box {
+            background: rgba(22, 148, 63, 0.1);
+            border: 1px dashed rgba(22, 148, 63, 0.4);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.76rem;
+            color: #86efac;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-ceto-submit {
+            background: linear-gradient(135deg, var(--ceto-orange) 0%, #c25906 100%);
+            color: #ffffff;
+            border: none;
+            padding: 0.9rem 1.4rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(230, 120, 23, 0.45);
+            transition: all 0.25s ease;
+        }
+
+        .btn-ceto-submit:hover {
+            background: linear-gradient(135deg, #f28522 0%, var(--ceto-orange) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(230, 120, 23, 0.6);
+        }
+
+        .ceto-auth-footer {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        /* HEADER INSTITUCIONAL TECNOLÓGICA DEL ORIENTE */
+        .ceto-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ceto-logo-badge {
+            background: #ffffff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-inst-logo {
+            height: 32px;
+            width: auto;
+            max-width: 170px;
+            object-fit: contain;
+        }
+
+        .ceto-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ceto-badge-inst {
+            background: var(--ceto-orange);
+            color: #ffffff;
+            font-size: 0.64rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-top-ceto {
+            background: linear-gradient(135deg, var(--ceto-orange) 0%, #c25906 100%) !important;
+            color: #ffffff !important;
+            border-color: #ea580c !important;
+            box-shadow: 0 2px 10px rgba(230, 120, 23, 0.35) !important;
+        }
+
+        .btn-top-lock {
+            background: #1e293b !important;
+            color: #94a3b8 !important;
+            border-color: #334155 !important;
+        }
+
+        .btn-top-lock:hover {
+            color: #f87171 !important;
+            border-color: #ef4444 !important;
         }
 
         /* HEADER */
@@ -402,7 +691,8 @@
 
         .stage-viewport {
             width: 100%;
-            height: 420px;
+            min-height: 440px;
+            height: clamp(440px, 48vh, 600px);
             position: relative;
             background: radial-gradient(ellipse at 50% 20%, #172338 0%, #0b1019 60%, #05070c 100%);
             display: flex;
@@ -592,7 +882,7 @@
         }
 
         /* =========================================================================
-           SONÓMETRO EXTECH 407780A: CHASIS BLANCO PLATINO ERGONÓMICO DE ALTA FIDELIDAD
+           SONÓMETRO DIGITAL INTEGRADOR CLASE 2 (IEC 61672-1:2013)
            ========================================================================= */
         .sonometer-wrapper {
             display: flex;
@@ -1244,16 +1534,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(15, 23, 42, 0.88);
-            border: 1px solid #38bdf8;
-            color: #38bdf8;
+            background: rgba(13, 21, 39, 0.92);
+            border: 1px solid var(--ceto-orange);
+            color: #fed7aa;
             font-size: 0.72rem;
             font-weight: 800;
             letter-spacing: 0.5px;
-            padding: 3px 8px;
+            padding: 3px 10px;
             border-radius: 6px;
-            backdrop-filter: blur(6px);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.8), 0 0 10px rgba(230, 120, 23, 0.25);
             user-select: none;
             pointer-events: none;
         }
@@ -1263,7 +1553,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: 82%;
-            border-bottom: 2px solid #38bdf8;
+            border-bottom: 2.5px solid var(--ceto-orange);
         }
 
         .dim-left {
@@ -1271,7 +1561,7 @@
             top: 50%;
             transform: translateY(-50%) rotate(-90deg);
             transform-origin: center center;
-            border-left: 2px solid #38bdf8;
+            border-left: 2.5px solid var(--ceto-orange);
         }
 
         .dim-scale-tag {
@@ -1381,49 +1671,55 @@
             cursor: grabbing;
         }
 
-        .sonometer-pin-body {
+        /* Micrófono compacto de medición en el plano (Sin cartel naranja en el medio) */
+        .sonometer-mic-node {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1e293b 0%, #0d1527 100%);
+            border: 2px solid var(--ceto-orange);
             display: flex;
             align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-            border: 2px solid #ffffff;
-            border-radius: 20px;
-            padding: 4px 10px;
-            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.7), 0 0 12px rgba(0,0,0,0.9);
-            color: #fff;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 12px rgba(230, 120, 23, 0.6);
+            position: relative;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
         }
 
-        .sonometer-pin-icon {
-            font-size: 16px;
-            animation: pulseMicrophone 1.2s infinite alternate;
+        .sonometer-mic-node:hover {
+            transform: scale(1.18);
+            box-shadow: 0 6px 20px rgba(230, 120, 23, 0.9);
+            border-color: #ffffff;
+        }
+
+        .sonometer-mic-node .mic-glyph {
+            font-size: 18px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9));
+            animation: pulseMicrophone 1.8s infinite ease-in-out;
+        }
+
+        .sonometer-mic-pulse {
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(230, 120, 23, 0.65);
+            animation: micWavePulse 2s infinite ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes micWavePulse {
+            0% { transform: scale(0.85); opacity: 0.95; }
+            100% { transform: scale(1.9); opacity: 0; }
         }
 
         @keyframes pulseMicrophone {
-            from { transform: scale(1); }
-            to { transform: scale(1.2); }
-        }
-
-        .sonometer-pin-badge {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
-
-        .pin-title {
-            font-size: 0.62rem;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            color: #fed7aa;
-        }
-
-        .pin-spl {
-            font-size: 0.82rem;
-            font-weight: 900;
-            font-family: monospace;
-            color: #ffffff;
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(0.95); }
         }
 
         .sonometer-pin-radar {
+            display: none;
             position: absolute;
             width: 70px;
             height: 70px;
@@ -1678,18 +1974,66 @@
 </head>
 <body>
 
-    <!-- CABECERA -->
+    <!-- =========================================================================
+         PORTAL DE ACCESO INSTITUCIONAL POR CONTRASEÑA (CETO2026)
+         ========================================================================= -->
+    <div id="cetoAuthModal" class="ceto-auth-overlay">
+        <div class="ceto-auth-card">
+            <div class="ceto-auth-header">
+                <div class="ceto-logo-box">
+                    <img src="assets/logo_tecnologica_oriente.png" alt="Corporación Tecnológica del Oriente" class="ceto-modal-logo" />
+                </div>
+                <h2>Corporación Tecnológica del Oriente</h2>
+                <p class="ceto-auth-sub">Laboratorio Virtual de Higiene Industrial y Ruido Ocupacional</p>
+                <div class="ceto-auth-badge">Acceso Académico e Institucional</div>
+            </div>
+
+            <form id="cetoAuthForm" class="ceto-auth-body" onsubmit="event.preventDefault(); validateCetoAccess();">
+                <div class="ceto-input-group">
+                    <label for="cetoPasswordInput">
+                        <span>🔑 Contraseña Institucional de Acceso:</span>
+                    </label>
+                    <div class="ceto-password-wrap">
+                        <input type="password" id="cetoPasswordInput" placeholder="Ingrese clave institucional" required autocomplete="current-password" autofocus />
+                        <button type="button" id="btnTogglePassword" class="btn-toggle-eye" onclick="togglePasswordVisibility()" title="Mostrar u ocultar contraseña">👁️</button>
+                    </div>
+                    <div id="cetoAuthError" class="ceto-auth-error-msg" style="display:none;"></div>
+                </div>
+
+                <div class="ceto-hint-box">
+                    <span>ℹ️</span>
+                    <span>Credencial institucional para la práctica de laboratorio: <strong>CETO2026</strong></span>
+                </div>
+
+                <button type="submit" id="btnCetoSubmit" class="btn-ceto-submit">
+                    <span>Ingresar al Simulador</span>
+                    <span class="btn-arrow">→</span>
+                </button>
+
+                <div class="ceto-auth-footer">
+                    <span>© 2026 Corporación Tecnológica del Oriente · Bucaramanga, Colombia</span>
+                    <span>Facultad de Ciencias e Ingeniería · Programa SG-SST</span>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <!-- CABECERA INSTITUCIONAL TECNOLÓGICA DEL ORIENTE -->
     <header>
-        <div class="header-brand">
-            <div class="brand-icon">🔊</div>
+        <div class="ceto-header-brand">
+            <div class="ceto-logo-badge">
+                <img src="assets/logo_tecnologica_oriente.png" alt="Corporación Tecnológica del Oriente" class="header-inst-logo" />
+            </div>
             <div class="brand-text">
-                <h1>
-                    LABORATORIO VIRTUAL DE HIGIENE INDUSTRIAL
-                    <span class="badge-version">v3 Hiperrealista</span>
+                <h1 class="ceto-title">
+                    CORPORACIÓN TECNOLÓGICA DEL ORIENTE
+                    <span class="ceto-badge-inst">Laboratorio de Higiene Industrial</span>
                 </h1>
                 <div class="brand-sub">
-                    <span>Marco Legal Colombia: <strong>Res. 2844/07 (GATISO-HNIR)</strong> · <strong>Res. 1792/90 (q=5)</strong> · <strong>Res. 2400/79</strong></span> ·
-                    <span>Sonómetro Clase 2: <strong>EXTECH 407780A</strong></span>
+                    <span>Facultad de Ciencias e Ingeniería · SST</span> ·
+                    <span>Normatividad Colombia: <strong>Res. 2844/07 (GATISO-HNIR)</strong> · <strong>Res. 1792/90 (q=5)</strong> · <strong>Res. 2400/79</strong></span> ·
+                    <span>Sonómetro Integrador: <strong>Clase 2 (IEC 61672-1)</strong></span>
                 </div>
             </div>
         </div>
@@ -1701,8 +2045,11 @@
             <button class="btn-top" id="btnOpenModalTop">
                 📋 Prácticas (4)
             </button>
-            <button class="btn-top btn-top-amber" id="btnTopReport" title="Generar Informe Técnico Oficial de Higiene Industrial en PDF">
+            <button class="btn-top btn-top-ceto" id="btnTopReport" title="Generar Informe Técnico Oficial de Higiene Industrial en PDF">
                 📄 Informe Técnico PDF (Res. 2844)
+            </button>
+            <button class="btn-top btn-top-lock" id="btnCetoLock" onclick="logoutCeto()" title="Bloquear el acceso al simulador con contraseña institucional">
+                🔒 Bloquear
             </button>
         </div>
     </header>
@@ -1826,19 +2173,19 @@
                             <!-- Cotas de Ingeniería en Metros -->
                             <div class="dim-dimension-bar dim-bottom" id="dimBarBottom">
                                 <span style="font-size:0.9rem;">◀</span>
-                                <span>↔ ANCHO DEL FRENTE: <strong>45.0 METROS</strong></span>
+                                <span>↔ ANCHO: <strong>45.0 METROS</strong></span>
                                 <span style="font-size:0.9rem;">▶</span>
                             </div>
                             <div class="dim-dimension-bar dim-left" id="dimBarLeft">
                                 <span style="font-size:0.9rem;">▲</span>
-                                <span>↕ FONDO: <strong>32.0 METROS</strong></span>
+                                <span>↕ LARGO: <strong>32.0 METROS</strong></span>
                                 <span style="font-size:0.9rem;">▼</span>
                             </div>
                             <div class="dim-scale-tag" id="dimScaleTag">
-                                <span>📐 ÁREA: <strong>1,440 m²</strong> · ESCALA: <strong>1 cm = 5 m</strong></span>
+                                <span>ESCALA: <strong>1 cm = 5 m</strong></span>
                             </div>
 
-                            <!-- Canvas 2D para Ondas Acústicas Multi-Fuente y Regla Métrica -->
+                            <!-- Canvas 2D para Ondas Acústicas y Cinta Métrica -->
                             <canvas id="overviewCanvas" width="880" height="420" style="position:absolute; inset:0; pointer-events:none; z-index:12;"></canvas>
 
                             <!-- Balizas Interactivas de las 5 Máquinas en el Plano -->
@@ -1847,16 +2194,12 @@
                             <!-- Marcadores de Puntos ya Medidos (P1, P2...) -->
                             <div id="measuredPointsPinsLayer" style="position:absolute; inset:0; pointer-events:none; z-index:15;"></div>
 
-                            <!-- Pin Móvil Interactivo del Sonómetro EXTECH -->
-                            <div id="mapSonometerPin" class="map-sonometer-marker" style="left:50%; top:65%;" title="Arrastre o haga clic para reubicar el sonómetro en cualquier punto del sector">
-                                <div class="sonometer-pin-body">
-                                    <span class="sonometer-pin-icon">🎙️</span>
-                                    <div class="sonometer-pin-badge">
-                                        <span class="pin-title">SONÓMETRO EXTECH</span>
-                                        <span class="pin-spl" id="pinLiveSpl">--.- dBA</span>
-                                    </div>
+                            <!-- Micrófono Interactivo para activar y medir sonido (Sin cartel naranja central) -->
+                            <div id="mapSonometerPin" class="map-sonometer-marker" style="left:50%; top:65%;" title="🎙️ Micrófono de Medición: Haga clic o arrastre para ubicar el sensor en el sector (Lectura en el sonómetro derecho)">
+                                <div class="sonometer-mic-node">
+                                    <span class="mic-glyph">🎙️</span>
+                                    <div class="sonometer-mic-pulse"></div>
                                 </div>
-                                <div class="sonometer-pin-radar"></div>
                             </div>
 
                             <!-- Cartel de Información de Cinta Métrica (Ruler) -->
@@ -1939,7 +2282,7 @@
 
             </div>
 
-            <!-- COLUMNA DERECHA: SONÓMETRO EXTECH 407780A IDÉNTICO A LA FOTO -->
+            <!-- COLUMNA DERECHA: SONÓMETRO DIGITAL INTEGRADOR CLASE 2 -->
             <div class="sonometer-wrapper">
                 
                 <!-- MICRÓFONO METROLÓGICO (DESMONTABLE) -->
@@ -1961,18 +2304,18 @@
                         <div class="grip-ridge"></div><div class="grip-ridge"></div>
                     </div>
 
-                    <!-- CABECERA EXTECH -->
+                    <!-- CABECERA INSTITUCIONAL DEL SONÓMETRO -->
                     <div class="extech-header">
                         <div>
                             <div class="extech-logo-row">
-                                <span class="extech-brand">EXTECH</span>
-                                <span class="extech-model-badge">407780A</span>
+                                <span class="extech-brand" style="color:var(--ceto-orange); font-size:0.85rem; letter-spacing:0.5px; font-weight:900;">TECNOLÓGICA DEL ORIENTE</span>
+                                <span class="extech-model-badge" style="background:#1e293b; color:#94a3b8;">CLASE 2</span>
                             </div>
-                            <div class="extech-type-label">INTEGRATING SOUND LEVEL METER</div>
+                            <div class="extech-type-label">INTEGRATING SOUND LEVEL METER · IEC 61672-1</div>
                         </div>
                         <div class="extech-standards">
-                            <span class="badge-standard">IEC 61672-1 CLASE 2</span>
-                            <span class="badge-standard" style="color:#64748b; font-size:0.55rem;">ANSI S1.4 TYPE 2</span>
+                            <span class="badge-standard">LABORATORIO HIGIENE</span>
+                            <span class="badge-standard" style="color:#64748b; font-size:0.55rem;">TIPO 2 · ISO 9612</span>
                         </div>
                     </div>
 
@@ -2396,15 +2739,15 @@
             <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.75rem; background:#080d16; padding:0.85rem; border-radius:8px; border:1px solid #1e293b;">
                 <div class="form-row">
                     <label>Empresa / Razón Social:</label>
-                    <input type="text" id="repCompanyName" value="CONSORCIO VIAL & INFRAESTRUCTURA CIVIL S.A.S." class="input-point-name">
+                    <input type="text" id="repCompanyName" value="Corporación Tecnológica del Oriente" class="input-point-name">
                 </div>
                 <div class="form-row">
                     <label>Obra / Frente de Trabajo:</label>
-                    <input type="text" id="repWorkSite" value="Sector A: Pavimentación, Estructura y Movimiento de Tierras" class="input-point-name">
+                    <input type="text" id="repWorkSite" value="Laboratorio de Higiene Industrial / Obra Sector A" class="input-point-name">
                 </div>
                 <div class="form-row">
                     <label>Especialista en Higiene / Evaluador SST:</label>
-                    <input type="text" id="repEvaluator" value="Ing. Pedro Noriega - Higienista Ocupacional" class="input-point-name">
+                    <input type="text" id="repEvaluator" value="Ing. Pedro Noriega - Docente / Evaluador SST" class="input-point-name">
                 </div>
                 <div class="form-row">
                     <label>Licencia en Seguridad y Salud en el Trabajo (SST):</label>
@@ -2414,7 +2757,7 @@
 
             <!-- Resumen de Instrumentación y Calibración -->
             <div style="font-size:0.72rem; color:#cbd5e1; background:#0f172a; padding:0.65rem 0.85rem; border-radius:6px; border-left:3px solid #38bdf8; display:flex; flex-direction:column; gap:2px;">
-                <strong>Instrumento Patrón:</strong> Sonómetro Integrador EXTECH 407780A Clase 2 (IEC 61672-1) · Calibrador 94.0 dB @ 1000 Hz · Verificación Acústica Inicial y Final: 94.0 dBA (Deriva 0.0 dB) · Filtros IEC 61260 en bandas de octava.
+                <strong>Instrumento Patrón:</strong> Sonómetro Digital Integrador Clase 2 (IEC 61672-1) · Calibrador Acústico Normalizado 94.0 dB @ 1000 Hz · Verificación Acústica Inicial y Final: 94.0 dBA (Deriva 0.0 dB) · Filtros IEC 61260 en bandas de octava.
             </div>
 
             <!-- Vista Previa de Tabla de Puntos -->
@@ -2470,7 +2813,7 @@
                         desc: 'Disco diamantado a 4200 RPM en fricción abrasiva extrema cortando losa de concreto con refrigeración por agua.', 
                         synth: 'saw', 
                         photo: 'assets/machines/cortadora_disco_concreto.jpg', 
-                        photoTag: 'STIHL TS 4200RPM DIAMOND',
+                        photoTag: 'MOTOR 2T · 4200 RPM · DISCO DIAMANTADO',
                         coords: { x: 23, y: 76 }
                     },
                     { 
@@ -2530,10 +2873,10 @@
             'B': {
                 name: "Industria Manufacturera y Metalmecánica",
                 machines: [
-                    { id: 'prensa_excentrica_ep500', name: 'Prensa Excéntrica EP-500 (Precision Metalworks)', type: 'impacto', splRange: '94-98 dBA base', peak: '136.5 dBC Peak', baseSpl: 95.0, desc: 'Prensa mecánica industrial de 500 kN con volante de inercia y matriz de estampado.', synth: 'punch', photo: 'assets/machines/prensa_excentrica_ep500.jpg', photoTag: 'EP-500 MECHANICAL PRESS' },
+                    { id: 'prensa_excentrica_ep500', name: 'Prensa Excéntrica Mecánica de Estampado (500 kN)', type: 'impacto', splRange: '94-98 dBA base', peak: '136.5 dBC Peak', baseSpl: 95.0, desc: 'Prensa mecánica industrial de 500 kN con volante de inercia y matriz de estampado.', synth: 'punch', photo: 'assets/machines/prensa_excentrica_ep500.jpg', photoTag: 'EP-500 MECHANICAL PRESS' },
                     { id: 'martinete_forja_industrial', name: 'Martinete de Forja Pesada con Acero Incandescente', type: 'impacto', splRange: '102-106 dBA', peak: '138.2 dBC Peak', baseSpl: 104.0, desc: 'Golpeo de maza neumática sobre lingote incandescente a 1100°C con lluvia de esquirlas.', synth: 'forging', photo: 'assets/machines/martinete_forja_industrial.jpg', photoTag: 'FORGING HAMMER 1100°C' },
-                    { id: 'pulidora_bosch_gws', name: 'Amoladora Angular Bosch Professional GWS', type: 'intermitente', splRange: '98-102 dBA', peak: '112 dBC Peak', baseSpl: 99.0, desc: 'Disco abrasivo de 230 mm desbastando cordón de soldadura a 8500 RPM.', synth: 'grinder', photo: 'assets/machines/pulidora_bosch_gws.jpg', photoTag: 'BOSCH PROFESSIONAL 230mm' },
-                    { id: 'compresor_kaeser_csdx165', name: 'Compresor de Tornillo Kaeser CSDX 165 (Skid Abierto)', type: 'continuo', splRange: '88-92 dBA', peak: '101 dBC Peak', baseSpl: 90.5, desc: 'Rotores helicoidales Sigma Profile acoplados a motor trifásico de 90 kW.', synth: 'compressor', photo: 'assets/machines/compresor_kaeser_csdx165.jpg', photoTag: 'KAESER CSDX 165 ROTARY' },
+                    { id: 'pulidora_bosch_gws', name: 'Amoladora Angular Industrial (Disco 230 mm)', type: 'intermitente', splRange: '98-102 dBA', peak: '112 dBC Peak', baseSpl: 99.0, desc: 'Disco abrasivo de 230 mm desbastando cordón de soldadura a 8500 RPM.', synth: 'grinder', photo: 'assets/machines/pulidora_bosch_gws.jpg', photoTag: 'BOSCH PROFESSIONAL 230mm' },
+                    { id: 'compresor_kaeser_csdx165', name: 'Compresor Rotativo de Tornillo Industrial (90 kW)', type: 'continuo', splRange: '88-92 dBA', peak: '101 dBC Peak', baseSpl: 90.5, desc: 'Rotores helicoidales Sigma Profile acoplados a motor trifásico de 90 kW.', synth: 'compressor', photo: 'assets/machines/compresor_kaeser_csdx165.jpg', photoTag: 'KAESER CSDX 165 ROTARY' },
                     { id: 'ventilador_centrifugo_industrial', name: 'Ventilador Centrífugo Industrial de Tiro Forzado', type: 'continuo', splRange: '86-90 dBA', peak: '98 dBC Peak', baseSpl: 88.0, desc: 'Rodete multipala con paso de álabes (BPF a 480 Hz) y succión aerodinámica masiva.', synth: 'blower', photo: 'assets/machines/ventilador_centrifugo_industrial.jpg', photoTag: 'INDUSTRIAL BLOWER FAN' }
                 ]
             },
@@ -2585,14 +2928,14 @@
             ],
             'pulidora_bosch_gws': [
                 { name: 'Fricción Disco 230mm en Acero', spl: 101, band: '3000-6000 Hz', desc: 'Cizallamiento abrasivo de corindón a alta velocidad.', x: 34, y: 82 },
-                { name: 'Caja de Engranajes Cónicos Bosch', spl: 92, band: '1200-2800 Hz', desc: 'Engrane espiral en baño de grasa a 8500 RPM.', x: 28, y: 52 },
+                { name: 'Caja de Engranajes Cónicos Espirales', spl: 92, band: '1200-2800 Hz', desc: 'Engrane espiral en baño de grasa a 8500 RPM.', x: 28, y: 52 },
                 { name: 'Motor Universal 2400W', spl: 90, band: '5200 Hz tonal', desc: 'Zumbido de escobillas y turbina de refrigeración.', x: 62, y: 32 }
             ],
             'compresor_kaeser_csdx165': [
                 { name: 'Unidad Compresora (Air-End Sigma)', spl: 91, band: '1200-1800 Hz', desc: 'Compresión helicoidal de tornillo rotativo.', x: 38, y: 52 },
-                { name: 'Motor Eléctrico Trifásico Kaeser', spl: 86, band: '120-450 Hz', desc: 'Fuerzas electromagnéticas y rodamiento a 3600 RPM.', x: 64, y: 46 },
+                { name: 'Motor Eléctrico Trifásico de Accionamiento', spl: 86, band: '120-450 Hz', desc: 'Fuerzas electromagnéticas y rodamiento a 3600 RPM.', x: 64, y: 46 },
                 { name: 'Silenciador y Chimenea Vertical', spl: 84, band: '800-2400 Hz', desc: 'Descarga sibilante de enfriamiento.', x: 33, y: 22 },
-                { name: 'Tablero de Control Eléctrico Kaeser', spl: 74, band: '60 Hz tonal', desc: 'Contactores y variador de frecuencia.', x: 80, y: 35 }
+                { name: 'Tablero de Control Eléctrico y Variador', spl: 74, band: '60 Hz tonal', desc: 'Contactores y variador de frecuencia.', x: 80, y: 35 }
             ],
             'ventilador_centrifugo_industrial': [
                 { name: 'Rodete Multipala / Paso de Álabes (BPF)', spl: 90, band: '480 Hz tonal', desc: 'Frecuencia de paso de palas f = (RPM × N)/60.', x: 58, y: 46 },
@@ -2760,6 +3103,84 @@
         let lastTimeMs = performance.now();
 
         // Audio Web API
+                // =========================================================================
+        // CONTROL DE ACCESO INSTITUCIONAL POR CONTRASEÑA (CETO2026)
+        // =========================================================================
+        function checkCetoAuth() {
+            const isAuth = sessionStorage.getItem('ceto_auth_token') === 'CETO2026_VALID';
+            const modal = document.getElementById('cetoAuthModal');
+            if (modal) {
+                modal.style.display = isAuth ? 'none' : 'flex';
+                if (!isAuth) {
+                    setTimeout(() => {
+                        const pwd = document.getElementById('cetoPasswordInput');
+                        if (pwd) pwd.focus();
+                    }, 120);
+                }
+            }
+        }
+
+        function validateCetoAccess() {
+            const pwdInput = document.getElementById('cetoPasswordInput');
+            const errBox = document.getElementById('cetoAuthError');
+            const val = pwdInput ? pwdInput.value.trim() : '';
+
+            if (val === 'CETO2026') {
+                sessionStorage.setItem('ceto_auth_token', 'CETO2026_VALID');
+                if (errBox) errBox.style.display = 'none';
+                const card = document.querySelector('.ceto-auth-card');
+                if (card) card.classList.add('ceto-unlock-success');
+                setTimeout(() => {
+                    const modal = document.getElementById('cetoAuthModal');
+                    if (modal) {
+                        modal.style.opacity = '0';
+                        setTimeout(() => { modal.style.display = 'none'; }, 320);
+                    }
+                    initAudio();
+                }, 350);
+            } else {
+                if (errBox) {
+                    errBox.textContent = 'Contrasena incorrecta. Por favor ingrese la credencial institucional autorizada: [CETO2026]';
+                    errBox.style.display = 'block';
+                }
+                if (pwdInput) {
+                    pwdInput.classList.add('input-shake');
+                    setTimeout(() => pwdInput.classList.remove('input-shake'), 500);
+                    pwdInput.focus();
+                    pwdInput.select();
+                }
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const pwdInput = document.getElementById('cetoPasswordInput');
+            const btn = document.getElementById('btnTogglePassword');
+            if (!pwdInput) return;
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                if (btn) btn.textContent = 'Ocultar';
+            } else {
+                pwdInput.type = 'password';
+                if (btn) btn.textContent = 'Ver';
+            }
+        }
+
+        function logoutCeto() {
+            sessionStorage.removeItem('ceto_auth_token');
+            const modal = document.getElementById('cetoAuthModal');
+            const pwdInput = document.getElementById('cetoPasswordInput');
+            const errBox = document.getElementById('cetoAuthError');
+            if (pwdInput) pwdInput.value = '';
+            if (errBox) errBox.style.display = 'none';
+            if (modal) {
+                modal.style.opacity = '1';
+                modal.style.display = 'flex';
+                const card = document.querySelector('.ceto-auth-card');
+                if (card) card.classList.remove('ceto-unlock-success');
+                setTimeout(() => { if (pwdInput) pwdInput.focus(); }, 150);
+            }
+        }
+
         let audioCtx = null;
         let distanceGain = null;
         let analyser = null;
@@ -3379,9 +3800,9 @@
                         <rect x="360" y="388" width="80" height="12" rx="3" fill="#020617"/>
                         <rect x="560" y="388" width="80" height="12" rx="3" fill="#020617"/>
                         <!-- Carcasa insonorizada Kaeser amarilla -->
-                        <rect x="120" y="130" width="560" height="252" rx="12" fill="url(#kaeserYellowGrad)" stroke="#b45309" stroke-width="2.5"/>
+                        <rect x="120" y="130" width="560" height="252" rx="12" fill="url(#compYellowGrad)" stroke="#b45309" stroke-width="2.5"/>
                         <defs>
-                            <linearGradient id="kaeserYellowGrad" x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id="compYellowGrad" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stop-color="#fef08a"/>
                                 <stop offset="15%" stop-color="#fbbf24"/>
                                 <stop offset="65%" stop-color="#f59e0b"/>
@@ -3429,9 +3850,9 @@
                         <circle cx="630" cy="235" r="12" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
                         <circle cx="630" cy="235" r="9" fill="#f59e0b"/>
                         <line x1="621" y1="235" x2="639" y2="235" stroke="#ef4444" stroke-width="1.5"/>
-                        <!-- Rotulación Kaeser Industrial -->
-                        <text x="160" y="335" fill="#0f172a" font-size="34" font-family="sans-serif" font-weight="900" letter-spacing="3">KAESER</text>
-                        <text x="160" y="360" fill="#1e293b" font-size="12" font-family="sans-serif" font-weight="800" letter-spacing="1">KOMPRESSOREN · CSDX 165 ROTARY SCREW</text>
+                        <!-- Rotulación de Compresor Industrial -->
+                        <text x="160" y="335" fill="#0f172a" font-size="28" font-family="sans-serif" font-weight="900" letter-spacing="3">COMPRESOR</text>
+                        <text x="160" y="360" fill="#1e293b" font-size="12" font-family="sans-serif" font-weight="800" letter-spacing="1">ROTARY SCREW AIR COMPRESSOR · 90 kW</text>
                     </svg>
                 `;
             } else if (id === 'esmeriladora_angular') {
@@ -3453,7 +3874,7 @@
                                 <stop offset="50%" stop-color="#94a3b8"/>
                                 <stop offset="100%" stop-color="#475569"/>
                             </linearGradient>
-                            <linearGradient id="boschBlueGrad" x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id="grindBlueGrad" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stop-color="#0284c7"/>
                                 <stop offset="50%" stop-color="#0369a1"/>
                                 <stop offset="100%" stop-color="#075985"/>
@@ -3467,7 +3888,7 @@
                         <circle cx="364" cy="270" r="3" fill="#0f172a"/>
                         <circle cx="380" cy="270" r="3" fill="#0f172a"/>
                         <!-- Cuerpo motor ergonómico azul industrial -->
-                        <path d="M 375 210 L 610 130 L 645 155 L 415 235 Z" fill="url(#boschBlueGrad)" stroke="#0284c7" stroke-width="3"/>
+                        <path d="M 375 210 L 610 130 L 645 155 L 415 235 Z" fill="url(#grindBlueGrad)" stroke="#0284c7" stroke-width="3"/>
                         <!-- Rejillas de refrigeración del inducido -->
                         <g stroke="#0f172a" stroke-width="2.5">
                             <line x1="510" y1="170" x2="520" y2="190"/>
@@ -4910,6 +5331,12 @@
         let waveTime = 0;
         function drawOverviewScene(dt, instantSPL) {
             if (!overviewCtx || !overviewCanvas) return;
+            if (overviewCanvas.width !== overviewCanvas.clientWidth || overviewCanvas.height !== overviewCanvas.clientHeight) {
+                if (overviewCanvas.clientWidth > 0 && overviewCanvas.clientHeight > 0) {
+                    overviewCanvas.width = overviewCanvas.clientWidth;
+                    overviewCanvas.height = overviewCanvas.clientHeight;
+                }
+            }
             waveTime += dt;
             const w = overviewCanvas.width;
             const h = overviewCanvas.height;
@@ -4936,29 +5363,7 @@
                             overviewCtx.stroke();
                         }
 
-                        // Vector acústico hacia el sonómetro EXTECH
-                        overviewCtx.setLineDash([4, 4]);
-                        overviewCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
-                        overviewCtx.lineWidth = 1.3;
-                        overviewCtx.beginPath();
-                        overviewCtx.moveTo(mx, my);
-                        overviewCtx.lineTo(sonoX, sonoY);
-                        overviewCtx.stroke();
-                        overviewCtx.setLineDash([]);
-
-                        // Distancia métrica en la línea
-                        const dxM = (sonometerPos.xPct - m.coords.x) * 0.45;
-                        const dyM = (sonometerPos.yPct - m.coords.y) * 0.32;
-                        const distM = Math.sqrt(dxM * dxM + dyM * dyM);
-                        const midX = (mx + sonoX) / 2;
-                        const midY = (my + sonoY) / 2;
-
-                        overviewCtx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-                        overviewCtx.fillRect(midX - 22, midY - 8, 44, 16);
-                        overviewCtx.fillStyle = '#38bdf8';
-                        overviewCtx.font = 'bold 9px monospace';
-                        overviewCtx.textAlign = 'center';
-                        overviewCtx.fillText(`${distM.toFixed(1)}m`, midX, midY + 4);
+                        // El sonido se calcula en tiempo real para el sonómetro derecho sin trazos invasivos en la escena
                     }
                 });
             }
@@ -5417,9 +5822,9 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
 
-            const company = (document.getElementById('repCompanyName') ? document.getElementById('repCompanyName').value.trim() : '') || "CONSORCIO VIAL & INFRAESTRUCTURA CIVIL S.A.S.";
-            const workSite = (document.getElementById('repWorkSite') ? document.getElementById('repWorkSite').value.trim() : '') || "Sector A: Pavimentación, Estructura y Movimiento de Tierras";
-            const evaluator = (document.getElementById('repEvaluator') ? document.getElementById('repEvaluator').value.trim() : '') || "Ing. Pedro Noriega - Higienista Ocupacional";
+            const company = (document.getElementById('repCompanyName') ? document.getElementById('repCompanyName').value.trim() : '') || "Corporación Tecnológica del Oriente";
+            const workSite = (document.getElementById('repWorkSite') ? document.getElementById('repWorkSite').value.trim() : '') || "Laboratorio de Higiene Industrial / Obra Sector A";
+            const evaluator = (document.getElementById('repEvaluator') ? document.getElementById('repEvaluator').value.trim() : '') || "Ing. Pedro Noriega - Docente / Evaluador SST";
             const license = (document.getElementById('repLicense') ? document.getElementById('repLicense').value.trim() : '') || "LIC-SST-2026-9942-COL";
 
             let pointsToReport = [...evaluatedPoints];
@@ -5451,7 +5856,7 @@
             // BANNER SUPERIOR
             doc.setFillColor(15, 23, 42);
             doc.rect(14, 12, 182, 22, 'F');
-            doc.setFillColor(245, 158, 11);
+            doc.setFillColor(230, 120, 23);
             doc.rect(14, 34, 182, 1.5, 'F');
 
             doc.setFont('helvetica', 'bold');
@@ -5460,7 +5865,7 @@
             doc.text("SISTEMA DE GESTIÓN DE SEGURIDAD Y SALUD EN EL TRABAJO (SG-SST)", 105, 19, { align: 'center' });
 
             doc.setFontSize(8.5);
-            doc.setTextColor(245, 158, 11);
+            doc.setTextColor(230, 120, 23);
             doc.text("INFORME TÉCNICO DE EVALUACIÓN HIGIÉNICA DE RUIDO OCUPACIONAL", 105, 25, { align: 'center' });
 
             doc.setFontSize(6.8);
@@ -5503,7 +5908,7 @@
             doc.setFont('helvetica', 'bold');
             doc.text("Área Evaluada:", 120, 48);
             doc.setFont('helvetica', 'normal');
-            doc.text("Sector A: 45.0m x 32.0m (1,440 m²)", 145, 48);
+            doc.text("Sector A: Ancho 45.0m x Largo 32.0m", 145, 48);
 
             doc.setFont('helvetica', 'bold');
             doc.text("Norma Muestreo:", 120, 53);
@@ -5548,7 +5953,7 @@
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7.2);
             doc.setTextColor(51, 65, 85);
-            const instText = "Mediciones ejecutadas con Sonómetro Integrador Patrón EXTECH 407780A Clase 2 según IEC 61672-1 y ANSI S1.4. Verificación de campo inicial con Calibrador Acústico a 94.0 dB @ 1000 Hz (+/- 0.3 dB) con lectura de 94.0 dBA. Verificación post-medición: 94.0 dBA (Deriva metrológica: 0.0 dB, admisible <= 0.5 dB conforme a ISO 9612:2009). Micrófono dotado de protector antiviento de celda abierta.";
+            const instText = "Mediciones ejecutadas con Sonómetro Digital Integrador Clase 2 / Tipo 2 según normas IEC 61672-1:2013 y ANSI S1.4. Verificación de campo inicial con Calibrador Acústico a 94.0 dB @ 1000 Hz (+/- 0.3 dB) con lectura de 94.0 dBA. Verificación post-medición: 94.0 dBA (Deriva metrológica: 0.0 dB, admisible <= 0.5 dB conforme a ISO 9612:2009). Micrófono dotado de protector antiviento de celda abierta.";
             const splitInst = doc.splitTextToSize(instText, 182);
             doc.text(splitInst, 14, curY);
             curY += (splitInst.length * 3.5) + 3;
@@ -5823,6 +6228,7 @@
         // 14. ARRANQUE DEL SIMULADOR
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
+            checkCetoAuth();
             overviewCanvas = document.getElementById('overviewCanvas');
             overviewCtx = overviewCanvas ? overviewCanvas.getContext('2d') : null;
 

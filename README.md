@@ -1,6 +1,15 @@
-# 🔊 Laboratorio Virtual de Higiene Industrial y Sonometría v3 (Multisectorial)
+# 🔊 Laboratorio Virtual de Higiene Industrial y Ruido Ocupacional
+## Corporación Tecnológica del Oriente (Bucaramanga, Colombia)
 
-Simulador interactivo de instrumentación acústica y evaluación de exposición ocupacional al ruido en formato web autónomo (**HTML5 + Vanilla JS + Web Audio API + Canvas 2D a 60 FPS**), conforme a la legislación técnica colombiana (**Resolución 2844 de 2007 - GATISO-HNIR**, **Resolución 1792 de 1990**, **Resolución 2400 de 1979**) y estándares internacionales (**IEC 61672-1:2013**, **IEC 61260:2014**, **NTC-ISO 9612:2009**, **ACGIH / NIOSH**).
+Simulador interactivo institucional de instrumentación acústica y evaluación de exposición ocupacional al ruido en formato web autónomo (**HTML5 + Vanilla JS + Web Audio API + Canvas 2D a 60 FPS**), conforme a la legislación técnica colombiana (**Resolución 2844 de 2007 - GATISO-HNIR**, **Resolución 1792 de 1990**, **Resolución 2400 de 1979**) y estándares internacionales (**IEC 61672-1:2013**, **IEC 61260:2014**, **NTC-ISO 9612:2009**, **ACGIH / NIOSH**).
+
+---
+
+## 🔐 Control de Acceso Académico
+
+- **Portal Institucional de Acceso:** Protegido por contraseña para estudiantes, docentes e investigadores.
+- **Contraseña Institucional Autorizada:** **`CETO2026`**
+- **Institución:** Corporación Tecnológica del Oriente ([https://tecnologicadeloriente.edu.co/](https://tecnologicadeloriente.edu.co/))
 
 ---
 
@@ -12,75 +21,53 @@ Simulador interactivo de instrumentación acústica y evaluación de exposición
 
 ---
 
-## 🌟 Características Principales
+## 🌟 Características Institucionales y Metrológicas
 
-### 1. Maquinaria Industrial con Fotografías Reales de Alta Resolución
-Fotografías reales de equipos en operación con síntesis acústica procedimental dedicada y efectos de física interactiva:
+### 1. Identidad Visual de la Corporación Tecnológica del Oriente
+- Incorpora el **logotipo oficial** de la institución en el encabezado, en la pantalla de acceso y en el informe técnico descargable en PDF.
+- Paleta de colores ajustada a la identidad corporativa de la página web oficial (`#e67817` naranja institucional, `#16943f` verde institucional, fondos en azul oscuro y pizarra).
+- Tipografía institucional moderna (*Plus Jakarta Sans* e *Inter*).
+- **Proporciones adaptativas a pantalla completa:** El área de trabajo y las figuras se escalan armoniosamente según la resolución del monitor sin deformaciones.
 
-- **Sector A: Construcción e Infraestructura:**
-  1. **Cortadora de Disco para Concreto STIHL TS:** Motor 2 tiempos y disco diamantado a 4200 RPM con corte de pavimento de alta fricción.
-  2. **Martillo Neumático Rompepavimentos:** Maza percutora de 32 kg a 26 Hz y ráfagas de escape neumático a 6 bar.
-  3. **Mezcladora Trompo con Volteo de Áridos:** Tambor de 350 L accionado por corona dentada y cascada de grava.
-  4. **Retroexcavadora sobre Orugas:** Motor turbodiésel 6 cilindros de 120 kW con silbido de turbina y traqueteo de orugas.
-  5. **Vibrocompactador Pata de Cabra:** Rodillo tándem excéntrico a 30 Hz y pisado de terrones de suelo a 60 Hz.
-- **Sector B: Manufactura y Metalmecánica:**
-  1. **Amoladora Angular Bosch Professional GWS (230 mm, 8500 RPM)** con lluvia de chispas balísticas.
-  2. **Prensa Excéntrica EP-500 Precision Metalworks (500 kN)** con onda de choque en matriz de corte.
-  3. **Martinete de Forja Pesada con Acero Incandescente ($1100^\circ\text{C}$)** con resplandor térmico y $138.2\text{ dBC Peak}$.
-  4. **Compresor de Tornillo Kaeser CSDX 165 (90 kW)** con chimenea térmica activa.
-  5. **Ventilador Centrífugo Industrial de Tiro Forzado (480 Hz BPF)** con vórtices aerodinámicos.
-- **Otros Sectores:** Comercio y Ocio, Minería a Cielo Abierto y Subterránea, Servicios y Oficinas.
+### 2. Ausencia Total de Marcas Comerciales de Fabricantes
+- Se eliminaron todas las marcas de fabricantes (EXTECH, Bosch, Kaeser, STIHL, etc.).
+- La instrumentación se identifica según su clasificación metrológica normalizada: **Sonómetro Digital Integrador Clase 2 / Tipo 2 (Norma IEC 61672-1:2013)** y **Calibrador Acústico Normalizado IEC 60942 Clase 1**.
+- Las máquinas se denominan por su tipología de ingeniería: *Cortadora de Disco para Concreto*, *Martillo Neumático Rompepavimentos*, *Mezcladora Trompo con Volteo de Áridos*, *Retroexcavadora sobre Orugas*, *Vibrocompactador Pata de Cabra*, *Amoladora Angular Industrial*, etc.
 
----
+### 3. Plano General del Sector (Modo Limpio con Micrófono de Medición)
+Al activar **"🗺️ Plano General del Sector"**:
+- **Fotografía Maestra del Área:** Composición fotográfica real del sector construcción.
+- **Acotación Perimetral Limpia:**
+  - `↔ ANCHO: 45.0 METROS`
+  - `↕ LARGO: 32.0 METROS`
+  - Escala: `1 cm = 5 m`
+  - **Sin cálculo invasivo de área:** Muestra únicamente el largo y el ancho de las cotas.
+- **Micrófono Interactivo Compacto:**
+  - Se eliminó el cartel naranja central para no tapar la escena.
+  - Se visualiza únicamente un **micrófono compacto (`🎙️`)** con anillo de pulso acústico.
+  - Al hacer clic o arrastrar el micrófono a cualquier punto del área, se activa la medición de sonido en esa posición.
+  - La lectura de nivel de presión sonora en decibeles se visualiza en tiempo real en el **sonómetro grande ubicado en la columna derecha**.
+- **Herramienta Cinta Métrica:** Mide distancias en metros y calcula la atenuación teórica por divergencia acústica esférica en campo libre ($\Delta L = 20\log_{10}(d)$).
 
-### 2. Plano General del Sector con Medición de Longitudes y Simulación Multifoco
-En el **Sector A: Construcción e Infraestructura**, activa el botón **"🗺️ Plano General del Sector"**:
-- **Composición Fotográfica del Sector Completo:** Fotografía del área real de obra con dimensiones de ingeniería acotadas: **$45.0\text{ m}$ de ancho $\times 32.0\text{ m}$ de profundidad ($1,440\text{ m}^2$)**, a escala $1\text{ cm} = 5\text{ m}$.
-- **Herramienta Cinta Métrica Interactiva:** Haz clic y arrastra sobre cualquier zona del plano para medir distancias físicas en metros y calcular en tiempo real la atenuación teórica por divergencia acústica en campo libre ($\Delta L = 20\log_{10}(d)$).
-- **Simulador Acústico Multifoco en Vivo:**
-  - Activa y desactiva máquinas individuales simultáneamente mediante balizas interactivas con interruptor luminoso ON/OFF.
-  - Arrastra la **sonda del sonómetro** a cualquier coordenada del mapa.
-  - Cálculo de suma energética logarítmica exacta de todas las fuentes activas según su distancia euclidiana física:
-    $$L_{p,\text{total}} = 10 \log_{10} \left( \sum_{i=1}^n 10^{L_{p,i}/10} \right)$$
-
----
-
-### 3. Protocolo de Muestreo Higiénico con Temporizador
-- **Tiempos de Medición Seleccionables:** 15 segundos (tamiz rápido de orientación), 1 minuto, 5 minutos y 15 minutos (estándar ISO 9612 / GATISO-HNIR).
-- Reloj cronómetro regresivo animado, barra de avance con gradiente y señal acústica al finalizar.
+### 4. Protocolo de Muestreo Higiénico con Temporizador
+- Selector de duración del muestreo: 15s (screening rápido), 1m, 5m y 15m (estándar formal ISO 9612 / GATISO-HNIR).
+- Reloj cronómetro regresivo animado, barra de avance con gradiente y alerta sonora al finalizar.
 - **Tabla Metrológica de Puntos de Muestreo:** Registra $L_{\text{Aeq}}$, $L_{\text{Cpeak}}$, $L_{\text{max}}$, $L_{\text{min}}$, tiempo permisible de exposición según Res. 1792/90 ($T_{\text{perm}} = 8 / 2^{(L_{\text{eq}}-85)/5}$), dosis acumulada proyectada para 8 horas y diagnóstico normativo legal.
 
----
-
-### 4. Generación y Descarga de Informe Técnico Oficial en PDF
-Exporta un informe técnico pericial de Higiene Industrial con plena validez como soporte legal de evaluación ocupacional bajo la normatividad colombiana:
+### 5. Generación y Descarga de Informe Técnico Oficial en PDF
+Exporta un informe pericial de Higiene Industrial con plena validez como soporte legal de evaluación ocupacional bajo la normatividad colombiana:
 - **Marco Legal Incluido:**
-  - **Resolución 2844 de 2007 (GATISO-HNIR):** Nivel de Acción en 80 dBA, inclusión en PCA, periodicidad de audiometrías tamiz (bianual para 80–84.9 dBA, anual obligatoria para $\ge 85\text{ dBA}$) y factores de *derating* en EPP auditivo (50% en tapones premoldeados/espuma, 70-75% en orejeras).
+  - **Resolución 2844 de 2007 (GATISO-HNIR):** Nivel de Acción en 80 dBA, inclusión en PCA, periodicidad de audiometrías tamiz (bianual para 80–84.9 dBA, anual obligatoria para $\ge 85\text{ dBA}$) y factores de *derating* en EPP auditivo (50% en tapones, 70-75% en orejeras).
   - **Resolución 1792 de 1990:** TLV de 85 dBA, tasa de intercambio $q = 5\text{ dB}$, límite de impacto de 140 dBC Peak.
   - **Resolución 2400 de 1979:** Jerarquía de controles (fuente, medio y receptor).
   - **NTC-ISO 9612:2009:** Metodología y estrategia de medición higiénica.
 - **Contenido del Documento PDF:**
-  - Encabezado institucional, radicado y fecha de muestreo.
-  - Metadatos editables: Empresa, NIT, Obra/Planta, Evaluador y Licencia en SST.
-  - Cadena de custodia y verificación de calibración acústica (Extech 407780A Tipo 2, calibrador 94.0 dB @ 1000 Hz, deriva $0.0\text{ dB}$).
+  - Encabezado institucional de la **Corporación Tecnológica del Oriente**.
+  - Datos de auditoría: Empresa evaluada, NIT, Obra/Planta, Evaluador y Licencia en SST.
+  - Cadena de custodia y verificación de calibración acústica con deriva $0.0\text{ dB}$.
   - Tabla de resultados metrológicos por punto con diagnósticos normativos.
   - Recomendaciones técnicas y jerarquía de controles de ingeniería y EPP.
   - Bloques de firma pericial para el Especialista Higienista y el Responsable del SG-SST.
-
----
-
-### 5. Tres Gráficas Técnicas en Tiempo Real Simultáneas
-1. **📈 Onda de Presión $p(t)$ [Presión en Pascales (Pa)]:** Presión acústica instantánea calibrada con $p_0 = 20\,\mu\text{Pa}$, auto-escalado dinámico y lecturas numéricas RMS y Peak.
-2. **📉 Registro Temporal $L_p$ en el Tiempo ($dB$ vs $t$):** Histograma continuo de 30 segundos con línea roja TLV (85 dBA, Res. 1792) y línea ámbar de Acción (80 dBA, Res. 2844).
-3. **📊 Analizador de Espectro RTA en Bandas de Octava (IEC 61260):** 10 bandas normalizadas (31.5 Hz a 16 kHz) con código cromático de riesgo en tiempo real.
-
----
-
-### 6. Sonómetro Digital Integrador (Réplica EXTECH 407780A)
-- Display LCD verde esmeralda con dígitos 7-segmentos y vúmetro bargraph discreto de 50 segmentos.
-- Ponderaciones Frecuenciales **A** y **C** (IEC 61672).
-- Balística Temporal **FAST** (125 ms), **SLOW** (1000 ms) y **PEAK** ($< 50\ \mu\text{s}$).
-- Generador patrón de **Calibración a 94.0 dB @ 1000 Hz**.
 
 ---
 
@@ -89,11 +76,6 @@ Exporta un informe técnico pericial de Higiene Industrial con plena validez com
 - [`index.html`](index.html): Aplicación web completa y autónoma (GitHub Pages).
 - [`simulador_higiene_ruido_multisectorial.html`](simulador_higiene_ruido_multisectorial.html): Código fuente maestro.
 - [`PROYECTO_ESTADO_Y_MEMORIA.md`](PROYECTO_ESTADO_Y_MEMORIA.md): Registro técnico y memoria del proyecto.
+- [`assets/logo_tecnologica_oriente.png`](assets/logo_tecnologica_oriente.png): Logo oficial de la Tecnológica del Oriente.
 - [`assets/js/`](assets/js/): Librerías locales para generación de informes PDF (`jspdf.umd.min.js`, `jspdf.plugin.autotable.min.js`).
-- [`assets/machines/`](assets/machines/): Banco fotográfico industrial de alta fidelidad.
-
----
-
-## 📄 Marco Legal y Referencias Técnicas
-- **Colombia:** Resolución 2844 de 2007 (GATISO-HNIR), Resolución 1792 de 1990, Resolución 2400 de 1979, Decreto 1072 de 2015.
-- **Internacional:** NTC-ISO 9612:2009, IEC 61672-1:2013, IEC 61260:2014, ANSI S3.19.
+- [`assets/machines/`](assets/machines/): Banco fotográfico industrial de alta resolución.
