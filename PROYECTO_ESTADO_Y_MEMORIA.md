@@ -58,12 +58,29 @@ Aplicación web institucional de simulación acústica y metrológica en tiempo 
 4. **Vibrocompactador Pata de Cabra (`vibrocompactador_pata_cabra.jpg`):** Rodillo excéntrico a 30 Hz y pisado a 60 Hz. Coordenadas: `(86%, 46%)`.
 5. **Martillo Neumático Rompepavimentos (`martillo_neumatico.jpg`):** Percusión de 32 kg a 26 Hz y ráfagas a 6 bar. Coordenadas: `(86%, 74%)`.
 
-#### B. Plano General Despejado y Cotas
-- **Composición General:** `sector_a_construccion_overview.jpg` (2400 × 1792 px), mostrada al 100% sin recortes.
-- **Sin Elementos Obstructivos:** Se eliminaron las cajas de texto y las barras superpuestas de cotas sobre la imagen.
+#### B. Plano General Dinámico (Sector A Construcción_1) y Movimiento por Máquina
+- **Escena Dinámica de Alta Fidelidad:**
+  - Se sustituyó la escena estática por `Sector A Construcción_1` (`assets/machines/sector_a_construccion_1.gif`, 640 × 360 px, formato panorámico 16:9).
+  - Capa base fija sin movimiento: `assets/machines/sector_a_construccion_static.jpg` (extraída del fotograma 0 exacto del GIF para evitar desfases o saltos de píxeles).
+- **Arquitectura de Movimiento Selectivo por Máquina (CSS `clip-path` Multicapa):**
+  - Para cumplir con la regla de que **solo la máquina encendida se mueve y al apagarse se detiene por completo**, se implementaron 5 capas de sobreposición animada con recorte geométrico poligonal (`clip-path: polygon(...)`) independiente:
+    1. *Cortadora de Disco:* Capa recortada `polygon(15% 48%, 46% 48%, 46% 98%, 15% 98%)`.
+    2. *Martillo Neumático:* Capa recortada `polygon(52% 46%, 74% 46%, 74% 98%, 52% 98%)`.
+    3. *Mezcladora Trompo:* Capa recortada `polygon(26% 28%, 54% 28%, 54% 65%, 26% 65%)`.
+    4. *Retroexcavadora:* Capa recortada `polygon(25% 0%, 76% 0%, 76% 46%, 25% 46%)`.
+    5. *Vibrocompactador:* Capa recortada `polygon(60% 15%, 98% 15%, 98% 66%, 60% 66%)`.
+  - Función controladora `updateMachineAnimationLayers()`: activa (`opacity: 1`) o detiene/oculta (`opacity: 0`) la capa animada de cada máquina en estricta sincronización con su estado sonoro (`activeOverviewSources.has(m.id)` y `!isAudioMuted`).
+  - Si una máquina se apaga, su capa animada se oculta y queda visible únicamente la máquina estática en su posición de reposo.
+- **Sin Elementos Obstructivos:** Se eliminaron las cajas de texto y las barras superpuestas de cotas sobre la imagen, dejando despejadas al 100% las máquinas.
 - **Solo Botones de Bocinas:**
   - Cada máquina tiene únicamente un botón circular interactivo de bocina (`🔊` activo naranja con onda acústica / `🔇` inactivo blanco).
-  - Al hacer clic se activa o desactiva la máquina al instante.
+  - Al hacer clic se activa o desactiva la máquina al instante (activando o pausando el sonido y la animación de forma simultánea).
+  - Coordenadas ajustadas a la perspectiva del nuevo plano:
+    - Cortadora de disco: `(35%, 74%)`
+    - Martillo neumático: `(61%, 78%)`
+    - Mezcladora trompo: `(42%, 44%)`
+    - Retroexcavadora: `(58%, 20%)`
+    - Vibrocompactador: `(82%, 44%)`
 - **Mini Mini Sonómetro Móvil Arrastrable:**
   - Réplica en miniatura del sonómetro integrador con cápsula de micrófono, capuchón antiviento y cuerpo instrumental.
   - Pantalla LCD digital mini que muestra el nivel en dBA en tiempo real sincronizado a 60 FPS con el sonómetro principal.
@@ -100,8 +117,10 @@ Simulador_Ruido/
 └── assets/
     ├── logo_tecnologica_oriente.png           # Logo oficial institucional
     ├── js/                                    # Librerías offline para PDF (jsPDF, autoTable)
-    └── machines/                              # Fotografías fotorrealistas de maquinaria
-        ├── sector_a_construccion_overview.jpg # Plano general del sector construcción
+    └── machines/                              # Fotografías y animaciones de maquinaria
+        ├── sector_a_construccion_1.gif        # Escena animada dinámica panorámica 16:9 (640x360 px)
+        ├── sector_a_construccion_static.jpg   # Base fija estática del fotograma 0 (640x360 px)
+        ├── sector_a_construccion_overview.jpg # Plano estático original
         ├── cortadora_disco_concreto.jpg       # Cortadora de concreto con motor 2T
         ├── martillo_neumatico.jpg             # Martillo rompepavimentos neumático
         ├── mezcladora_trompo.jpg              # Mezcladora de volteo
@@ -113,5 +132,6 @@ Simulador_Ruido/
 
 ### 7. Historial de Commits y Estado del Repositorio
 - **Rama:** `main`
-- **Último Commit:** `3eabdd6` (*feat: tema blanco base, plano general despejado con solo bocinas, mini sonometro interactivo y logo institucional sin texto*)
-- **Estado de Trabajo:** Limpio y sincronizado con el repositorio remoto. Listo para cerrar la sesión y apagar el equipo con seguridad total.
+- **Último Commit:** `8556930` (*docs: actualizar memoria tecnica con tema blanco, plano despejado, mini sonometro y logo unico*)
+- **Nuevo Feature Integrado:** Escena animada interactiva `Sector A Construcción_1` con sincronización cinético-acústica selectiva por máquina mediante capas con `clip-path`.
+- **Estado de Trabajo:** Totalmente integrado, testeado y sincronizado con el repositorio remoto. Listo para cerrar la sesión y apagar el equipo con seguridad total.
