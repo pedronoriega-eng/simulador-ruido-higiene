@@ -19,23 +19,23 @@
     </script>
     <style>
         :root {
-            /* Paleta Institucional Corporación Tecnológica del Oriente (tecnologicadeloriente.edu.co) */
-            --bg-body: #070c16;
-            --bg-panel: #0d1527;
-            --bg-card: #131f36;
-            --border-panel: #1e293b;
-            --border-bright: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            /* Paleta Institucional Tecnológica del Oriente - Base Blanca */
+            --bg-body: #f8fafc; /* Base blanca sutil institucional */
+            --bg-panel: #ffffff; /* Paneles blanco puro */
+            --bg-card: #ffffff; /* Tarjetas blanco puro */
+            --border-panel: #e2e8f0; /* Bordes claros suaves */
+            --border-bright: #cbd5e1;
+            --text-main: #0f172a; /* Texto principal oscuro nítido (poco negro) */
+            --text-muted: #475569; /* Gris oscuro medio para etiquetas */
             --text-dim: #64748b;
             
-            /* Identidad Institucional Tecnológica del Oriente */
-            --ceto-orange: #e67817;
+            /* Identidad Institucional Tecnológica del Oriente (Blanco, Naranja, poco Verde) */
+            --ceto-orange: #e67817; /* Naranja institucional principal */
             --ceto-orange-hover: #cf670c;
-            --ceto-orange-glow: rgba(230, 120, 23, 0.4);
-            --ceto-green: #16943f;
+            --ceto-orange-glow: rgba(230, 120, 23, 0.35);
+            --ceto-green: #16943f; /* Verde sutil institucional */
             --ceto-green-hover: #127933;
-            --ceto-green-glow: rgba(22, 148, 63, 0.35);
+            --ceto-green-glow: rgba(22, 148, 63, 0.25);
 
             /* Colores de Instrumento y Normativos */
             --extech-orange: #e67817;
@@ -85,8 +85,8 @@
             position: fixed;
             inset: 0;
             z-index: 999999;
-            background: radial-gradient(circle at center, rgba(13, 21, 39, 0.98) 0%, rgba(7, 12, 22, 0.99) 100%);
-            backdrop-filter: blur(16px);
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.7) 0%, rgba(15, 23, 42, 0.88) 100%);
+            backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -95,13 +95,13 @@
         }
 
         .ceto-auth-card {
-            background: linear-gradient(180deg, #131f36 0%, #0d1527 100%);
-            border: 1px solid rgba(230, 120, 23, 0.35);
+            background: #ffffff;
+            border: 2px solid var(--ceto-orange);
             border-radius: 20px;
             max-width: 480px;
             width: 100%;
             padding: 2.2rem 2.4rem;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(230, 120, 23, 0.2);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 0 35px rgba(230, 120, 23, 0.2);
             display: flex;
             flex-direction: column;
             gap: 1.4rem;
@@ -122,42 +122,33 @@
         }
 
         .ceto-logo-box {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 10px 18px;
+            background: transparent;
+            padding: 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 0.75rem auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            max-width: 290px;
+            margin: 0 auto 0.5rem auto;
+            max-width: 280px;
         }
 
         .ceto-modal-logo {
             max-width: 100%;
             height: auto;
-            max-height: 48px;
+            max-height: 54px;
             object-fit: contain;
         }
 
-        .ceto-auth-header h2 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -0.3px;
-            line-height: 1.3;
-        }
-
         .ceto-auth-sub {
-            font-size: 0.84rem;
-            color: #94a3b8;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #475569;
             margin-top: 4px;
         }
 
         .ceto-auth-badge {
             display: inline-block;
-            background: rgba(230, 120, 23, 0.15);
-            border: 1px solid var(--ceto-orange);
+            background: #fffaf5;
+            border: 1.5px solid var(--ceto-orange);
             color: var(--ceto-orange);
             font-size: 0.68rem;
             font-weight: 800;
@@ -165,7 +156,7 @@
             letter-spacing: 0.8px;
             padding: 3px 12px;
             border-radius: 9999px;
-            margin-top: 0.6rem;
+            margin-top: 0.5rem;
         }
 
         .ceto-auth-body {
@@ -176,9 +167,9 @@
         }
 
         .ceto-input-group label {
-            font-size: 0.82rem;
+            font-size: 0.84rem;
             font-weight: 700;
-            color: #cbd5e1;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -193,9 +184,9 @@
 
         .ceto-password-wrap input {
             width: 100%;
-            background: #090e1a;
-            border: 1.5px solid #334155;
-            color: #ffffff;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
             padding: 0.85rem 3rem 0.85rem 1rem;
             border-radius: 10px;
             font-size: 0.95rem;
@@ -206,7 +197,8 @@
 
         .ceto-password-wrap input:focus {
             border-color: var(--ceto-orange);
-            box-shadow: 0 0 0 3px rgba(230, 120, 23, 0.25);
+            box-shadow: 0 0 0 3px rgba(230, 120, 23, 0.18);
+            background: #ffffff;
         }
 
         .btn-toggle-eye {
@@ -287,73 +279,49 @@
             text-align: center;
         }
 
-        /* HEADER INSTITUCIONAL TECNOLÓGICA DEL ORIENTE */
+        /* HEADER INSTITUCIONAL TECNOLÓGICA DEL ORIENTE - BASE BLANCA CON LOGO */
         .ceto-header-brand {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
-        .ceto-logo-badge {
-            background: #ffffff;
-            padding: 4px 10px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-
         .header-inst-logo {
-            height: 32px;
+            height: 44px;
             width: auto;
-            max-width: 170px;
+            max-width: 250px;
             object-fit: contain;
         }
 
-        .ceto-title {
-            font-size: 1.05rem;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -0.2px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .ceto-badge-inst {
-            background: var(--ceto-orange);
-            color: #ffffff;
-            font-size: 0.64rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
         .btn-top-ceto {
-            background: linear-gradient(135deg, var(--ceto-orange) 0%, #c25906 100%) !important;
+            background: linear-gradient(135deg, var(--ceto-orange) 0%, #cf670c 100%) !important;
             color: #ffffff !important;
-            border-color: #ea580c !important;
+            border: none !important;
             box-shadow: 0 2px 10px rgba(230, 120, 23, 0.35) !important;
         }
 
+        .btn-top-ceto:hover {
+            background: linear-gradient(135deg, #cf670c 0%, #b85705 100%) !important;
+            box-shadow: 0 4px 14px rgba(230, 120, 23, 0.5) !important;
+        }
+
         .btn-top-lock {
-            background: #1e293b !important;
-            color: #94a3b8 !important;
-            border-color: #334155 !important;
+            background: #f8fafc !important;
+            color: #475569 !important;
+            border-color: #cbd5e1 !important;
         }
 
         .btn-top-lock:hover {
-            color: #f87171 !important;
+            color: #ef4444 !important;
             border-color: #ef4444 !important;
+            background: #fef2f2 !important;
         }
 
         /* HEADER */
         header {
-            background: linear-gradient(180deg, rgba(15, 21, 34, 0.98) 0%, rgba(10, 15, 26, 0.94) 100%);
-            border-bottom: 1px solid var(--border-panel);
+            background: #ffffff;
+            border-bottom: 2.5px solid var(--ceto-orange);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
             padding: 0.75rem 1.5rem;
             display: flex;
             justify-content: space-between;
@@ -361,7 +329,6 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(10px);
         }
 
         .header-brand {
@@ -418,9 +385,9 @@
         }
 
         .btn-top {
-            background-color: #1e293b;
-            color: var(--text-main);
-            border: 1px solid var(--border-bright);
+            background-color: #ffffff;
+            color: #0f172a;
+            border: 1.5px solid #cbd5e1;
             padding: 0.45rem 0.85rem;
             border-radius: 8px;
             font-size: 0.78rem;
@@ -430,18 +397,27 @@
             align-items: center;
             gap: 0.4rem;
             transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
         .btn-top:hover {
-            background-color: #334155;
-            border-color: #475569;
+            background-color: #f8fafc;
+            border-color: var(--ceto-orange);
+            color: var(--ceto-orange);
+        }
+
+        .btn-top.active {
+            background-color: var(--ceto-orange);
+            color: #ffffff;
+            border-color: var(--ceto-orange);
+            box-shadow: 0 2px 8px rgba(230, 120, 23, 0.35);
         }
 
         .btn-top-amber {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: #000;
-            border-color: #b45309;
-            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+            background: linear-gradient(135deg, var(--ceto-orange) 0%, #cf670c 100%);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 2px 8px rgba(230, 120, 23, 0.35);
         }
 
         /* MAIN CONTAINER */
@@ -494,15 +470,32 @@
             position: relative;
         }
 
+        .sector-tab {
+            background: #ffffff;
+            border: 1.5px solid var(--border-panel);
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
         .sector-tab:hover {
-            background: #141c2c;
-            border-color: var(--border-bright);
+            background: #fffaf5;
+            border-color: var(--ceto-orange);
+            color: var(--ceto-orange);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 120, 23, 0.12);
         }
 
         .sector-tab.active {
-            background: #141f33;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            background: #fffaf5;
+            border-color: var(--ceto-orange);
+            box-shadow: 0 4px 14px rgba(230, 120, 23, 0.18);
         }
 
         .sector-tab[data-sec="A"].active { border-color: var(--sec-const); }
@@ -519,20 +512,20 @@
             align-items: center;
             justify-content: center;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
+            background: #f1f5f9;
             flex-shrink: 0;
         }
 
         .sector-info h3 {
             font-size: 0.82rem;
             font-weight: 800;
-            color: #ffffff;
+            color: #0f172a;
             line-height: 1.2;
         }
 
         .sector-info p {
             font-size: 0.68rem;
-            color: var(--text-dim);
+            color: var(--text-muted);
         }
 
         /* CAPA 2: REJILLA DE LAS 5 MÁQUINAS DEL SECTOR */
@@ -550,8 +543,8 @@
         }
 
         .machine-card {
-            background: #090e18;
-            border: 2px solid var(--border-panel);
+            background: #ffffff;
+            border: 1.5px solid var(--border-panel);
             border-radius: 10px;
             padding: 0.85rem;
             display: flex;
@@ -560,18 +553,20 @@
             gap: 0.65rem;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
 
         .machine-card:hover {
-            border-color: #3b82f6;
-            background: #111a2a;
+            border-color: var(--ceto-orange);
+            background: #f8fafc;
             transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(230, 120, 23, 0.12);
         }
 
         .machine-card.active {
-            border-color: #38bdf8;
-            background: linear-gradient(160deg, #12213a 0%, #0d1728 100%);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+            border-color: var(--ceto-orange);
+            background: #fffaf5;
+            box-shadow: 0 6px 20px rgba(230, 120, 23, 0.2);
         }
 
         .badge-noise {
@@ -590,7 +585,7 @@
         .machine-card-title {
             font-size: 0.88rem;
             font-weight: 800;
-            color: #ffffff;
+            color: #0f172a;
             line-height: 1.25;
             min-height: 2.3em;
         }
@@ -650,19 +645,19 @@
         }
 
         .stage-box {
-            background: #070a10;
-            border: 2px solid #2d3748;
+            background: #ffffff;
+            border: 1.5px solid var(--border-panel);
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             position: relative;
             display: flex;
             flex-direction: column;
         }
 
         .stage-header {
-            background: #0f1728;
-            border-bottom: 1px solid #1e293b;
+            background: #ffffff;
+            border-bottom: 1.5px solid var(--border-panel);
             padding: 0.65rem 1rem;
             display: flex;
             justify-content: space-between;
@@ -673,7 +668,7 @@
         .stage-title {
             font-size: 0.95rem;
             font-weight: 800;
-            color: #ffffff;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 0.6rem;
@@ -1421,21 +1416,22 @@
         }
 
         .hygiene-card {
-            background: #090e18;
-            border: 1px solid var(--border-panel);
+            background: #ffffff;
+            border: 1.5px solid var(--border-panel);
             border-radius: 10px;
             padding: 1rem;
             display: flex;
             flex-direction: column;
             gap: 0.65rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
 
         .hygiene-card h4 {
             font-size: 0.8rem;
             font-weight: 800;
-            color: #94a3b8;
+            color: #475569;
             text-transform: uppercase;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1.5px solid var(--border-panel);
             padding-bottom: 0.35rem;
         }
 
@@ -1504,6 +1500,14 @@
             box-shadow: 0 0 12px rgba(2, 132, 199, 0.5);
         }
 
+        .stage-viewport.overview-mode-active {
+            aspect-ratio: 2400 / 1792;
+            height: auto !important;
+            min-height: 460px;
+            max-height: 580px;
+            background: #ffffff;
+        }
+
         .sector-overview-layer {
             position: absolute;
             inset: 0;
@@ -1514,82 +1518,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #000;
+            background: #ffffff;
         }
 
         .overview-bg-photo {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            object-position: center 30%;
-            filter: contrast(1.05) brightness(0.92);
+            object-fit: contain;
+            object-position: center;
+            background: #ffffff;
+            filter: contrast(1.05) brightness(0.98);
             user-select: none;
             pointer-events: none;
         }
 
-        /* Cotas y líneas de dimensión de ingeniería */
-        .dim-dimension-bar {
-            position: absolute;
-            z-index: 25;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.97); /* BLANCO */
-            border: 2px solid var(--ceto-orange); /* NARANJA */
-            color: #0f172a; /* Texto nítido oscuro */
-            font-size: 0.74rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            padding: 4px 12px;
-            border-radius: 8px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.25), 0 0 10px rgba(230, 120, 23, 0.35);
-            user-select: none;
-            pointer-events: none;
-        }
-
-        .dim-bottom {
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 82%;
-            border-bottom: 3.5px solid var(--ceto-orange);
-        }
-
-        .dim-left {
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-            transform-origin: center center;
-            border-left: 3.5px solid var(--ceto-orange);
-        }
-
-        .dim-scale-tag {
-            position: absolute;
-            top: 10px;
-            left: 12px;
-            z-index: 25;
-            background: rgba(255, 255, 255, 0.97); /* BLANCO */
-            border: 2px solid var(--ceto-orange); /* NARANJA */
-            color: #0f172a;
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 4px 12px;
-            border-radius: 8px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.25), 0 0 10px rgba(230, 120, 23, 0.35);
-            user-select: none;
-            pointer-events: none;
-        }
-
-        /* Balizas interactivas de maquinaria en el plano general */
+        /* Balizas de Maquinaria en el Plano: SOLO BOCINAS */
         .machine-map-beacon {
             position: absolute;
             transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
             cursor: pointer;
             z-index: 22;
             user-select: none;
@@ -1597,128 +1543,233 @@
         }
 
         .machine-map-beacon:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-            z-index: 28;
-        }
-
-        .beacon-pin-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 900;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.8);
-            transition: all 0.25s ease;
-        }
-
-        .beacon-pin-btn.active {
-            background: linear-gradient(135deg, var(--ceto-orange) 0%, #c2410c 100%); /* NARANJA */
-            color: #ffffff; /* BLANCO */
-            border-color: #ffffff;
-            box-shadow: 0 0 18px rgba(230, 120, 23, 0.85), 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .beacon-pin-btn.inactive {
-            background: #ffffff; /* BLANCO */
-            color: #64748b;
-            border-color: #cbd5e1;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            opacity: 0.92;
-        }
-
-        .beacon-label-card {
-            background: rgba(255, 255, 255, 0.97); /* BLANCO */
-            border: 1.5px solid var(--ceto-orange); /* NARANJA */
-            padding: 3px 10px;
-            border-radius: 8px;
-            white-space: nowrap;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 0 10px rgba(230, 120, 23, 0.25);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1px;
-            pointer-events: none;
-        }
-
-        .beacon-label-card strong {
-            font-size: 0.7rem;
-            color: #0f172a; /* Texto oscuro nítido */
-            font-weight: 800;
-        }
-
-        .beacon-label-card span {
-            font-size: 0.62rem;
-            color: var(--ceto-orange); /* Naranja institucional */
-            font-weight: 700;
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* Pin del Sonómetro en el Plano */
-        .map-sonometer-marker {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            cursor: grab;
+            transform: translate(-50%, -50%) scale(1.18);
             z-index: 30;
-            user-select: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        .map-sonometer-marker:active {
-            cursor: grabbing;
-        }
-
-        /* Micrófono compacto de medición en el plano (Sin cartel naranja en el medio) */
-        .sonometer-mic-node {
+        .beacon-speaker-btn {
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            background: #ffffff; /* BLANCO PURO */
-            border: 2.8px solid var(--ceto-orange); /* NARANJA INSTITUCIONAL */
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 14px rgba(230, 120, 23, 0.7);
+            font-size: 16px;
             position: relative;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+            transition: all 0.25s ease;
         }
 
-        .sonometer-mic-node:hover {
-            transform: scale(1.18);
-            box-shadow: 0 6px 20px rgba(230, 120, 23, 0.9);
-            border-color: #ffffff;
+        .beacon-speaker-btn.active {
+            background: linear-gradient(135deg, #f97316 0%, #e67817 100%);
+            color: #ffffff;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 4px 16px rgba(230, 120, 23, 0.75), 0 2px 6px rgba(0,0,0,0.3);
         }
 
-        .sonometer-mic-node .mic-glyph {
-            font-size: 18px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9));
-            animation: pulseMicrophone 1.8s infinite ease-in-out;
+        .beacon-speaker-btn.inactive {
+            background: #ffffff;
+            color: #64748b;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            opacity: 0.95;
         }
 
-        .sonometer-mic-pulse {
+        .speaker-ripple-ring {
             position: absolute;
-            inset: -8px;
+            inset: -6px;
             border-radius: 50%;
-            border: 1.5px solid rgba(230, 120, 23, 0.65);
-            animation: micWavePulse 2s infinite ease-out;
+            border: 2px solid rgba(230, 120, 23, 0.7);
+            animation: speakerWavePing 1.8s infinite cubic-bezier(0, 0, 0.2, 1);
             pointer-events: none;
         }
 
-        @keyframes micWavePulse {
-            0% { transform: scale(0.85); opacity: 0.95; }
-            100% { transform: scale(1.9); opacity: 0; }
+        @keyframes speakerWavePing {
+            0% { transform: scale(0.9); opacity: 0.9; }
+            100% { transform: scale(1.7); opacity: 0; }
         }
 
-        @keyframes pulseMicrophone {
-            0% { transform: scale(0.95); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(0.95); }
+        .beacon-hover-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 44px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            color: #ffffff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 50;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            border: 1px solid var(--ceto-orange);
+        }
+
+        .machine-map-beacon:hover .beacon-hover-tooltip {
+            display: block;
+        }
+
+        /* MINI MINI SONÓMETRO MÓVIL EN EL PLANO */
+        .map-mini-sonometer {
+            position: absolute;
+            transform: translate(-50%, -60%);
+            cursor: grab;
+            z-index: 35;
+            user-select: none;
+            transition: transform 0.05s linear;
+        }
+
+        .map-mini-sonometer:active {
+            cursor: grabbing;
+            transform: translate(-50%, -60%) scale(1.08);
+        }
+
+        .mini-sono-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .mini-sono-mic {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .mini-sono-foam {
+            width: 14px;
+            height: 16px;
+            background: radial-gradient(circle at 35% 25%, #475569 0%, #1e293b 70%, #0f172a 100%);
+            border-radius: 7px 7px 3px 3px;
+            border: 1px solid #64748b;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+
+        .mini-sono-neck {
+            width: 6px;
+            height: 6px;
+            background: linear-gradient(90deg, #94a3b8, #f8fafc, #64748b);
+            border: 1px solid #475569;
+            margin-top: -1px;
+        }
+
+        .mini-sono-acoustic-halo {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(230, 120, 23, 0.7);
+            animation: acousticPingMini 1.8s infinite ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes acousticPingMini {
+            0% { transform: scale(0.85); opacity: 0.95; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        .mini-sono-body {
+            width: 36px;
+            height: 52px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid var(--ceto-orange);
+            border-radius: 6px 6px 10px 10px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.65), 0 0 10px rgba(230, 120, 23, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3px 2px;
+            gap: 2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .mini-sono-badge {
+            background: var(--ceto-orange);
+            color: #ffffff;
+            font-size: 6px;
+            font-weight: 900;
+            padding: 1px 4px;
+            border-radius: 2px;
+            letter-spacing: 0.5px;
+            line-height: 1;
+        }
+
+        .mini-sono-display {
+            width: 30px;
+            height: 18px;
+            background: #03140a;
+            border: 1px solid #16a34a;
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1px;
+            box-shadow: inset 0 0 4px rgba(22, 163, 74, 0.4);
+        }
+
+        #miniSonoVal {
+            font-family: monospace;
+            font-size: 8.5px;
+            font-weight: 900;
+            color: #34d399;
+            line-height: 1;
+            letter-spacing: -0.2px;
+        }
+
+        .mini-sono-unit {
+            font-family: 'Inter', sans-serif;
+            font-size: 5.5px;
+            font-weight: 800;
+            color: #10b981;
+            line-height: 1;
+        }
+
+        .mini-sono-buttons {
+            display: flex;
+            gap: 2px;
+            margin-top: 2px;
+        }
+
+        .mini-sono-buttons .dot-btn {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #475569;
+            border: 0.5px solid #64748b;
+        }
+
+        .mini-sono-buttons .dot-btn.red {
+            background: #ef4444;
+            border-color: #f87171;
+        }
+
+        .mini-sono-shadow {
+            width: 32px;
+            height: 8px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            margin-top: -3px;
+            z-index: 1;
+        }
+
+        .mini-sono-drag-hint {
+            font-size: 7.5px;
+            font-weight: 800;
+            color: #ffffff;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--ceto-orange);
+            padding: 1px 4px;
+            border-radius: 4px;
+            margin-top: 2px;
+            opacity: 0.85;
+            pointer-events: none;
+            white-space: nowrap;
         }
 
         .sonometer-pin-radar {
@@ -1799,20 +1850,21 @@
         }
 
         .sampling-card {
-            background: #090e18;
-            border: 1px solid var(--border-panel);
+            background: #ffffff;
+            border: 1.5px solid var(--border-panel);
             border-radius: 10px;
             padding: 1rem 1.1rem;
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
 
         .sampling-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1.5px solid var(--border-panel);
             padding-bottom: 0.45rem;
         }
 
@@ -1829,33 +1881,34 @@
         }
 
         .form-row label {
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            color: var(--text-muted);
+            color: #475569;
         }
 
         .input-point-name {
-            background: #060a12;
-            border: 1px solid var(--border-bright);
-            color: #ffffff;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
             border-radius: 6px;
             padding: 0.45rem 0.65rem;
             font-size: 0.8rem;
             font-weight: 600;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
 
         .input-point-name:focus {
-            border-color: #38bdf8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+            border-color: var(--ceto-orange);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(230, 120, 23, 0.15);
         }
 
         .select-timer {
             flex: 1;
-            background: #060a12;
-            border: 1px solid var(--border-bright);
-            color: #ffffff;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
             border-radius: 6px;
             padding: 0.45rem 0.65rem;
             font-size: 0.78rem;
@@ -1864,8 +1917,8 @@
         }
 
         .point-progress-box {
-            background: #04070e;
-            border: 1px solid #1e293b;
+            background: #f8fafc;
+            border: 1px solid var(--border-panel);
             border-radius: 8px;
             padding: 0.65rem 0.85rem;
             display: flex;
@@ -1876,7 +1929,7 @@
         .timer-progress-track {
             width: 100%;
             height: 8px;
-            background: #1e293b;
+            background: #e2e8f0;
             border-radius: 4px;
             overflow: hidden;
         }
@@ -1884,16 +1937,16 @@
         .timer-progress-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #38bdf8 0%, #34d399 100%);
+            background: linear-gradient(90deg, var(--ceto-orange) 0%, #16943f 100%);
             transition: width 0.25s linear;
         }
 
         /* Tabla Metrológica de Puntos */
         .sampling-table-container {
-            border: 1px solid var(--border-panel);
+            border: 1.5px solid var(--border-panel);
             border-radius: 8px;
             overflow: hidden;
-            background: #070b14;
+            background: #ffffff;
         }
 
         .sampling-table {
@@ -1991,11 +2044,10 @@
         <div class="ceto-auth-card">
             <div class="ceto-auth-header">
                 <div class="ceto-logo-box">
-                    <img src="assets/logo_tecnologica_oriente.png" alt="Corporación Tecnológica del Oriente" class="ceto-modal-logo" />
+                    <img src="assets/logo_tecnologica_oriente.png" alt="Logo Institucional" class="ceto-modal-logo" />
                 </div>
-                <h2>Corporación Tecnológica del Oriente</h2>
                 <p class="ceto-auth-sub">Laboratorio Virtual de Higiene Industrial y Ruido Ocupacional</p>
-                <div class="ceto-auth-badge">Acceso Académico e Institucional</div>
+                <div class="ceto-auth-badge">Acceso Protegido</div>
             </div>
 
             <form id="cetoAuthForm" class="ceto-auth-body" onsubmit="event.preventDefault(); validateCetoAccess();">
@@ -2018,31 +2070,18 @@
                 </button>
 
                 <div class="ceto-auth-footer">
-                    <span>© 2026 Corporación Tecnológica del Oriente · Bucaramanga, Colombia</span>
                     <span>Facultad de Ciencias e Ingeniería · Programa SG-SST</span>
+                    <span>Bucaramanga, Colombia</span>
                 </div>
             </form>
         </div>
     </div>
     
 
-    <!-- CABECERA INSTITUCIONAL TECNOLÓGICA DEL ORIENTE -->
+    <!-- CABECERA INSTITUCIONAL TECNOLÓGICA DEL ORIENTE - SOLO LOGO OFICIAL -->
     <header>
         <div class="ceto-header-brand">
-            <div class="ceto-logo-badge">
-                <img src="assets/logo_tecnologica_oriente.png" alt="Corporación Tecnológica del Oriente" class="header-inst-logo" />
-            </div>
-            <div class="brand-text">
-                <h1 class="ceto-title">
-                    CORPORACIÓN TECNOLÓGICA DEL ORIENTE
-                    <span class="ceto-badge-inst">Laboratorio de Higiene Industrial</span>
-                </h1>
-                <div class="brand-sub">
-                    <span>Facultad de Ciencias e Ingeniería · SST</span> ·
-                    <span>Normatividad Colombia: <strong>Res. 2844/07 (GATISO-HNIR)</strong> · <strong>Res. 1792/90 (q=5)</strong> · <strong>Res. 2400/79</strong></span> ·
-                    <span>Sonómetro Integrador: <strong>Clase 2 (IEC 61672-1)</strong></span>
-                </div>
-            </div>
+            <img src="assets/logo_tecnologica_oriente.png" alt="Logo Institucional" class="header-inst-logo" />
         </div>
 
         <div class="header-actions">
@@ -2066,7 +2105,7 @@
         <!-- CAPA 1: SELECTOR DE ACTIVIDADES ECONÓMICAS (5 SECTORES) -->
         <section class="section-sectors">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-panel); padding-bottom:0.6rem;">
-                <div style="font-size:0.95rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.5rem;">
+                <div style="font-size:0.95rem; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:0.5rem;">
                     <span>🏢</span> CATÁLOGO MULTISECTORIAL DE MÁQUINAS INDUSTRIALES (25 FUENTES)
                 </div>
                 <div style="font-size:0.75rem; color:var(--text-muted); background:rgba(0,0,0,0.3); padding:3px 10px; border-radius:12px;">
@@ -2173,39 +2212,41 @@
                         <!-- BALIZAS DINÁMICAS ISO 9612 (MODO INDIVIDUAL) -->
                         <div id="hotspotContainer" style="position:absolute; inset:0; pointer-events:none;"></div>
 
-                        <!-- MODO 2: PLANO GENERAL DEL SECTOR CON COMPOSICIÓN REAL Y COTAS -->
+                        <!-- MODO 2: PLANO GENERAL DEL SECTOR CON COMPOSICIÓN REAL DESPEJADA -->
                         <div class="sector-overview-layer" id="sectorOverviewContainer" style="display:none;">
                             <img id="overviewBgImg" src="assets/machines/sector_a_construccion_overview.jpg" alt="Composición General Sector A" class="overview-bg-photo">
-
-                            <!-- Cotas de Ingeniería en Metros -->
-                            <div class="dim-dimension-bar dim-bottom" id="dimBarBottom">
-                                <span style="font-size:0.9rem;">◀</span>
-                                <span style="color:#e67817; font-weight:900;">↔</span> <span style="color:#0f172a;">ANCHO: <strong style="color:#e67817;">45.0 METROS</strong></span>
-                                <span style="font-size:0.9rem;">▶</span>
-                            </div>
-                            <div class="dim-dimension-bar dim-left" id="dimBarLeft">
-                                <span style="font-size:0.9rem;">▲</span>
-                                <span style="color:#e67817; font-weight:900;">↕</span> <span style="color:#0f172a;">LARGO: <strong style="color:#e67817;">32.0 METROS</strong></span>
-                                <span style="font-size:0.9rem;">▼</span>
-                            </div>
-                            <div class="dim-scale-tag" id="dimScaleTag">
-                                <span style="color:#0f172a;">ESCALA: <strong style="color:#e67817;">1 cm = 5 m</strong></span>
-                            </div>
 
                             <!-- Canvas 2D para Ondas Acústicas y Cinta Métrica -->
                             <canvas id="overviewCanvas" width="880" height="420" style="position:absolute; inset:0; pointer-events:none; z-index:12;"></canvas>
 
-                            <!-- Balizas Interactivas de las 5 Máquinas en el Plano -->
+                            <!-- Balizas Interactivas de las 5 Máquinas en el Plano (SOLO BOCINAS) -->
                             <div id="overviewMachinesLayer" style="position:absolute; inset:0; z-index:16;"></div>
 
                             <!-- Marcadores de Puntos ya Medidos (P1, P2...) -->
                             <div id="measuredPointsPinsLayer" style="position:absolute; inset:0; pointer-events:none; z-index:15;"></div>
 
-                            <!-- Micrófono Interactivo para activar y medir sonido (Sin cartel naranja central) -->
-                            <div id="mapSonometerPin" class="map-sonometer-marker" style="left:50%; top:65%;" title="🎙️ Micrófono de Medición: Haga clic o arrastre para ubicar el sensor en el sector (Lectura en el sonómetro derecho)">
-                                <div class="sonometer-mic-node">
-                                    <span class="mic-glyph">🎙️</span>
-                                    <div class="sonometer-mic-pulse"></div>
+                            <!-- MINI MINI SONÓMETRO MÓVIL (ARRASTRABLE PARA ACERCAR/ALEJAR DE LAS FUENTES) -->
+                            <div id="mapSonometerPin" class="map-mini-sonometer" style="left:50%; top:65%;" title="🎙️ Mini Sonómetro Móvil (IEC 61672 Clase 2): Arrastre para acercar o alejar de las fuentes de ruido">
+                                <div class="mini-sono-wrap">
+                                    <div class="mini-sono-mic">
+                                        <div class="mini-sono-foam"></div>
+                                        <div class="mini-sono-neck"></div>
+                                        <div class="mini-sono-acoustic-halo"></div>
+                                    </div>
+                                    <div class="mini-sono-body">
+                                        <div class="mini-sono-badge">CETO</div>
+                                        <div class="mini-sono-display">
+                                            <span id="miniSonoVal">84.2</span>
+                                            <span class="mini-sono-unit">dBA</span>
+                                        </div>
+                                        <div class="mini-sono-buttons">
+                                            <span class="dot-btn red"></span>
+                                            <span class="dot-btn"></span>
+                                            <span class="dot-btn"></span>
+                                        </div>
+                                    </div>
+                                    <div class="mini-sono-shadow"></div>
+                                    <div class="mini-sono-drag-hint">✥ Mover</div>
                                 </div>
                             </div>
 
@@ -2226,19 +2267,28 @@
                         </div>
                     </div>
 
-                    <!-- BARRA MULTI-FUENTE (ACTIVA EN MODO PLANO GENERAL) -->
+                    <!-- BARRA MULTI-FUENTE Y COTAS (ACTIVA EN MODO PLANO GENERAL) -->
                     <div class="overview-multisource-bar" id="overviewControlsBar" style="display:none;">
-                        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                            <span style="font-weight:800; color:#cbd5e1;">Fuentes Activas:</span>
-                            <div class="source-chips-row" id="multiSourceChips">
-                                <!-- Chips generados por JS -->
+                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                            <div class="overview-dim-tag" style="background:#f8fafc; border:1.5px solid var(--ceto-orange); padding:4px 12px; border-radius:8px; font-size:0.75rem; font-weight:800; color:#0f172a; display:flex; gap:0.6rem; align-items:center;">
+                                <span>↔ Ancho: <strong style="color:var(--ceto-orange);">45.0 m</strong></span>
+                                <span>·</span>
+                                <span>↕ Largo: <strong style="color:var(--ceto-orange);">32.0 m</strong></span>
+                                <span>·</span>
+                                <span>Escala: <strong style="color:var(--ceto-orange);">1 cm = 5 m</strong></span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                                <span style="font-weight:800; color:#475569; font-size:0.74rem;">Fuentes:</span>
+                                <div class="source-chips-row" id="multiSourceChips">
+                                    <!-- Chips generados por JS -->
+                                </div>
                             </div>
                         </div>
                         <div style="display:flex; gap:0.4rem; align-items:center;">
-                            <button class="btn-top btn-top-amber" id="btnAllSourcesOn" style="padding:2px 8px; font-size:0.68rem;">
+                            <button class="btn-top btn-top-ceto" id="btnAllSourcesOn" style="padding:3px 10px; font-size:0.72rem;">
                                 ⚡ Todas ON
                             </button>
-                            <button class="btn-top" id="btnAllSourcesOff" style="padding:2px 8px; font-size:0.68rem;">
+                            <button class="btn-top" id="btnAllSourcesOff" style="padding:3px 10px; font-size:0.72rem;">
                                 ⏹ Todas OFF
                             </button>
                         </div>
@@ -2817,7 +2867,7 @@
                         synth: 'saw', 
                         photo: 'assets/machines/cortadora_disco_concreto.jpg', 
                         photoTag: 'MOTOR 2T · 4200 RPM · DISCO DIAMANTADO',
-                        coords: { x: 23, y: 76 }
+                        coords: { x: 20, y: 72 }
                     },
                     { 
                         id: 'martillo_neumatico', 
@@ -2830,7 +2880,7 @@
                         synth: 'hammer', 
                         photo: 'assets/machines/martillo_neumatico.jpg', 
                         photoTag: 'HEAVY BREAKER 26Hz 125dBC',
-                        coords: { x: 88, y: 75 }
+                        coords: { x: 86, y: 74 }
                     },
                     { 
                         id: 'mezcladora_trompo', 
@@ -2843,7 +2893,7 @@
                         synth: 'mixer', 
                         photo: 'assets/machines/mezcladora_trompo.jpg', 
                         photoTag: 'CONCRETE DRUM MIXER 1BBL',
-                        coords: { x: 40, y: 48 }
+                        coords: { x: 38, y: 40 }
                     },
                     { 
                         id: 'retroexcavadora', 
@@ -2869,7 +2919,7 @@
                         synth: 'roller', 
                         photo: 'assets/machines/vibrocompactador_pata_cabra.jpg', 
                         photoTag: 'PADFOOT COMPACTOR 30Hz',
-                        coords: { x: 88, y: 52 }
+                        coords: { x: 86, y: 46 }
                     }
                 ]
             },
@@ -4527,7 +4577,11 @@
                 document.getElementById('lcdTimer').textContent = `${hh}:${mm}:${ss}`;
             }
 
-            // Actualizar etiqueta del pin del sonómetro en el plano
+            // Actualizar valor en el mini sonómetro móvil del plano en tiempo real
+            const miniSonoVal = document.getElementById('miniSonoVal');
+            if (miniSonoVal) {
+                miniSonoVal.textContent = instantSPL.toFixed(1);
+            }
             const pinSpl = document.getElementById('pinLiveSpl');
             if (pinSpl) {
                 pinSpl.textContent = instantSPL.toFixed(1) + ' dBA';
@@ -5404,6 +5458,8 @@
             const overviewLayer = document.getElementById('sectorOverviewContainer');
             const overviewControls = document.getElementById('overviewControlsBar');
             const stageBadge = document.getElementById('stageModeBadge');
+            const viewport = document.getElementById('stageViewport');
+            const hotspotCont = document.getElementById('hotspotContainer');
 
             if (mode === 'overview') {
                 if (btnSingle) btnSingle.classList.remove('active');
@@ -5411,15 +5467,18 @@
                 if (floor) floor.style.display = 'none';
                 if (svgCont) svgCont.style.display = 'none';
                 if (fxCvs) fxCvs.style.display = 'none';
+                if (hotspotCont) hotspotCont.style.display = 'none'; // Quitar balizas numeradas que tapaban la foto
                 if (singleControls) singleControls.style.display = 'none';
                 if (overviewLayer) overviewLayer.style.display = 'flex';
                 if (overviewControls) overviewControls.style.display = 'flex';
-                if (stageBadge) stageBadge.textContent = 'PLANO GENERAL MULTI-FUENTE (45m x 32m)';
-                document.getElementById('stageMachineName').textContent = 'Composición General Acústica: Sector A (Construcción e Infraestructura)';
+                if (viewport) viewport.classList.add('overview-mode-active');
+                if (stageBadge) stageBadge.textContent = 'PLANO GENERAL (45m x 32m)';
+                document.getElementById('stageMachineName').textContent = 'Sector A: Obras Civiles y Construcción';
 
                 renderOverviewMachineBeacons();
                 renderMultiSourceChips();
                 updateSonometerPinPosition();
+                updateOverviewAcousticGains();
                 playCurrentAudio();
             } else {
                 if (btnSingle) btnSingle.classList.add('active');
@@ -5427,9 +5486,11 @@
                 if (floor) floor.style.display = 'block';
                 if (svgCont) svgCont.style.display = 'block';
                 if (fxCvs) fxCvs.style.display = 'block';
+                if (hotspotCont) hotspotCont.style.display = 'block';
                 if (singleControls) singleControls.style.display = 'flex';
                 if (overviewLayer) overviewLayer.style.display = 'none';
                 if (overviewControls) overviewControls.style.display = 'none';
+                if (viewport) viewport.classList.remove('overview-mode-active');
                 if (stageBadge) stageBadge.textContent = 'HD FOTORREALISTA';
                 document.getElementById('stageMachineName').textContent = currentMachine.name;
 
@@ -5446,19 +5507,17 @@
             SECTORS['A'].machines.forEach(m => {
                 const isActive = activeOverviewSources.has(m.id);
                 const beacon = document.createElement('div');
-                beacon.className = 'machine-map-beacon';
+                beacon.className = `machine-map-beacon ${isActive ? 'is-active' : 'is-off'}`;
                 beacon.style.left = m.coords.x + '%';
                 beacon.style.top = m.coords.y + '%';
-                beacon.title = `Haga clic para activar/desactivar ${m.name}`;
+                beacon.title = `${m.name} (${m.splRange}) - Clic para ${isActive ? 'APAGAR' : 'ACTIVAR'} ruido`;
 
                 beacon.innerHTML = `
-                    <div class="beacon-pin-btn ${isActive ? 'active' : 'inactive'}">
-                        <span>${isActive ? '🔊' : '🔇'}</span>
+                    <div class="beacon-speaker-btn ${isActive ? 'active' : 'inactive'}">
+                        <span class="speaker-icon">${isActive ? '🔊' : '🔇'}</span>
+                        ${isActive ? '<span class="speaker-ripple-ring"></span>' : ''}
                     </div>
-                    <div class="beacon-label-card">
-                        <strong>${m.name}</strong>
-                        <span>${m.splRange} · ${isActive ? 'ACTIVA' : 'APAGADA'}</span>
-                    </div>
+                    <div class="beacon-hover-tooltip">${m.name} · ${isActive ? 'ACTIVA' : 'APAGADA'}</div>
                 `;
 
                 beacon.addEventListener('click', (e) => {
