@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorio Virtual de Higiene Industrial: Simulador Acústico Multisectorial v3</title>
+    <!-- Librerías de Generación de Informes PDF Metrológicos (Offline + Fallback CDN) -->
+    <script src="assets/js/jspdf.umd.min.js"></script>
+    <script src="assets/js/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        if (typeof window.jspdf === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>');
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"><\/script>');
+        }
+    </script>
     <style>
         :root {
             --bg-body: #080c14;
@@ -1194,6 +1203,477 @@
             color: #cbd5e1;
             margin-bottom: 0.4rem;
         }
+
+        /* =========================================================================
+           ESTILOS: PLANO GENERAL DEL SECTOR, COTAS DE LONGITUD Y MULTI-FUENTE
+           ========================================================================= */
+        .btn-top.active {
+            background: #0284c7 !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 12px rgba(2, 132, 199, 0.5);
+        }
+
+        .sector-overview-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .overview-bg-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 30%;
+            filter: contrast(1.05) brightness(0.92);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Cotas y líneas de dimensión de ingeniería */
+        .dim-dimension-bar {
+            position: absolute;
+            z-index: 25;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.7);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .dim-bottom {
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 82%;
+            border-bottom: 2px solid #38bdf8;
+        }
+
+        .dim-left {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: center center;
+            border-left: 2px solid #38bdf8;
+        }
+
+        .dim-scale-tag {
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            z-index: 25;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #ca8a04;
+            color: #fde047;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 6px;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Balizas interactivas de maquinaria en el plano general */
+        .machine-map-beacon {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            z-index: 22;
+            user-select: none;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .machine-map-beacon:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            z-index: 28;
+        }
+
+        .beacon-pin-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 900;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.8);
+            transition: all 0.25s ease;
+        }
+
+        .beacon-pin-btn.active {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            color: #ffffff;
+            border-color: #4ade80;
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.8), 0 4px 12px rgba(0,0,0,0.8);
+        }
+
+        .beacon-pin-btn.inactive {
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            color: #94a3b8;
+            border-color: #64748b;
+            opacity: 0.85;
+        }
+
+        .beacon-label-card {
+            background: rgba(10, 15, 26, 0.92);
+            border: 1px solid #334155;
+            padding: 3px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            pointer-events: none;
+        }
+
+        .beacon-label-card strong {
+            font-size: 0.68rem;
+            color: #ffffff;
+        }
+
+        .beacon-label-card span {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            font-family: monospace;
+        }
+
+        /* Pin del Sonómetro en el Plano */
+        .map-sonometer-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            z-index: 30;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .map-sonometer-marker:active {
+            cursor: grabbing;
+        }
+
+        .sonometer-pin-body {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            border: 2px solid #ffffff;
+            border-radius: 20px;
+            padding: 4px 10px;
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.7), 0 0 12px rgba(0,0,0,0.9);
+            color: #fff;
+        }
+
+        .sonometer-pin-icon {
+            font-size: 16px;
+            animation: pulseMicrophone 1.2s infinite alternate;
+        }
+
+        @keyframes pulseMicrophone {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        .sonometer-pin-badge {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .pin-title {
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            color: #fed7aa;
+        }
+
+        .pin-spl {
+            font-size: 0.82rem;
+            font-weight: 900;
+            font-family: monospace;
+            color: #ffffff;
+        }
+
+        .sonometer-pin-radar {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px dashed rgba(234, 88, 12, 0.6);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: rotateRadar 4s linear infinite;
+        }
+
+        @keyframes rotateRadar {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Balizas de Puntos ya medidos en el plano */
+        .measured-point-tag {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #38bdf8;
+            color: #38bdf8;
+            font-weight: 800;
+            font-size: 0.68rem;
+            padding: 2px 6px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Bubble de Cinta Métrica */
+        .ruler-info-bubble {
+            position: absolute;
+            z-index: 35;
+            background: rgba(9, 14, 24, 0.95);
+            border: 1px solid #f59e0b;
+            color: #fde047;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            font-family: monospace;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.8);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* =========================================================================
+           SECCIÓN DE PROTOCOLO DE MEDICIÓN HIGIÉNICA Y REPORTE
+           ========================================================================= */
+        .section-sampling-protocol {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-panel);
+            border-radius: 14px;
+            padding: 1.15rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+        }
+
+        .sampling-grid {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 992px) {
+            .sampling-grid { grid-template-columns: 1fr; }
+        }
+
+        .sampling-card {
+            background: #090e18;
+            border: 1px solid var(--border-panel);
+            border-radius: 10px;
+            padding: 1rem 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .sampling-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 0.45rem;
+        }
+
+        .sampling-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .form-row label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .input-point-name {
+            background: #060a12;
+            border: 1px solid var(--border-bright);
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 0.45rem 0.65rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-point-name:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+        }
+
+        .select-timer {
+            flex: 1;
+            background: #060a12;
+            border: 1px solid var(--border-bright);
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 0.45rem 0.65rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .point-progress-box {
+            background: #04070e;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .timer-progress-track {
+            width: 100%;
+            height: 8px;
+            background: #1e293b;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .timer-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8 0%, #34d399 100%);
+            transition: width 0.25s linear;
+        }
+
+        /* Tabla Metrológica de Puntos */
+        .sampling-table-container {
+            border: 1px solid var(--border-panel);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #070b14;
+        }
+
+        .sampling-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.72rem;
+            text-align: left;
+        }
+
+        .sampling-table th {
+            background: #0f1624;
+            color: #94a3b8;
+            font-weight: 800;
+            padding: 0.55rem 0.65rem;
+            border-bottom: 1px solid #1e293b;
+            white-space: nowrap;
+        }
+
+        .sampling-table td {
+            padding: 0.5rem 0.65rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .sampling-table tr:hover {
+            background: rgba(56, 189, 248, 0.04);
+        }
+
+        .table-pill {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.65rem;
+            display: inline-block;
+        }
+
+        /* Strip multi-fuente en overview */
+        .overview-multisource-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            background: #080d16;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.75rem;
+        }
+
+        .source-chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .source-chip {
+            background: #111928;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .source-chip.active {
+            background: #024368;
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+        }
     </style>
 </head>
 <body>
@@ -1218,8 +1698,11 @@
             <button class="btn-top" id="btnAudioMute">
                 <span id="muteIcon">🔊</span> <span id="muteLabel">Audio: ON</span>
             </button>
-            <button class="btn-top btn-top-amber" id="btnOpenModalTop">
-                📋 Guía de Laboratorio (4 Prácticas)
+            <button class="btn-top" id="btnOpenModalTop">
+                📋 Prácticas (4)
+            </button>
+            <button class="btn-top btn-top-amber" id="btnTopReport" title="Generar Informe Técnico Oficial de Higiene Industrial en PDF">
+                📄 Informe Técnico PDF (Res. 2844)
             </button>
         </div>
     </header>
@@ -1238,14 +1721,14 @@
             </div>
 
             <div class="sector-tabs">
-                <div class="sector-tab" data-sec="A">
+                <div class="sector-tab active" data-sec="A">
                     <div class="sector-icon">🏗️</div>
                     <div class="sector-info">
                         <h3>Sector A: Construcción</h3>
                         <p>Infraestructura y Vías</p>
                     </div>
                 </div>
-                <div class="sector-tab active" data-sec="B">
+                <div class="sector-tab" data-sec="B">
                     <div class="sector-icon">⚙️</div>
                     <div class="sector-info">
                         <h3>Sector B: Manufactura</h3>
@@ -1290,13 +1773,26 @@
                 <!-- CAJA DEL ESCENARIO 3D INDUSTRIAL -->
                 <div class="stage-box">
                     <div class="stage-header">
-                        <div class="stage-title">
-                            <span id="stageMachineName">Compresor de Tornillo Kaeser</span>
-                            <span class="stage-badge-hd">HD FOTORREALISTA</span>
+                        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                            <div class="stage-title">
+                                <span id="stageMachineName">Sector A: Obras Civiles y Construcción</span>
+                                <span class="stage-badge-hd" id="stageModeBadge">HD FOTORREALISTA</span>
+                            </div>
+                            <div style="display:flex; gap:0.35rem; align-items:center; margin-left:0.5rem;">
+                                <button class="btn-top active" id="btnModeSingle" title="Inspección fotorrealista de máquina individual">
+                                    🔍 Vista Detallada Máquina
+                                </button>
+                                <button class="btn-top" id="btnModeOverview" title="Plano acústico interactivo con composición de todas las máquinas del sector">
+                                    🗺️ Plano General del Sector
+                                </button>
+                            </div>
                         </div>
-                        <div style="display:flex; gap:0.5rem;">
+                        <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                            <button class="btn-top" id="btnRulerTool" style="padding:2px 8px; font-size:0.7rem;" title="Haga clic y arrastre en el plano para medir distancias en metros">
+                                📏 Cinta Métrica: OFF
+                            </button>
                             <button class="btn-top" id="btnToggleHotspots" style="padding:2px 8px; font-size:0.7rem;">
-                                🎯 Focos ISO 9612: ON
+                                🎯 Focos ISO: ON
                             </button>
                             <button class="btn-top" id="btnToggleWaves" style="padding:2px 8px; font-size:0.7rem;">
                                 🌊 Ondas SPL: ON
@@ -1304,26 +1800,72 @@
                         </div>
                     </div>
 
-                    <!-- VIEWPORT DEL TALLER Y MÁQUINA -->
+                    <!-- VIEWPORT DEL TALLER / PLANO ACÚSTICO -->
                     <div class="stage-viewport" id="stageViewport">
-                        <div class="stage-floor">
+                        <!-- MODO 1: SUELO Y MÁQUINA INDIVIDUAL -->
+                        <div class="stage-floor" id="stageFloor">
                             <div class="stage-hazard-line"></div>
                             <div class="stage-shadow"></div>
                         </div>
 
-                        <!-- CAPA ILUSTRACIÓN VECTORIAL HIPERREALISTA -->
+                        <!-- CAPA ILUSTRACIÓN O FOTOGRAFÍA INDIVIDUAL -->
                         <div class="machine-svg-layer" id="machineSvgContainer">
                             <!-- Inyectado dinámicamente según la máquina -->
                         </div>
 
-                        <!-- CANVAS DE FÍSICA Y PARTÍCULAS -->
+                        <!-- CANVAS DE FÍSICA Y PARTÍCULAS (MODO INDIVIDUAL) -->
                         <canvas id="fxCanvas" width="880" height="420"></canvas>
 
-                        <!-- BALIZAS DINÁMICAS ISO 9612 -->
+                        <!-- BALIZAS DINÁMICAS ISO 9612 (MODO INDIVIDUAL) -->
                         <div id="hotspotContainer" style="position:absolute; inset:0; pointer-events:none;"></div>
+
+                        <!-- MODO 2: PLANO GENERAL DEL SECTOR CON COMPOSICIÓN REAL Y COTAS -->
+                        <div class="sector-overview-layer" id="sectorOverviewContainer" style="display:none;">
+                            <img id="overviewBgImg" src="assets/machines/sector_a_construccion_overview.jpg" alt="Composición General Sector A" class="overview-bg-photo">
+
+                            <!-- Cotas de Ingeniería en Metros -->
+                            <div class="dim-dimension-bar dim-bottom" id="dimBarBottom">
+                                <span style="font-size:0.9rem;">◀</span>
+                                <span>↔ ANCHO DEL FRENTE: <strong>45.0 METROS</strong></span>
+                                <span style="font-size:0.9rem;">▶</span>
+                            </div>
+                            <div class="dim-dimension-bar dim-left" id="dimBarLeft">
+                                <span style="font-size:0.9rem;">▲</span>
+                                <span>↕ FONDO: <strong>32.0 METROS</strong></span>
+                                <span style="font-size:0.9rem;">▼</span>
+                            </div>
+                            <div class="dim-scale-tag" id="dimScaleTag">
+                                <span>📐 ÁREA: <strong>1,440 m²</strong> · ESCALA: <strong>1 cm = 5 m</strong></span>
+                            </div>
+
+                            <!-- Canvas 2D para Ondas Acústicas Multi-Fuente y Regla Métrica -->
+                            <canvas id="overviewCanvas" width="880" height="420" style="position:absolute; inset:0; pointer-events:none; z-index:12;"></canvas>
+
+                            <!-- Balizas Interactivas de las 5 Máquinas en el Plano -->
+                            <div id="overviewMachinesLayer" style="position:absolute; inset:0; z-index:16;"></div>
+
+                            <!-- Marcadores de Puntos ya Medidos (P1, P2...) -->
+                            <div id="measuredPointsPinsLayer" style="position:absolute; inset:0; pointer-events:none; z-index:15;"></div>
+
+                            <!-- Pin Móvil Interactivo del Sonómetro EXTECH -->
+                            <div id="mapSonometerPin" class="map-sonometer-marker" style="left:50%; top:65%;" title="Arrastre o haga clic para reubicar el sonómetro en cualquier punto del sector">
+                                <div class="sonometer-pin-body">
+                                    <span class="sonometer-pin-icon">🎙️</span>
+                                    <div class="sonometer-pin-badge">
+                                        <span class="pin-title">SONÓMETRO EXTECH</span>
+                                        <span class="pin-spl" id="pinLiveSpl">--.- dBA</span>
+                                    </div>
+                                </div>
+                                <div class="sonometer-pin-radar"></div>
+                            </div>
+
+                            <!-- Cartel de Información de Cinta Métrica (Ruler) -->
+                            <div id="rulerOverlayInfo" class="ruler-info-bubble" style="display:none;"></div>
+                        </div>
                     </div>
 
-                    <div class="stage-controls-bar">
+                    <!-- BARRA DE CONTROLES INFERIOR DEL ESCENARIO -->
+                    <div class="stage-controls-bar" id="singleMachineControls">
                         <div style="display:flex; align-items:center; gap:0.75rem;">
                             <span>Distancia a la Fuente Acústica: <strong id="distLabel" style="color:#38bdf8;">1.0 m</strong></span>
                             <input type="range" id="distSlider" min="1.0" max="15.0" step="0.5" value="1.0" style="width:140px; cursor:pointer;">
@@ -1331,6 +1873,24 @@
                         </div>
                         <div id="selectedHotspotText" style="color:#f59e0b; font-weight:700;">
                             Haga clic en una baliza para auditar el foco
+                        </div>
+                    </div>
+
+                    <!-- BARRA MULTI-FUENTE (ACTIVA EN MODO PLANO GENERAL) -->
+                    <div class="overview-multisource-bar" id="overviewControlsBar" style="display:none;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                            <span style="font-weight:800; color:#cbd5e1;">Fuentes Activas:</span>
+                            <div class="source-chips-row" id="multiSourceChips">
+                                <!-- Chips generados por JS -->
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:0.4rem; align-items:center;">
+                            <button class="btn-top btn-top-amber" id="btnAllSourcesOn" style="padding:2px 8px; font-size:0.68rem;">
+                                ⚡ Todas ON
+                            </button>
+                            <button class="btn-top" id="btnAllSourcesOff" style="padding:2px 8px; font-size:0.68rem;">
+                                ⏹ Todas OFF
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1566,6 +2126,132 @@
 
         </div>
 
+        <!-- SECCIÓN 2.5: PROTOCOLO DE MEDICIÓN HIGIÉNICA POR PUNTOS Y REPORTE TÉCNICO (ISO 9612 / GATISO) -->
+        <section class="section-sampling-protocol">
+            <div class="sampling-grid">
+                <!-- Tarjeta de Control de Medición con Cronómetro -->
+                <div class="sampling-card sampling-control-card">
+                    <div class="sampling-card-header">
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <span style="font-size:1.15rem;">⏱️</span>
+                            <div>
+                                <div style="font-weight:800; font-size:0.85rem; color:#fff;">PROTOCOLO DE MEDICIÓN HIGIÉNICA EN PUNTO</div>
+                                <div style="font-size:0.65rem; color:var(--text-muted);">Estrategia de Muestreo de Puesto de Trabajo según NTC-ISO 9612:2009 y GATISO-HNIR</div>
+                            </div>
+                        </div>
+                        <span class="badge-version" style="background:#0284c7; font-size:0.62rem; padding:2px 6px; border-radius:4px;">ISO 9612 / RES. 2844</span>
+                    </div>
+
+                    <div class="sampling-form">
+                        <div class="form-row">
+                            <label>Ubicación / Puesto de Trabajo / Tarea Evaluada:</label>
+                            <input type="text" id="pointNameInput" value="P1: Puesto Operador Martillo Rompepavimentos" class="input-point-name">
+                        </div>
+                        <div class="form-row">
+                            <label>Tiempo Programado de Medición (Tm):</label>
+                            <div style="display:flex; gap:0.5rem; align-items:center;">
+                                <select id="pointTimerSelect" class="select-timer">
+                                    <option value="15">15 segundos (Demostración Rápida)</option>
+                                    <option value="60">1 minuto (Screening Preliminar)</option>
+                                    <option value="300" selected>5 minutos (Ciclo de Trabajo ISO 9612)</option>
+                                    <option value="900">15 minutos (Monitoreo Estándar GATISO)</option>
+                                </select>
+                                <button class="btn-top btn-top-amber" id="btnStartPointMeasurement" style="padding:0.45rem 1rem; font-size:0.8rem; white-space:nowrap;">
+                                    ▶ Iniciar Medición
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Barra de Progreso y Cuenta Regresiva de Medición -->
+                        <div id="pointProgressBox" class="point-progress-box" style="display:none;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-family:monospace;">
+                                <span>MUESTREANDO EN CURSO: <strong id="pointTimerClock" style="color:#34d399;">05:00</strong></span>
+                                <span id="pointProgressPct" style="color:#38bdf8;">0%</span>
+                            </div>
+                            <div class="timer-progress-track">
+                                <div id="timerProgressBar" class="timer-progress-bar"></div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.7rem; color:var(--text-dim);">
+                                <span>Integrando energía acústica LAeq en tiempo real...</span>
+                                <button id="btnAbortMeasurement" class="btn-top" style="padding:2px 8px; font-size:0.65rem; color:#f87171; border-color:#7f1d1d;">
+                                    ⏹ Detener y Registrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de Resumen y Descarga de Informe PDF -->
+                <div class="sampling-card sampling-report-card">
+                    <div class="sampling-card-header">
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <span style="font-size:1.15rem;">📄</span>
+                            <div>
+                                <div style="font-weight:800; font-size:0.85rem; color:#fff;">INFORME TÉCNICO HIGIÉNICO (COLOMBIA)</div>
+                                <div style="font-size:0.65rem; color:var(--text-muted);">Soporte Técnico Legal con Criterio Res. 2844 / Res. 1792 / Res. 2400</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; justify-content:space-between; flex:1; gap:0.75rem;">
+                        <div style="font-size:0.75rem; color:#cbd5e1; line-height:1.4;">
+                            Puntos Evaluados en esta sesión: <strong id="pointsCountTag" style="color:#38bdf8; font-size:1rem;">0</strong>
+                            <div style="font-size:0.68rem; color:var(--text-dim); margin-top:4px;">
+                                Cada punto registra LAeq, LCpeak, Lmax, Lmin, tiempo permisible legal (tasa q=5), dosis de jornada proyectada y diagnóstico normativo frente al Nivel de Acción (80 dBA).
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn-top btn-top-amber" id="btnDownloadReportPdf" style="flex:1; padding:0.6rem 0.8rem; font-size:0.82rem; font-weight:800; justify-content:center;">
+                                📥 Descargar Informe PDF
+                            </button>
+                            <button class="btn-top" id="btnPreviewReportModal" style="padding:0.6rem 0.8rem; font-size:0.82rem; justify-content:center;">
+                                👁️ Vista Previa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLA DE PUNTOS EVALUADOS -->
+            <div class="sampling-table-container">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:#0b111c; border-bottom:1px solid #1e293b;">
+                    <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; display:flex; align-items:center; gap:0.4rem;">
+                        <span>📋</span> REGISTRO METROLÓGICO DE MEDICIONES REALIZADAS
+                    </div>
+                    <button class="btn-top" id="btnClearPoints" style="padding:2px 8px; font-size:0.65rem; color:#f87171;">
+                        🗑️ Limpiar Historial
+                    </button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="sampling-table">
+                        <thead>
+                            <tr>
+                                <th>PUNTO</th>
+                                <th>UBICACIÓN / TAREA</th>
+                                <th>MÁQUINAS ACTIVAS</th>
+                                <th>DURACIÓN</th>
+                                <th>LAeq (dBA)</th>
+                                <th>LCpeak (dBC)</th>
+                                <th>Lmax / Lmin</th>
+                                <th>TIEMPO PERMISIBLE (q=5)</th>
+                                <th>DOSIS 8H</th>
+                                <th>DIAGNÓSTICO (RES. 2844)</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="samplingTableBody">
+                            <tr>
+                                <td colspan="11" style="text-align:center; color:var(--text-dim); padding:1.2rem; font-size:0.75rem;">
+                                    No hay puntos registrados aún. Seleccione la ubicación en el plano y pulse "▶ Iniciar Medición".
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- SECCIÓN 3: CONSOLA DE DIAGNÓSTICO DE HIGIENE INDUSTRIAL (COLOMBIA) -->
         <section class="section-hygiene">
             <!-- TARJETA 1: DIAGNÓSTICO LEGAL (RES. 1792/90 Y RES. 2400/79) -->
@@ -1692,6 +2378,77 @@
         </div>
     </div>
 
+    <!-- MODAL DE VISTA PREVIA Y PERSONALIZACIÓN DE INFORME TÉCNICO PDF -->
+    <div class="modal-overlay" id="reportPreviewModal">
+        <div class="modal-card" style="max-width:880px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:0.6rem;">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <span style="font-size:1.3rem;">📄</span>
+                    <div>
+                        <h3 style="color:#fff; font-size:1.1rem; font-weight:800;">Informe de Evaluación Higiénica de Ruido Ocupacional</h3>
+                        <div style="font-size:0.68rem; color:var(--text-muted);">Soporte Técnico Legal conforme a Res. 2844 de 2007 (GATISO-HNIR), Res. 1792 de 1990 e ISO 9612:2009</div>
+                    </div>
+                </div>
+                <button id="btnCloseReportModal" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+
+            <!-- Parámetros Editables de la Evaluación -->
+            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.75rem; background:#080d16; padding:0.85rem; border-radius:8px; border:1px solid #1e293b;">
+                <div class="form-row">
+                    <label>Empresa / Razón Social:</label>
+                    <input type="text" id="repCompanyName" value="CONSORCIO VIAL & INFRAESTRUCTURA CIVIL S.A.S." class="input-point-name">
+                </div>
+                <div class="form-row">
+                    <label>Obra / Frente de Trabajo:</label>
+                    <input type="text" id="repWorkSite" value="Sector A: Pavimentación, Estructura y Movimiento de Tierras" class="input-point-name">
+                </div>
+                <div class="form-row">
+                    <label>Especialista en Higiene / Evaluador SST:</label>
+                    <input type="text" id="repEvaluator" value="Ing. Pedro Noriega - Higienista Ocupacional" class="input-point-name">
+                </div>
+                <div class="form-row">
+                    <label>Licencia en Seguridad y Salud en el Trabajo (SST):</label>
+                    <input type="text" id="repLicense" value="LIC-SST-2026-9942-COL" class="input-point-name">
+                </div>
+            </div>
+
+            <!-- Resumen de Instrumentación y Calibración -->
+            <div style="font-size:0.72rem; color:#cbd5e1; background:#0f172a; padding:0.65rem 0.85rem; border-radius:6px; border-left:3px solid #38bdf8; display:flex; flex-direction:column; gap:2px;">
+                <strong>Instrumento Patrón:</strong> Sonómetro Integrador EXTECH 407780A Clase 2 (IEC 61672-1) · Calibrador 94.0 dB @ 1000 Hz · Verificación Acústica Inicial y Final: 94.0 dBA (Deriva 0.0 dB) · Filtros IEC 61260 en bandas de octava.
+            </div>
+
+            <!-- Vista Previa de Tabla de Puntos -->
+            <div style="max-height:220px; overflow-y:auto; border:1px solid #1e293b; border-radius:6px;">
+                <table class="sampling-table" id="modalPreviewTable">
+                    <thead>
+                        <tr>
+                            <th>Pto</th>
+                            <th>Ubicación / Tarea</th>
+                            <th>LAeq (dBA)</th>
+                            <th>LCpeak (dBC)</th>
+                            <th>T. Perm. (q=5)</th>
+                            <th>Dosis 8h</th>
+                            <th>Diagnóstico GATISO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalPreviewTableBody">
+                        <!-- Llenado dinámico -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem; padding-top:0.6rem; border-top:1px solid #1e293b;">
+                <span id="reportModalStatus" style="font-size:0.75rem; color:#38bdf8; font-weight:700;">Listo para emitir documento oficial</span>
+                <div style="display:flex; gap:0.6rem;">
+                    <button class="btn-top" id="btnCancelReportModal">Cerrar</button>
+                    <button class="btn-top btn-top-amber" id="btnExecutePdfDownload" style="padding:0.5rem 1.1rem; font-weight:800;">
+                        📥 Descargar Informe PDF Oficial
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MOTOR ACÚSTICO + SÍNTESIS + RENDERIZADO DEL SONÓMETRO EXTECH -->
     <script>
         // ==========================================
@@ -1700,12 +2457,74 @@
         const SECTORS = {
             'A': {
                 name: "Construcción de Infraestructura y Obras Civiles",
+                overviewPhoto: 'assets/machines/sector_a_construccion_overview.jpg',
+                dimensions: { width: 45.0, depth: 32.0, area: 1440 },
                 machines: [
-                    { id: 'martillo_neumatico', name: 'Martillo Neumático Rompepavimentos', type: 'impacto', splRange: '104-108 dBA', peak: '125 dBC Peak', baseSpl: 106.0, desc: 'Percusión neumática a 26 Hz + escape de aire a 6 bar.', synth: 'hammer', illustration: 'hammer' },
-                    { id: 'retroexcavadora', name: 'Retroexcavadora sobre Orugas', type: 'continuo', splRange: '89-93 dBA', peak: '102 dBC Peak', baseSpl: 91.5, desc: 'Motor diésel 6 cil. en carga con tracción mecánica de orugas.', synth: 'diesel', illustration: 'excavator' },
-                    { id: 'mezcladora_trompo', name: 'Mezcladora Trompo con Volteo de Áridos', type: 'continuo', splRange: '86-90 dBA', peak: '98 dBC Peak', baseSpl: 88.0, desc: 'Fricción de grava y cantos rodados contra tambor rotativo.', synth: 'mixer', illustration: 'mixer' },
-                    { id: 'cortadora_disco', name: 'Cortadora de Disco para Concreto', type: 'intermitente', splRange: '102-106 dBA', peak: '116 dBC Peak', baseSpl: 104.5, desc: 'Disco diamantado a 4200 RPM en fricción abrasiva extrema.', synth: 'saw', illustration: 'saw' },
-                    { id: 'vibrocompactador', name: 'Vibrocompactador Pata de Cabra', type: 'continuo', splRange: '91-95 dBA', peak: '108 dBC Peak', baseSpl: 93.0, desc: 'Excéntrica de muy baja frecuencia (30 Hz) acoplada a rodillo.', synth: 'roller', illustration: 'roller' }
+                    { 
+                        id: 'cortadora_disco', 
+                        name: 'Cortadora de Disco para Concreto', 
+                        type: 'intermitente', 
+                        splRange: '102-106 dBA', 
+                        peak: '116 dBC Peak', 
+                        baseSpl: 104.5, 
+                        desc: 'Disco diamantado a 4200 RPM en fricción abrasiva extrema cortando losa de concreto con refrigeración por agua.', 
+                        synth: 'saw', 
+                        photo: 'assets/machines/cortadora_disco_concreto.jpg', 
+                        photoTag: 'STIHL TS 4200RPM DIAMOND',
+                        coords: { x: 23, y: 76 }
+                    },
+                    { 
+                        id: 'martillo_neumatico', 
+                        name: 'Martillo Neumático Rompepavimentos', 
+                        type: 'impacto', 
+                        splRange: '104-108 dBA', 
+                        peak: '125 dBC Peak', 
+                        baseSpl: 106.0, 
+                        desc: 'Percusión de cincel a 26 Hz + despresurización violenta de aire comprimido a 6 bar fracturando pavimento.', 
+                        synth: 'hammer', 
+                        photo: 'assets/machines/martillo_neumatico.jpg', 
+                        photoTag: 'HEAVY BREAKER 26Hz 125dBC',
+                        coords: { x: 88, y: 75 }
+                    },
+                    { 
+                        id: 'mezcladora_trompo', 
+                        name: 'Mezcladora Trompo con Volteo de Áridos', 
+                        type: 'continuo', 
+                        splRange: '86-90 dBA', 
+                        peak: '98 dBC Peak', 
+                        baseSpl: 88.0, 
+                        desc: 'Tambor rotativo de acero con corona dentada de volteo y choque continuo de cantos rodados y áridos gruesos.', 
+                        synth: 'mixer', 
+                        photo: 'assets/machines/mezcladora_trompo.jpg', 
+                        photoTag: 'CONCRETE DRUM MIXER 1BBL',
+                        coords: { x: 40, y: 48 }
+                    },
+                    { 
+                        id: 'retroexcavadora', 
+                        name: 'Retroexcavadora sobre Orugas', 
+                        type: 'continuo', 
+                        splRange: '89-93 dBA', 
+                        peak: '102 dBC Peak', 
+                        baseSpl: 91.5, 
+                        desc: 'Motor turbodiésel 6 cilindros bajo demanda hidráulica pesada y tracción de zapatas metálicas en orugas.', 
+                        synth: 'diesel', 
+                        photo: 'assets/machines/retroexcavadora_orugas.jpg', 
+                        photoTag: 'CRAWLER EXCAVATOR 6-CYL',
+                        coords: { x: 62, y: 22 }
+                    },
+                    { 
+                        id: 'vibrocompactador', 
+                        name: 'Vibrocompactador Pata de Cabra', 
+                        type: 'continuo', 
+                        splRange: '91-95 dBA', 
+                        peak: '108 dBC Peak', 
+                        baseSpl: 93.0, 
+                        desc: 'Rodillo vibratorio con excéntrica de baja frecuencia (30 Hz) y patas pisadoras para densificación de suelo.', 
+                        synth: 'roller', 
+                        photo: 'assets/machines/vibrocompactador_pata_cabra.jpg', 
+                        photoTag: 'PADFOOT COMPACTOR 30Hz',
+                        coords: { x: 88, y: 52 }
+                    }
                 ]
             },
             'B': {
@@ -1795,16 +2614,35 @@
                 { name: 'Volante de Inercia Masivo', spl: 88, band: '60 Hz armónico', desc: 'Masa rotativa de 1.4 m disipando energía.', x: 32, y: 38 }
             ],
             'martillo_neumatico': [
-                { name: 'Punta de Cincel sobre Concreto', spl: 106, band: 'Pico 125 dBC', desc: 'Impacto directo de émbolo percutor a 26 Hz.', x: 50, y: 84 },
-                { name: 'Escape de Aire Comprimido', spl: 102, band: '1800-4000 Hz', desc: 'Despresurización violenta a 6 bar.', x: 54, y: 42 }
+                { name: 'Punta de Cincel sobre Concreto', spl: 106, band: 'Pico 125 dBC', desc: 'Impacto directo de émbolo percutor a 26 Hz fracturando pavimento.', x: 78, y: 72 },
+                { name: 'Cilindro Neumático y Émbolo', spl: 103, band: '26-100 Hz', desc: 'Compresión y golpeo de maza interna de acero templado.', x: 45, y: 45 },
+                { name: 'Escape y Manguera a 6 bar', spl: 101, band: '1800-4000 Hz', desc: 'Despresurización violenta y flujo turbulento de aire comprimido.', x: 22, y: 68 },
+                { name: 'Asideros con Amortiguación', spl: 89, band: 'Baja frecuencia', desc: 'Transmisión de vibración mano-brazo al operador.', x: 48, y: 18 }
             ],
             'cortadora_disco': [
-                { name: 'Disco Diamantado en Concreto', spl: 105, band: '4200 Hz', desc: 'Fricción de corte abrasivo a alta velocidad periférica.', x: 50, y: 70 },
-                { name: 'Escape Motor 2T a Plena Carga', spl: 101, band: '800-2400 Hz', desc: 'Pulsos de combustión de 2 tiempos sin catalizador.', x: 62, y: 45 }
+                { name: 'Disco Diamantado en Concreto', spl: 105, band: '4200 Hz tonal', desc: 'Fricción abrasiva extrema a 80 m/s cortando losa.', x: 74, y: 55 },
+                { name: 'Motor 2T Monocilíndrico a 9500 RPM', spl: 102, band: '800-2400 Hz', desc: 'Pulsos de combustión de dos tiempos sin catalizador.', x: 38, y: 44 },
+                { name: 'Escape de Gases de Combustión', spl: 100, band: 'Armónicos 2T', desc: 'Salida de gases calientes presurizados.', x: 48, y: 32 },
+                { name: 'Guarda y Tobera Refrigerante', spl: 92, band: 'Turbulencia', desc: 'Chorros de agua pulverizada suprimiendo polvo de sílice.', x: 62, y: 35 }
             ],
             'retroexcavadora': [
-                { name: 'Motor Diésel 6 Cilindros en Carga', spl: 91, band: '100-350 Hz', desc: 'Combustión diésel bajo demanda hidráulica pesada.', x: 38, y: 48 },
-                { name: 'Bomba Hidráulica de Caudal Variable', spl: 89, band: '950-1800 Hz', desc: 'Pulsaciones de presión a 350 bar en bloque de válvulas.', x: 48, y: 58 }
+                { name: 'Motor Turbodiésel 6 Cilindros en Carga', spl: 92, band: '180 Hz', desc: 'Inyección diésel en demanda de excavación pesada.', x: 32, y: 50 },
+                { name: 'Bombas Hidráulicas a 350 bar', spl: 90, band: '1200-2200 Hz', desc: 'Pulsaciones de émbolos axiales en el distribuidor hidráulico.', x: 42, y: 56 },
+                { name: 'Rodadura de Orugas Metálicas', spl: 89, band: '300-800 Hz', desc: 'Fricción y traqueteo de tejas de acero sobre piedra y barro.', x: 52, y: 80 },
+                { name: 'Cazo de Excavación con Dientes', spl: 88, band: 'Impactos', desc: 'Claveo y desgarro de terreno rocoso.', x: 78, y: 66 },
+                { name: 'Escape Vertical de Turbodiésel', spl: 91, band: '60-350 Hz', desc: 'Descarga pulsante con silenciador resonador.', x: 35, y: 36 }
+            ],
+            'mezcladora_trompo': [
+                { name: 'Cuba de Volteo con Grava y Piedra', spl: 89, band: '200-1500 Hz', desc: 'Cascada y choque violento de cantos rodados contra paletas.', x: 55, y: 42 },
+                { name: 'Corona Dentada de Fundición', spl: 87, band: '320 Hz tonal', desc: 'Engrane metálico abierto de arrastre perimetral.', x: 38, y: 40 },
+                { name: 'Tolva Basculante de Carga', spl: 85, band: 'Fricción', desc: 'Alimentación de arena, grava y cemento seco.', x: 28, y: 24 },
+                { name: 'Bancada del Motorreductor', spl: 83, band: '60-180 Hz', desc: 'Motor de combustión acoplado a reductor de velocidad.', x: 26, y: 58 }
+            ],
+            'vibrocompactador': [
+                { name: 'Rodillo Pata de Cabra (Excéntrica 30 Hz)', spl: 94, band: '28-60 Hz infrasónico', desc: 'Maza excéntrica generando 150 kN de fuerza de impacto centrífugo.', x: 62, y: 68 },
+                { name: 'Motor Turbodiésel en Tracción', spl: 91, band: '120-450 Hz', desc: 'Motor diésel operando a régimen constante de compactación.', x: 38, y: 42 },
+                { name: 'Cabina ROPS con Aislamiento Acústico', spl: 78, band: 'Aislada (Interior 76 dBA)', desc: 'Silentblocks y vidrios dobles protegiendo al operador.', x: 44, y: 25 },
+                { name: 'Neumáticos Traseros Pisadores', spl: 84, band: 'Deformación', desc: 'Banda de rodadura profunda traccionando sobre arcilla.', x: 20, y: 62 }
             ],
             'torno_cnc': [
                 { name: 'Husillo Principal y Cizallamiento', spl: 86, band: '2500-5000 Hz', desc: 'Arranque de viruta con plaquitas de metal duro.', x: 48, y: 56 },
@@ -1821,10 +2659,6 @@
             'datacenter_servidores': [
                 { name: 'Ventiladores Servidores 1U (14000 RPM)', spl: 72, band: '4500-9000 Hz', desc: 'Zumbido de alta frecuencia de flujo forzado laminar.', x: 50, y: 50 },
                 { name: 'Unidad de Climatización CRAC', spl: 68, band: '120-600 Hz', desc: 'Ventiladores centrífugos y compresor scroll.', x: 75, y: 65 }
-            ],
-            'mezcladora_trompo': [
-                { name: 'Corona Dentada y Piñón de Arrastre', spl: 88, band: '400-1200 Hz', desc: 'Engrane metálico abierto sin lubricación continua.', x: 50, y: 58 },
-                { name: 'Fricción de Áridos en Cuba de Acero', spl: 86, band: '1500-4000 Hz', desc: 'Golpeo de grava contra las palas mezcladoras.', x: 44, y: 42 }
             ],
             'cafeteria_corporativa': [
                 { name: 'Molinillo de Muelas Cónicas', spl: 77, band: '2000-6000 Hz', desc: 'Trituración y fractura de granos de café tostado.', x: 38, y: 50 },
@@ -1871,9 +2705,33 @@
         // ==========================================
         // 4. ESTADO DE OPERACIÓN
         // ==========================================
-        let currentSector = 'B';
-        let currentMachine = SECTORS['B'].machines[2]; // Amoladora Angular Bosch Professional GWS (Foto 1)
+        let currentSector = 'A';
+        let currentMachine = SECTORS['A'].machines[0]; // Cortadora de Disco para Concreto (Sector A)
         let isAudioMuted = false;
+
+        // Modo de visualización: 'single' (inspección detallada de máquina) o 'overview' (plano general del sector)
+        let viewMode = 'single';
+        const activeOverviewSources = new Set(['cortadora_disco', 'martillo_neumatico', 'mezcladora_trompo', 'retroexcavadora', 'vibrocompactador']);
+        let sonometerPos = { xPct: 50, yPct: 65 }; // Posición inicial del sonómetro en el plano (45m x 32m)
+        let isDraggingSonometer = false;
+        let isRulerActive = false;
+        let rulerPoints = null; // { x1, y1, x2, y2, isDragging: false }
+        let multiSourceGains = {};
+
+        // Protocolo de Muestreo de Higiene Industrial (NTC-ISO 9612:2009 y Res. 2844 de 2007)
+        let evaluatedPoints = [];
+        let pointTimerInterval = null;
+        let pointSamplingState = {
+            active: false,
+            totalSec: 300,
+            elapsedSec: 0,
+            leqSum: 0,
+            samples: 0,
+            lmax: 40.0,
+            lmin: 140.0,
+            lpeak: 40.0,
+            name: 'P1: Puesto Operador Martillo Rompepavimentos'
+        };
 
         // Sonómetro
         let isPowered = true;
@@ -1989,6 +2847,407 @@
         // ==========================================
         // 6. SÍNTESIS DE LAS MÁQUINAS
         // ==========================================
+        // 6.1 MÓDULOS DE SÍNTESIS PROCEDURAL WEB AUDIO (SECTOR A Y MULTISECTORIAL)
+        function createSawSynth(outNode, t, gainMult = 1.0) {
+            // Cortadora de disco para concreto (STIHL TS / Husqvarna diamantada)
+            const engineOsc = audioCtx.createOscillator();
+            engineOsc.type = 'sawtooth';
+            engineOsc.frequency.setValueAtTime(145, t);
+            const engineFilter = audioCtx.createBiquadFilter();
+            engineFilter.type = 'lowpass';
+            engineFilter.frequency.setValueAtTime(1100, t);
+            const engineGain = audioCtx.createGain();
+            engineGain.gain.setValueAtTime(0.32 * gainMult, t);
+            engineOsc.connect(engineFilter);
+            engineFilter.connect(engineGain);
+            engineGain.connect(outNode);
+            engineOsc.start(t);
+            activeSynths.push(engineOsc);
+
+            // Chillido metálico de alta frecuencia del disco diamantado (4200 RPM -> 4200 Hz y 8400 Hz)
+            const bladeOsc = audioCtx.createOscillator();
+            bladeOsc.type = 'sine';
+            bladeOsc.frequency.setValueAtTime(4200, t);
+            const bladeGain = audioCtx.createGain();
+            bladeGain.gain.setValueAtTime(0.38 * gainMult, t);
+            bladeOsc.connect(bladeGain);
+            bladeGain.connect(outNode);
+            bladeOsc.start(t);
+            activeSynths.push(bladeOsc);
+
+            const harmBlade = audioCtx.createOscillator();
+            harmBlade.type = 'sine';
+            harmBlade.frequency.setValueAtTime(8400, t);
+            const harmGain = audioCtx.createGain();
+            harmGain.gain.setValueAtTime(0.12 * gainMult, t);
+            harmBlade.connect(harmGain);
+            harmGain.connect(outNode);
+            harmBlade.start(t);
+            activeSynths.push(harmBlade);
+
+            // Fricción abrasiva continua de corte en concreto (White noise bandpass 4.6 kHz)
+            const nSrc = audioCtx.createBufferSource();
+            nSrc.buffer = whiteBuffer;
+            nSrc.loop = true;
+            const nFilter = audioCtx.createBiquadFilter();
+            nFilter.type = 'bandpass';
+            nFilter.frequency.setValueAtTime(4600, t);
+            nFilter.Q.setValueAtTime(2.2, t);
+            const nGain = audioCtx.createGain();
+            nGain.gain.setValueAtTime(0.45 * gainMult, t);
+            nSrc.connect(nFilter);
+            nFilter.connect(nGain);
+            nGain.connect(outNode);
+            nSrc.start(t);
+            activeSynths.push(nSrc);
+
+            const timer = setInterval(() => {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const cutting = Math.random() > 0.35;
+                bladeGain.gain.setTargetAtTime(cutting ? 0.45 * gainMult : 0.15 * gainMult, now, 0.08);
+                nGain.gain.setTargetAtTime(cutting ? 0.55 * gainMult : 0.18 * gainMult, now, 0.08);
+            }, 1400);
+            synthIntervals.push(timer);
+        }
+
+        function createHammerSynth(outNode, t, gainMult = 1.0) {
+            // Martillo neumático rompepavimentos (26 Hz percusión + despresurización 6 bar)
+            const timer = setInterval(() => {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(280, now);
+                osc.frequency.exponentialRampToValueAtTime(75, now + 0.025);
+
+                const g = audioCtx.createGain();
+                g.gain.setValueAtTime(0.001, now);
+                g.gain.linearRampToValueAtTime(2.2 * gainMult, now + 0.002);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+
+                osc.connect(g); g.connect(outNode);
+                osc.start(now); osc.stop(now + 0.035);
+
+                const bSrc = audioCtx.createBufferSource();
+                bSrc.buffer = whiteBuffer;
+                const bp = audioCtx.createBiquadFilter();
+                bp.type = 'bandpass'; bp.frequency.setValueAtTime(1800, now);
+                const bg = audioCtx.createGain();
+                bg.gain.setValueAtTime(1.4 * gainMult, now);
+                bg.gain.exponentialRampToValueAtTime(0.01, now + 0.028);
+
+                bSrc.connect(bp); bp.connect(bg); bg.connect(outNode);
+                bSrc.start(now); bSrc.stop(now + 0.03);
+            }, 38);
+            synthIntervals.push(timer);
+        }
+
+        function createMixerSynth(outNode, t, gainMult = 1.0) {
+            // Mezcladora Trompo con volteo de áridos
+            const gearOsc = audioCtx.createOscillator();
+            gearOsc.type = 'triangle';
+            gearOsc.frequency.setValueAtTime(320, t);
+            const gearGain = audioCtx.createGain();
+            gearGain.gain.setValueAtTime(0.24 * gainMult, t);
+            gearOsc.connect(gearGain);
+            gearGain.connect(outNode);
+            gearOsc.start(t);
+            activeSynths.push(gearOsc);
+
+            const drumOsc = audioCtx.createOscillator();
+            drumOsc.type = 'sine';
+            drumOsc.frequency.setValueAtTime(36, t);
+            const drumGain = audioCtx.createGain();
+            drumGain.gain.setValueAtTime(0.35 * gainMult, t);
+            drumOsc.connect(drumGain);
+            drumGain.connect(outNode);
+            drumOsc.start(t);
+            activeSynths.push(drumOsc);
+
+            const pSrc = audioCtx.createBufferSource();
+            pSrc.buffer = pinkBuffer;
+            pSrc.loop = true;
+            const pFilter = audioCtx.createBiquadFilter();
+            pFilter.type = 'bandpass';
+            pFilter.frequency.setValueAtTime(1050, t);
+            pFilter.Q.setValueAtTime(1.8, t);
+            const gravelGain = audioCtx.createGain();
+            gravelGain.gain.setValueAtTime(0.40 * gainMult, t);
+            pSrc.connect(pFilter);
+            pFilter.connect(gravelGain);
+            gravelGain.connect(outNode);
+            pSrc.start(t);
+            activeSynths.push(pSrc);
+
+            const timer = setInterval(() => {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                gravelGain.gain.setTargetAtTime(0.65 * gainMult, now, 0.1);
+                setTimeout(() => {
+                    if (audioCtx) gravelGain.gain.setTargetAtTime(0.25 * gainMult, audioCtx.currentTime, 0.4);
+                }, 500);
+            }, 2200);
+            synthIntervals.push(timer);
+        }
+
+        function createDieselSynth(outNode, t, gainMult = 1.0) {
+            // Retroexcavadora sobre orugas (Motor turbodiésel 6 cilindros bajo demanda hidráulica)
+            const osc1 = audioCtx.createOscillator();
+            osc1.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(48, t);
+            const f1 = audioCtx.createBiquadFilter();
+            f1.type = 'lowpass';
+            f1.frequency.setValueAtTime(220, t);
+            const g1 = audioCtx.createGain();
+            g1.gain.setValueAtTime(0.38 * gainMult, t);
+            osc1.connect(f1); f1.connect(g1); g1.connect(outNode);
+            osc1.start(t);
+            activeSynths.push(osc1);
+
+            const osc2 = audioCtx.createOscillator();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(96, t);
+            const g2 = audioCtx.createGain();
+            g2.gain.setValueAtTime(0.28 * gainMult, t);
+            osc2.connect(g2); g2.connect(outNode);
+            osc2.start(t);
+            activeSynths.push(osc2);
+
+            const turboOsc = audioCtx.createOscillator();
+            turboOsc.type = 'sine';
+            turboOsc.frequency.setValueAtTime(2250, t);
+            const turboGain = audioCtx.createGain();
+            turboGain.gain.setValueAtTime(0.08 * gainMult, t);
+            turboOsc.connect(turboGain); turboGain.connect(outNode);
+            turboOsc.start(t);
+            activeSynths.push(turboOsc);
+
+            const pSrc = audioCtx.createBufferSource();
+            pSrc.buffer = pinkBuffer; pSrc.loop = true;
+            const bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(450, t);
+            const pg = audioCtx.createGain();
+            pg.gain.setValueAtTime(0.25 * gainMult, t);
+            pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
+            pSrc.start(t);
+            activeSynths.push(pSrc);
+        }
+
+        function createRollerSynth(outNode, t, gainMult = 1.0) {
+            // Vibrocompactador Pata de Cabra (30 Hz excéntrica de baja frecuencia + diésel pesado)
+            const vibOsc = audioCtx.createOscillator();
+            vibOsc.type = 'sine';
+            vibOsc.frequency.setValueAtTime(30, t);
+            const vibGain = audioCtx.createGain();
+            vibGain.gain.setValueAtTime(0.55 * gainMult, t);
+            vibOsc.connect(vibGain);
+            vibGain.connect(outNode);
+            vibOsc.start(t);
+            activeSynths.push(vibOsc);
+
+            const pOsc = audioCtx.createOscillator();
+            pOsc.type = 'triangle';
+            pOsc.frequency.setValueAtTime(60, t);
+            const pGain = audioCtx.createGain();
+            pGain.gain.setValueAtTime(0.28 * gainMult, t);
+            pOsc.connect(pGain);
+            pGain.connect(outNode);
+            pOsc.start(t);
+            activeSynths.push(pOsc);
+
+            const mot = audioCtx.createOscillator();
+            mot.type = 'sawtooth';
+            mot.frequency.setValueAtTime(78, t);
+            const mFilt = audioCtx.createBiquadFilter();
+            mFilt.type = 'lowpass';
+            mFilt.frequency.setValueAtTime(180, t);
+            const motGain = audioCtx.createGain();
+            motGain.gain.setValueAtTime(0.32 * gainMult, t);
+            mot.connect(mFilt); mFilt.connect(motGain); motGain.connect(outNode);
+            mot.start(t);
+            activeSynths.push(mot);
+        }
+
+        function createCompressorSynth(outNode, t, gainMult = 1.0) {
+            const lobs = audioCtx.createOscillator();
+            lobs.type = 'sine'; lobs.frequency.setValueAtTime(1450, t);
+            const lg = audioCtx.createGain(); lg.gain.setValueAtTime(0.3 * gainMult, t);
+            const mot = audioCtx.createOscillator();
+            mot.type = 'triangle'; mot.frequency.setValueAtTime(120, t);
+            const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.12 * gainMult, t);
+            const wSrc = audioCtx.createBufferSource();
+            wSrc.buffer = whiteBuffer; wSrc.loop = true;
+            const bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(3200, t); bp.Q.setValueAtTime(2.0, t);
+            lobs.connect(lg); lg.connect(outNode);
+            mot.connect(mg); mg.connect(outNode);
+            wSrc.connect(bp); bp.connect(outNode);
+            lobs.start(); mot.start(); wSrc.start();
+            activeSynths.push(lobs, mot, wSrc);
+        }
+
+        function createGrinderSynth(outNode, t, gainMult = 1.0) {
+            const mot = audioCtx.createOscillator();
+            mot.type = 'sawtooth'; mot.frequency.setValueAtTime(5200, t);
+            const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.35 * gainMult, t);
+            const wSrc = audioCtx.createBufferSource();
+            wSrc.buffer = whiteBuffer; wSrc.loop = true;
+            const hp = audioCtx.createBiquadFilter();
+            hp.type = 'highpass'; hp.frequency.setValueAtTime(3800, t);
+            const wg = audioCtx.createGain(); wg.gain.setValueAtTime(0.3 * gainMult, t);
+            mot.connect(mg); mg.connect(outNode);
+            wSrc.connect(hp); hp.connect(wg); wg.connect(outNode);
+            mot.start(); wSrc.start();
+            activeSynths.push(mot, wSrc);
+            const timer = setInterval(() => {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const isGrinding = Math.random() > 0.4;
+                wg.gain.setTargetAtTime(isGrinding ? 1.4 * gainMult : 0.25 * gainMult, now, 0.05);
+            }, 1200);
+            synthIntervals.push(timer);
+        }
+
+        function createPunchSynth(outNode, t, gainMult = 1.0) {
+            const hum = audioCtx.createOscillator();
+            hum.type = 'triangle'; hum.frequency.setValueAtTime(60, t);
+            const hg = audioCtx.createGain(); hg.gain.setValueAtTime(0.2 * gainMult, t);
+            hum.connect(hg); hg.connect(outNode); hum.start();
+            activeSynths.push(hum);
+            const strike = () => {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const sub = audioCtx.createOscillator();
+                sub.type = 'sine'; sub.frequency.setValueAtTime(85, now);
+                sub.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+                const sg = audioCtx.createGain();
+                sg.gain.setValueAtTime(0.001, now);
+                sg.gain.linearRampToValueAtTime(4.5 * gainMult, now + 0.002);
+                sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+                sub.connect(sg); sg.connect(outNode);
+                sub.start(now); sub.stop(now + 0.18);
+                const clang = audioCtx.createOscillator();
+                clang.type = 'square'; clang.frequency.setValueAtTime(1250, now);
+                clang.frequency.exponentialRampToValueAtTime(480, now + 0.09);
+                const cg = audioCtx.createGain();
+                cg.gain.setValueAtTime(0.001, now);
+                cg.gain.linearRampToValueAtTime(3.0 * gainMult, now + 0.002);
+                cg.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+                clang.connect(cg); cg.connect(outNode);
+                clang.start(now); clang.stop(now + 0.24);
+            };
+            strike();
+            const timer = setInterval(strike, 1800);
+            synthIntervals.push(timer);
+        }
+
+        function createForgingSynth(outNode, t, gainMult = 1.0) {
+            const pSrc = audioCtx.createBufferSource();
+            pSrc.buffer = pinkBuffer; pSrc.loop = true;
+            const lp = audioCtx.createBiquadFilter();
+            lp.type = 'lowpass'; lp.frequency.setValueAtTime(220, t);
+            const lpg = audioCtx.createGain(); lpg.gain.setValueAtTime(0.35 * gainMult, t);
+            pSrc.connect(lp); lp.connect(lpg); lpg.connect(outNode);
+            pSrc.start();
+            activeSynths.push(pSrc);
+
+            const strikeForge = () => {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const sub = audioCtx.createOscillator();
+                sub.type = 'sine'; sub.frequency.setValueAtTime(65, now);
+                sub.frequency.exponentialRampToValueAtTime(24, now + 0.18);
+                const sg = audioCtx.createGain();
+                sg.gain.setValueAtTime(0.001, now);
+                sg.gain.linearRampToValueAtTime(5.5 * gainMult, now + 0.002);
+                sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                sub.connect(sg); sg.connect(outNode);
+                sub.start(now); sub.stop(now + 0.28);
+
+                const anvil = audioCtx.createOscillator();
+                anvil.type = 'triangle'; anvil.frequency.setValueAtTime(860, now);
+                anvil.frequency.exponentialRampToValueAtTime(320, now + 0.12);
+                const ag = audioCtx.createGain();
+                ag.gain.setValueAtTime(0.001, now);
+                ag.gain.linearRampToValueAtTime(3.8 * gainMult, now + 0.001);
+                ag.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+                anvil.connect(ag); ag.connect(outNode);
+                anvil.start(now); anvil.stop(now + 0.35);
+
+                const wSrc = audioCtx.createBufferSource();
+                wSrc.buffer = whiteBuffer;
+                const bp = audioCtx.createBiquadFilter();
+                bp.type = 'bandpass'; bp.frequency.setValueAtTime(2400, now); bp.Q.setValueAtTime(1.8, now);
+                const wg = audioCtx.createGain();
+                wg.gain.setValueAtTime(0.001, now);
+                wg.gain.linearRampToValueAtTime(2.2 * gainMult, now + 0.01);
+                wg.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                wSrc.connect(bp); bp.connect(wg); wg.connect(outNode);
+                wSrc.start(now); wSrc.stop(now + 0.18);
+            };
+            strikeForge();
+            const timer = setInterval(strikeForge, 1350);
+            synthIntervals.push(timer);
+        }
+
+        function createBlowerSynth(outNode, t, gainMult = 1.0) {
+            const bpf = audioCtx.createOscillator();
+            bpf.type = 'sine'; bpf.frequency.setValueAtTime(480, t);
+            const bg = audioCtx.createGain(); bg.gain.setValueAtTime(0.38 * gainMult, t);
+            bpf.connect(bg); bg.connect(outNode); bpf.start();
+            activeSynths.push(bpf);
+
+            const bpf2 = audioCtx.createOscillator();
+            bpf2.type = 'sine'; bpf2.frequency.setValueAtTime(960, t);
+            const bg2 = audioCtx.createGain(); bg2.gain.setValueAtTime(0.14 * gainMult, t);
+            bpf2.connect(bg2); bg2.connect(outNode); bpf2.start();
+            activeSynths.push(bpf2);
+
+            const pSrc = audioCtx.createBufferSource();
+            pSrc.buffer = pinkBuffer; pSrc.loop = true;
+            const bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(750, t); bp.Q.setValueAtTime(1.2, t);
+            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.48 * gainMult, t);
+            pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
+            pSrc.start();
+            activeSynths.push(pSrc);
+
+            const rumble = audioCtx.createOscillator();
+            rumble.type = 'triangle'; rumble.frequency.setValueAtTime(32, t);
+            const rg = audioCtx.createGain(); rg.gain.setValueAtTime(0.18 * gainMult, t);
+            rumble.connect(rg); rg.connect(outNode); rumble.start();
+            activeSynths.push(rumble);
+        }
+
+        function createDefaultSynth(outNode, t, gainMult = 1.0) {
+            const pSrc = audioCtx.createBufferSource();
+            pSrc.buffer = pinkBuffer; pSrc.loop = true;
+            const bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(900, t);
+            const g = audioCtx.createGain(); g.gain.setValueAtTime(0.6 * gainMult, t);
+            pSrc.connect(bp); bp.connect(g); g.connect(outNode);
+            pSrc.start();
+            activeSynths.push(pSrc);
+        }
+
+        function createMachineSynth(synthType, destGain, gainMult = 1.0) {
+            const t = audioCtx.currentTime;
+            if (synthType === 'saw') createSawSynth(destGain, t, gainMult);
+            else if (synthType === 'hammer') createHammerSynth(destGain, t, gainMult);
+            else if (synthType === 'mixer') createMixerSynth(destGain, t, gainMult);
+            else if (synthType === 'diesel') createDieselSynth(destGain, t, gainMult);
+            else if (synthType === 'roller') createRollerSynth(destGain, t, gainMult);
+            else if (synthType === 'compressor') createCompressorSynth(destGain, t, gainMult);
+            else if (synthType === 'grinder') createGrinderSynth(destGain, t, gainMult);
+            else if (synthType === 'punch') createPunchSynth(destGain, t, gainMult);
+            else if (synthType === 'forging') createForgingSynth(destGain, t, gainMult);
+            else if (synthType === 'blower') createBlowerSynth(destGain, t, gainMult);
+            else createDefaultSynth(destGain, t, gainMult);
+        }
+
+        // ==========================================
+        // 6.2 GESTIÓN DE AUDIO (INDIVIDUAL Y PLANO GENERAL)
+        // ==========================================
         function playCurrentMachine() {
             initAudio();
             stopSynths();
@@ -2000,206 +3259,64 @@
             out.connect(distanceGain);
             activeSynths.push(out);
 
-            const type = currentMachine.synth;
+            createMachineSynth(currentMachine.synth, out, 1.0);
+        }
 
-            if (type === 'compressor') {
-                // Compresor de tornillo
-                const lobs = audioCtx.createOscillator();
-                lobs.type = 'sine';
-                lobs.frequency.setValueAtTime(1450, t);
-                const lg = audioCtx.createGain(); lg.gain.setValueAtTime(0.3, t);
+        function playOverviewMultiSource() {
+            initAudio();
+            stopSynths();
+            if (!isPowered) return;
+            multiSourceGains = {};
 
-                const mot = audioCtx.createOscillator();
-                mot.type = 'triangle';
-                mot.frequency.setValueAtTime(120, t);
-                const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.12, t);
+            if (currentSector !== 'A') return;
 
-                const wSrc = audioCtx.createBufferSource();
-                wSrc.buffer = whiteBuffer; wSrc.loop = true;
-                const bp = audioCtx.createBiquadFilter();
-                bp.type = 'bandpass'; bp.frequency.setValueAtTime(3200, t); bp.Q.setValueAtTime(2.0, t);
-
-                lobs.connect(lg); lg.connect(out);
-                mot.connect(mg); mg.connect(out);
-                wSrc.connect(bp); bp.connect(out);
-
-                lobs.start(); mot.start(); wSrc.start();
-                activeSynths.push(lobs, mot, wSrc);
-            } else if (type === 'grinder') {
-                // Esmeriladora angular
-                const mot = audioCtx.createOscillator();
-                mot.type = 'sawtooth'; mot.frequency.setValueAtTime(5200, t);
-                const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.35, t);
-
-                const wSrc = audioCtx.createBufferSource();
-                wSrc.buffer = whiteBuffer; wSrc.loop = true;
-                const hp = audioCtx.createBiquadFilter();
-                hp.type = 'highpass'; hp.frequency.setValueAtTime(3800, t);
-                const wg = audioCtx.createGain(); wg.gain.setValueAtTime(0.3, t);
-
-                mot.connect(mg); mg.connect(out);
-                wSrc.connect(hp); hp.connect(wg); wg.connect(out);
-                mot.start(); wSrc.start();
-                activeSynths.push(mot, wSrc);
-
-                const timer = setInterval(() => {
-                    const now = audioCtx.currentTime;
-                    const isGrinding = Math.random() > 0.4;
-                    wg.gain.setTargetAtTime(isGrinding ? 1.4 : 0.25, now, 0.05);
-                }, 1200);
-                synthIntervals.push(timer);
-            } else if (type === 'punch') {
-                // Prensa troqueladora excéntrica
-                const hum = audioCtx.createOscillator();
-                hum.type = 'triangle'; hum.frequency.setValueAtTime(60, t);
-                const hg = audioCtx.createGain(); hg.gain.setValueAtTime(0.2, t);
-                hum.connect(hg); hg.connect(out); hum.start();
-                activeSynths.push(hum);
-
-                const strike = () => {
-                    const now = audioCtx.currentTime;
-                    const sub = audioCtx.createOscillator();
-                    sub.type = 'sine'; sub.frequency.setValueAtTime(85, now);
-                    sub.frequency.exponentialRampToValueAtTime(30, now + 0.12);
-
-                    const sg = audioCtx.createGain();
-                    sg.gain.setValueAtTime(0.001, now);
-                    sg.gain.linearRampToValueAtTime(4.5, now + 0.002);
-                    sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-
-                    sub.connect(sg); sg.connect(out);
-                    sub.start(now); sub.stop(now + 0.18);
-
-                    const clang = audioCtx.createOscillator();
-                    clang.type = 'square'; clang.frequency.setValueAtTime(1250, now);
-                    clang.frequency.exponentialRampToValueAtTime(480, now + 0.09);
-
-                    const cg = audioCtx.createGain();
-                    cg.gain.setValueAtTime(0.001, now);
-                    cg.gain.linearRampToValueAtTime(3.0, now + 0.002);
-                    cg.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
-
-                    clang.connect(cg); cg.connect(out);
-                    clang.start(now); clang.stop(now + 0.24);
-                };
-                strike();
-                const timer = setInterval(strike, 1800);
-                synthIntervals.push(timer);
-            } else if (type === 'hammer') {
-                // Martillo neumático rompepavimentos
-                const timer = setInterval(() => {
-                    const now = audioCtx.currentTime;
-                    const osc = audioCtx.createOscillator();
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(280, now);
-                    osc.frequency.exponentialRampToValueAtTime(75, now + 0.025);
-
-                    const g = audioCtx.createGain();
-                    g.gain.setValueAtTime(0.001, now);
-                    g.gain.linearRampToValueAtTime(2.2, now + 0.002);
-                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
-
-                    osc.connect(g); g.connect(out);
-                    osc.start(now); osc.stop(now + 0.035);
-
-                    const bSrc = audioCtx.createBufferSource();
-                    bSrc.buffer = whiteBuffer;
-                    const bp = audioCtx.createBiquadFilter();
-                    bp.type = 'bandpass'; bp.frequency.setValueAtTime(1800, now);
-                    const bg = audioCtx.createGain();
-                    bg.gain.setValueAtTime(1.4, now);
-                    bg.gain.exponentialRampToValueAtTime(0.01, now + 0.028);
-
-                    bSrc.connect(bp); bp.connect(bg); bg.connect(out);
-                    bSrc.start(now); bSrc.stop(now + 0.03);
-                }, 38);
-                synthIntervals.push(timer);
-            } else if (type === 'forging') {
-                // Martinete de forja pesada con acero incandescente
-                const pSrc = audioCtx.createBufferSource();
-                pSrc.buffer = pinkBuffer; pSrc.loop = true;
-                const lp = audioCtx.createBiquadFilter();
-                lp.type = 'lowpass'; lp.frequency.setValueAtTime(220, t);
-                const lpg = audioCtx.createGain(); lpg.gain.setValueAtTime(0.35, t);
-                pSrc.connect(lp); lp.connect(lpg); lpg.connect(out);
-                pSrc.start();
-                activeSynths.push(pSrc);
-
-                const strikeForge = () => {
-                    const now = audioCtx.currentTime;
-                    const sub = audioCtx.createOscillator();
-                    sub.type = 'sine'; sub.frequency.setValueAtTime(65, now);
-                    sub.frequency.exponentialRampToValueAtTime(24, now + 0.18);
-                    const sg = audioCtx.createGain();
-                    sg.gain.setValueAtTime(0.001, now);
-                    sg.gain.linearRampToValueAtTime(5.5, now + 0.002);
-                    sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-                    sub.connect(sg); sg.connect(out);
-                    sub.start(now); sub.stop(now + 0.28);
-
-                    const anvil = audioCtx.createOscillator();
-                    anvil.type = 'triangle'; anvil.frequency.setValueAtTime(860, now);
-                    anvil.frequency.exponentialRampToValueAtTime(320, now + 0.12);
-                    const ag = audioCtx.createGain();
-                    ag.gain.setValueAtTime(0.001, now);
-                    ag.gain.linearRampToValueAtTime(3.8, now + 0.001);
-                    ag.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
-                    anvil.connect(ag); ag.connect(out);
-                    anvil.start(now); anvil.stop(now + 0.35);
-
-                    const wSrc = audioCtx.createBufferSource();
-                    wSrc.buffer = whiteBuffer;
-                    const bp = audioCtx.createBiquadFilter();
-                    bp.type = 'bandpass'; bp.frequency.setValueAtTime(2400, now); bp.Q.setValueAtTime(1.8, now);
-                    const wg = audioCtx.createGain();
-                    wg.gain.setValueAtTime(0.001, now);
-                    wg.gain.linearRampToValueAtTime(2.2, now + 0.01);
-                    wg.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    wSrc.connect(bp); bp.connect(wg); wg.connect(out);
-                    wSrc.start(now); wSrc.stop(now + 0.18);
-                };
-                strikeForge();
-                const timer = setInterval(strikeForge, 1350);
-                synthIntervals.push(timer);
-            } else if (type === 'blower') {
-                // Ventilador centrífugo industrial
-                const bpf = audioCtx.createOscillator();
-                bpf.type = 'sine'; bpf.frequency.setValueAtTime(480, t);
-                const bg = audioCtx.createGain(); bg.gain.setValueAtTime(0.38, t);
-                bpf.connect(bg); bg.connect(out); bpf.start();
-                activeSynths.push(bpf);
-
-                const bpf2 = audioCtx.createOscillator();
-                bpf2.type = 'sine'; bpf2.frequency.setValueAtTime(960, t);
-                const bg2 = audioCtx.createGain(); bg2.gain.setValueAtTime(0.14, t);
-                bpf2.connect(bg2); bg2.connect(out); bpf2.start();
-                activeSynths.push(bpf2);
-
-                const pSrc = audioCtx.createBufferSource();
-                pSrc.buffer = pinkBuffer; pSrc.loop = true;
-                const bp = audioCtx.createBiquadFilter();
-                bp.type = 'bandpass'; bp.frequency.setValueAtTime(750, t); bp.Q.setValueAtTime(1.2, t);
-                const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.48, t);
-                pSrc.connect(bp); bp.connect(pg); pg.connect(out);
-                pSrc.start();
-                activeSynths.push(pSrc);
-
-                const rumble = audioCtx.createOscillator();
-                rumble.type = 'triangle'; rumble.frequency.setValueAtTime(32, t);
-                const rg = audioCtx.createGain(); rg.gain.setValueAtTime(0.18, t);
-                rumble.connect(rg); rg.connect(out); rumble.start();
-                activeSynths.push(rumble);
-            } else {
-                // Síntesis general de apoyo
-                const pSrc = audioCtx.createBufferSource();
-                pSrc.buffer = pinkBuffer; pSrc.loop = true;
-                const bp = audioCtx.createBiquadFilter();
-                bp.type = 'bandpass'; bp.frequency.setValueAtTime(900, t);
-                const g = audioCtx.createGain(); g.gain.setValueAtTime(0.6, t);
-
-                pSrc.connect(bp); bp.connect(g); g.connect(out);
-                pSrc.start();
-                activeSynths.push(pSrc);
+            // Restablecer ganancia maestra de distancia en el plano general
+            if (distanceGain) {
+                distanceGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
             }
+
+            SECTORS['A'].machines.forEach(m => {
+                if (activeOverviewSources.has(m.id)) {
+                    // Distancia física al sonómetro en metros (45m x 32m)
+                    const dxM = (sonometerPos.xPct - m.coords.x) * 0.45;
+                    const dyM = (sonometerPos.yPct - m.coords.y) * 0.32;
+                    const distM = Math.max(1.0, Math.sqrt(dxM * dxM + dyM * dyM));
+                    // Factor de atenuación geométrica por divergencia esférica (1/r)
+                    const attGain = Math.min(1.0, 1.0 / distM);
+
+                    const mGain = audioCtx.createGain();
+                    mGain.gain.setValueAtTime(attGain, audioCtx.currentTime);
+                    mGain.connect(distanceGain);
+                    multiSourceGains[m.id] = { node: mGain, dist: distM, baseSpl: m.baseSpl };
+                    activeSynths.push(mGain);
+
+                    createMachineSynth(m.synth, mGain, 1.0);
+                }
+            });
+        }
+
+        function playCurrentAudio() {
+            if (viewMode === 'overview' && currentSector === 'A') {
+                playOverviewMultiSource();
+            } else {
+                playCurrentMachine();
+            }
+        }
+
+        function updateOverviewAcousticGains() {
+            if (viewMode !== 'overview' || currentSector !== 'A' || !audioCtx) return;
+            const now = audioCtx.currentTime;
+            SECTORS['A'].machines.forEach(m => {
+                const entry = multiSourceGains[m.id];
+                if (entry && activeOverviewSources.has(m.id)) {
+                    const dxM = (sonometerPos.xPct - m.coords.x) * 0.45;
+                    const dyM = (sonometerPos.yPct - m.coords.y) * 0.32;
+                    const distM = Math.max(1.0, Math.sqrt(dxM * dxM + dyM * dyM));
+                    entry.dist = distM;
+                    const attGain = Math.min(1.0, 1.0 / distM);
+                    entry.node.gain.setTargetAtTime(attGain, now, 0.05);
+                }
+            });
         }
 
         // Calibrador 94.0 dB @ 1000 Hz
@@ -2766,10 +3883,10 @@
                 }
             }
 
-            // 5. Vapores, calor y humo para compresor Kaeser CSDX, café y motores
-            if (currentMachine.id === 'compresor_kaeser_csdx165' || currentMachine.id === 'compresor_industrial' || currentMachine.id === 'cafeteria_corporativa' || currentMachine.id === 'dumper_minero') {
-                const vx = currentMachine.id === 'cafeteria_corporativa' ? w * 0.76 : currentMachine.id === 'compresor_kaeser_csdx165' ? w * 0.33 : currentMachine.id === 'compresor_industrial' ? w * 0.33 : w * 0.72;
-                const vy = currentMachine.id === 'cafeteria_corporativa' ? h * 0.70 : currentMachine.id === 'compresor_kaeser_csdx165' ? h * 0.22 : currentMachine.id === 'compresor_industrial' ? h * 0.20 : h * 0.40;
+            // 5. Vapores, calor y humo para motores diésel, áridos y compresores
+            if (currentMachine.id === 'compresor_kaeser_csdx165' || currentMachine.id === 'compresor_industrial' || currentMachine.id === 'cafeteria_corporativa' || currentMachine.id === 'dumper_minero' || currentMachine.id === 'retroexcavadora' || currentMachine.id === 'mezcladora_trompo' || currentMachine.id === 'vibrocompactador') {
+                const vx = currentMachine.id === 'retroexcavadora' ? w * 0.35 : currentMachine.id === 'mezcladora_trompo' ? w * 0.55 : currentMachine.id === 'vibrocompactador' ? w * 0.62 : currentMachine.id === 'cafeteria_corporativa' ? w * 0.76 : currentMachine.id === 'compresor_kaeser_csdx165' ? w * 0.33 : currentMachine.id === 'compresor_industrial' ? w * 0.33 : w * 0.72;
+                const vy = currentMachine.id === 'retroexcavadora' ? h * 0.36 : currentMachine.id === 'mezcladora_trompo' ? h * 0.42 : currentMachine.id === 'vibrocompactador' ? h * 0.68 : currentMachine.id === 'cafeteria_corporativa' ? h * 0.70 : currentMachine.id === 'compresor_kaeser_csdx165' ? h * 0.22 : currentMachine.id === 'compresor_industrial' ? h * 0.20 : h * 0.40;
 
                 if (Math.random() > 0.35) {
                     vapors.push({
@@ -2778,7 +3895,7 @@
                         vx: (Math.random() - 0.5) * 1.2,
                         vy: -1.8 - Math.random() * 2.2,
                         radius: 6 + Math.random() * 10,
-                        alpha: 0.75
+                        alpha: currentMachine.id === 'retroexcavadora' ? 0.85 : 0.75
                     });
                 }
             }
@@ -2986,9 +4103,29 @@
                 document.getElementById('lcdTimer').textContent = `${hh}:${mm}:${ss}`;
             }
 
+            // Actualizar etiqueta del pin del sonómetro en el plano
+            const pinSpl = document.getElementById('pinLiveSpl');
+            if (pinSpl) {
+                pinSpl.textContent = instantSPL.toFixed(1) + ' dBA';
+            }
+
+            // Acumulación continua de la muestra higiénica programada (ISO 9612)
+            if (pointSamplingState.active) {
+                pointSamplingState.leqSum += Math.pow(10, instantSPL / 10);
+                pointSamplingState.samples++;
+                pointSamplingState.lmax = Math.max(pointSamplingState.lmax, instantSPL);
+                pointSamplingState.lmin = Math.min(pointSamplingState.lmin, instantSPL);
+                pointSamplingState.lpeak = Math.max(pointSamplingState.lpeak, currentPeak);
+            }
+
             recordTrendSample(now, instantSPL, currentLeq);
             updateHygieneAssessment(currentLeq, lpeak);
             updateAndDrawParticles(dt);
+
+            if (viewMode === 'overview') {
+                drawOverviewScene(dt, instantSPL);
+            }
+
             drawOscilloscope(instantSPL, lpeak);
             drawLpTrend(instantSPL, currentLeq);
             drawRTA();
@@ -3457,9 +4594,13 @@
 
                 card.addEventListener('click', () => {
                     currentMachine = m;
-                    renderMachinesStrip();
-                    renderMachineIllustration();
-                    playCurrentMachine();
+                    if (viewMode === 'overview') {
+                        setStageViewMode('single');
+                    } else {
+                        renderMachinesStrip();
+                        renderMachineIllustration();
+                        playCurrentAudio();
+                    }
                 });
                 container.appendChild(card);
             });
@@ -3472,9 +4613,12 @@
                 tab.classList.add('active');
                 currentSector = tab.getAttribute('data-sec');
                 currentMachine = SECTORS[currentSector].machines[0];
+                if (currentSector !== 'A' && viewMode === 'overview') {
+                    setStageViewMode('single');
+                }
                 renderMachinesStrip();
                 renderMachineIllustration();
-                playCurrentMachine();
+                playCurrentAudio();
             });
         });
 
@@ -3490,7 +4634,7 @@
                 draw7Segment('segD3', '-', isBacklit);
                 draw7Segment('segD4', ' ', isBacklit);
             } else {
-                playCurrentMachine();
+                playCurrentAudio();
             }
         });
 
@@ -3756,18 +4900,939 @@
             leqEnergySum = 0; leqSamples = 0; leqStartTime = performance.now();
             lmax = 40.0; lmin = 140.0; lpeak = 40.0;
 
-            playCurrentMachine();
+            playCurrentAudio();
             document.getElementById('practiceModal').style.display = 'none';
         });
 
+        // =========================================================================
+        // 13.5 PLANO GENERAL MULTI-FUENTE, CINTA MÉTRICA Y MEDICIÓN EN PUNTOS
+        // =========================================================================
+        let waveTime = 0;
+        function drawOverviewScene(dt, instantSPL) {
+            if (!overviewCtx || !overviewCanvas) return;
+            waveTime += dt;
+            const w = overviewCanvas.width;
+            const h = overviewCanvas.height;
+            overviewCtx.clearRect(0, 0, w, h);
+
+            const sonoX = (sonometerPos.xPct / 100) * w;
+            const sonoY = (sonometerPos.yPct / 100) * h;
+
+            if (showAcousticWaves) {
+                SECTORS['A'].machines.forEach(m => {
+                    if (activeOverviewSources.has(m.id)) {
+                        const mx = (m.coords.x / 100) * w;
+                        const my = (m.coords.y / 100) * h;
+
+                        // Ondas acústicas concéntricas radiadas por la máquina
+                        for (let i = 0; i < 3; i++) {
+                            const prog = ((waveTime * 0.95 + i / 3) % 1);
+                            const rad = prog * Math.min(w, h) * 0.45;
+                            const alpha = (1 - prog) * 0.35;
+                            overviewCtx.strokeStyle = m.type === 'impacto' ? `rgba(248, 113, 113, ${alpha})` : m.type === 'intermitente' ? `rgba(251, 191, 36, ${alpha})` : `rgba(56, 189, 248, ${alpha})`;
+                            overviewCtx.lineWidth = 2.0;
+                            overviewCtx.beginPath();
+                            overviewCtx.arc(mx, my, rad, 0, Math.PI * 2);
+                            overviewCtx.stroke();
+                        }
+
+                        // Vector acústico hacia el sonómetro EXTECH
+                        overviewCtx.setLineDash([4, 4]);
+                        overviewCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+                        overviewCtx.lineWidth = 1.3;
+                        overviewCtx.beginPath();
+                        overviewCtx.moveTo(mx, my);
+                        overviewCtx.lineTo(sonoX, sonoY);
+                        overviewCtx.stroke();
+                        overviewCtx.setLineDash([]);
+
+                        // Distancia métrica en la línea
+                        const dxM = (sonometerPos.xPct - m.coords.x) * 0.45;
+                        const dyM = (sonometerPos.yPct - m.coords.y) * 0.32;
+                        const distM = Math.sqrt(dxM * dxM + dyM * dyM);
+                        const midX = (mx + sonoX) / 2;
+                        const midY = (my + sonoY) / 2;
+
+                        overviewCtx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+                        overviewCtx.fillRect(midX - 22, midY - 8, 44, 16);
+                        overviewCtx.fillStyle = '#38bdf8';
+                        overviewCtx.font = 'bold 9px monospace';
+                        overviewCtx.textAlign = 'center';
+                        overviewCtx.fillText(`${distM.toFixed(1)}m`, midX, midY + 4);
+                    }
+                });
+            }
+
+            // Dibujar Cinta Métrica (Ruler) activa
+            if (isRulerActive && rulerPoints) {
+                overviewCtx.strokeStyle = '#f59e0b';
+                overviewCtx.lineWidth = 2.5;
+                overviewCtx.setLineDash([6, 3]);
+                overviewCtx.beginPath();
+                overviewCtx.moveTo(rulerPoints.x1, rulerPoints.y1);
+                overviewCtx.lineTo(rulerPoints.x2, rulerPoints.y2);
+                overviewCtx.stroke();
+                overviewCtx.setLineDash([]);
+
+                // Puntos extremos con retícula
+                overviewCtx.fillStyle = '#ffffff';
+                overviewCtx.beginPath();
+                overviewCtx.arc(rulerPoints.x1, rulerPoints.y1, 4, 0, Math.PI * 2);
+                overviewCtx.fill();
+                overviewCtx.beginPath();
+                overviewCtx.arc(rulerPoints.x2, rulerPoints.y2, 4, 0, Math.PI * 2);
+                overviewCtx.fill();
+            }
+        }
+
+        function setStageViewMode(mode) {
+            viewMode = mode;
+            const btnSingle = document.getElementById('btnModeSingle');
+            const btnOverview = document.getElementById('btnModeOverview');
+            const floor = document.getElementById('stageFloor');
+            const svgCont = document.getElementById('machineSvgContainer');
+            const fxCvs = document.getElementById('fxCanvas');
+            const singleControls = document.getElementById('singleMachineControls');
+            const overviewLayer = document.getElementById('sectorOverviewContainer');
+            const overviewControls = document.getElementById('overviewControlsBar');
+            const stageBadge = document.getElementById('stageModeBadge');
+
+            if (mode === 'overview') {
+                if (btnSingle) btnSingle.classList.remove('active');
+                if (btnOverview) btnOverview.classList.add('active');
+                if (floor) floor.style.display = 'none';
+                if (svgCont) svgCont.style.display = 'none';
+                if (fxCvs) fxCvs.style.display = 'none';
+                if (singleControls) singleControls.style.display = 'none';
+                if (overviewLayer) overviewLayer.style.display = 'flex';
+                if (overviewControls) overviewControls.style.display = 'flex';
+                if (stageBadge) stageBadge.textContent = 'PLANO GENERAL MULTI-FUENTE (45m x 32m)';
+                document.getElementById('stageMachineName').textContent = 'Composición General Acústica: Sector A (Construcción e Infraestructura)';
+
+                renderOverviewMachineBeacons();
+                renderMultiSourceChips();
+                updateSonometerPinPosition();
+                playCurrentAudio();
+            } else {
+                if (btnSingle) btnSingle.classList.add('active');
+                if (btnOverview) btnOverview.classList.remove('active');
+                if (floor) floor.style.display = 'block';
+                if (svgCont) svgCont.style.display = 'block';
+                if (fxCvs) fxCvs.style.display = 'block';
+                if (singleControls) singleControls.style.display = 'flex';
+                if (overviewLayer) overviewLayer.style.display = 'none';
+                if (overviewControls) overviewControls.style.display = 'none';
+                if (stageBadge) stageBadge.textContent = 'HD FOTORREALISTA';
+                document.getElementById('stageMachineName').textContent = currentMachine.name;
+
+                renderMachineIllustration();
+                playCurrentAudio();
+            }
+        }
+
+        function renderOverviewMachineBeacons() {
+            const layer = document.getElementById('overviewMachinesLayer');
+            if (!layer) return;
+            layer.innerHTML = '';
+
+            SECTORS['A'].machines.forEach(m => {
+                const isActive = activeOverviewSources.has(m.id);
+                const beacon = document.createElement('div');
+                beacon.className = 'machine-map-beacon';
+                beacon.style.left = m.coords.x + '%';
+                beacon.style.top = m.coords.y + '%';
+                beacon.title = `Haga clic para activar/desactivar ${m.name}`;
+
+                beacon.innerHTML = `
+                    <div class="beacon-pin-btn ${isActive ? 'active' : 'inactive'}">
+                        <span>${isActive ? '🔊' : '🔇'}</span>
+                    </div>
+                    <div class="beacon-label-card">
+                        <strong>${m.name}</strong>
+                        <span>${m.splRange} · ${isActive ? 'ACTIVA' : 'APAGADA'}</span>
+                    </div>
+                `;
+
+                beacon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (activeOverviewSources.has(m.id)) {
+                        activeOverviewSources.delete(m.id);
+                    } else {
+                        activeOverviewSources.add(m.id);
+                    }
+                    renderOverviewMachineBeacons();
+                    renderMultiSourceChips();
+                    playCurrentAudio();
+                });
+
+                layer.appendChild(beacon);
+            });
+        }
+
+        function renderMultiSourceChips() {
+            const container = document.getElementById('multiSourceChips');
+            if (!container) return;
+            container.innerHTML = '';
+
+            SECTORS['A'].machines.forEach(m => {
+                const isActive = activeOverviewSources.has(m.id);
+                const chip = document.createElement('button');
+                chip.className = `source-chip ${isActive ? 'active' : ''}`;
+                chip.innerHTML = `<span>${isActive ? '●' : '○'}</span> <span>${m.name}</span>`;
+                chip.addEventListener('click', () => {
+                    if (activeOverviewSources.has(m.id)) {
+                        activeOverviewSources.delete(m.id);
+                    } else {
+                        activeOverviewSources.add(m.id);
+                    }
+                    renderOverviewMachineBeacons();
+                    renderMultiSourceChips();
+                    playCurrentAudio();
+                });
+                container.appendChild(chip);
+            });
+        }
+
+        function initSonometerMapEvents() {
+            const pin = document.getElementById('mapSonometerPin');
+            const container = document.getElementById('sectorOverviewContainer');
+            const infoBubble = document.getElementById('rulerOverlayInfo');
+
+            if (!pin || !container) return;
+
+            pin.addEventListener('mousedown', (e) => {
+                if (isRulerActive) return;
+                isDraggingSonometer = true;
+                e.stopPropagation();
+            });
+
+            container.addEventListener('mousedown', (e) => {
+                if (isRulerActive) {
+                    const rect = container.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    rulerPoints = { x1: x, y1: y, x2: x, y2: y, isDragging: true };
+                    if (infoBubble) infoBubble.style.display = 'block';
+                } else if (e.target === container || e.target.classList.contains('overview-bg-photo') || e.target.id === 'overviewCanvas') {
+                    const rect = container.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const clickY = e.clientY - rect.top;
+                    sonometerPos.xPct = Math.max(5, Math.min(95, (clickX / rect.width) * 100));
+                    sonometerPos.yPct = Math.max(5, Math.min(95, (clickY / rect.height) * 100));
+                    updateSonometerPinPosition();
+                    updateOverviewAcousticGains();
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isDraggingSonometer) {
+                    const rect = container.getBoundingClientRect();
+                    const curX = e.clientX - rect.left;
+                    const curY = e.clientY - rect.top;
+                    sonometerPos.xPct = Math.max(5, Math.min(95, (curX / rect.width) * 100));
+                    sonometerPos.yPct = Math.max(5, Math.min(95, (curY / rect.height) * 100));
+                    updateSonometerPinPosition();
+                    updateOverviewAcousticGains();
+                } else if (isRulerActive && rulerPoints && rulerPoints.isDragging) {
+                    const rect = container.getBoundingClientRect();
+                    rulerPoints.x2 = e.clientX - rect.left;
+                    rulerPoints.y2 = e.clientY - rect.top;
+
+                    const dxM = ((rulerPoints.x2 - rulerPoints.x1) / rect.width) * 45.0;
+                    const dyM = ((rulerPoints.y2 - rulerPoints.y1) / rect.height) * 32.0;
+                    const distM = Math.sqrt(dxM * dxM + dyM * dyM);
+                    const deltaL = 20 * Math.log10(Math.max(1.0, distM));
+
+                    if (infoBubble) {
+                        infoBubble.style.display = 'block';
+                        infoBubble.style.left = (rulerPoints.x1 + rulerPoints.x2) / 2 + 'px';
+                        infoBubble.style.top = (rulerPoints.y1 + rulerPoints.y2) / 2 - 28 + 'px';
+                        infoBubble.textContent = `📏 ${distM.toFixed(2)} m · Div: -${deltaL.toFixed(1)} dB`;
+                    }
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDraggingSonometer = false;
+                if (rulerPoints) rulerPoints.isDragging = false;
+            });
+        }
+
+        function updateSonometerPinPosition() {
+            const pin = document.getElementById('mapSonometerPin');
+            if (pin) {
+                pin.style.left = sonometerPos.xPct + '%';
+                pin.style.top = sonometerPos.yPct + '%';
+            }
+        }
+
+        // =========================================================================
+        // 13.6 PROTOCOLO DE MEDICIÓN HIGIÉNICA (ISO 9612 / RES. 2844)
+        // =========================================================================
+        function getActiveMachinesListString() {
+            if (viewMode === 'overview' && currentSector === 'A') {
+                const names = [];
+                SECTORS['A'].machines.forEach(m => {
+                    if (activeOverviewSources.has(m.id)) names.push(m.name.split(' ')[0] + (m.name.includes('Martillo') ? ' Neumático' : m.name.includes('Cortadora') ? ' Disco' : ''));
+                });
+                return names.length > 0 ? names.join(', ') : 'Ninguna (Ruido de Fondo)';
+            }
+            return currentMachine.name;
+        }
+
+        function startPointMeasurement() {
+            if (pointSamplingState.active) return;
+            initAudio();
+
+            const nameInput = document.getElementById('pointNameInput');
+            const timerSelect = document.getElementById('pointTimerSelect');
+            const totalSec = parseInt(timerSelect.value, 10) || 300;
+            const ptName = nameInput.value.trim() || `P${evaluatedPoints.length + 1}: Puesto de Trabajo`;
+
+            pointSamplingState = {
+                active: true,
+                totalSec: totalSec,
+                elapsedSec: 0,
+                leqSum: 0,
+                samples: 0,
+                lmax: 40.0,
+                lmin: 140.0,
+                lpeak: 40.0,
+                name: ptName
+            };
+
+            const progressBox = document.getElementById('pointProgressBox');
+            if (progressBox) progressBox.style.display = 'flex';
+            updatePointTimerUI();
+
+            pointTimerInterval = setInterval(() => {
+                pointSamplingState.elapsedSec++;
+                updatePointTimerUI();
+
+                if (pointSamplingState.elapsedSec >= pointSamplingState.totalSec) {
+                    completePointMeasurement();
+                }
+            }, 1000);
+        }
+
+        function updatePointTimerUI() {
+            const remSec = Math.max(0, pointSamplingState.totalSec - pointSamplingState.elapsedSec);
+            const mm = Math.floor(remSec / 60).toString().padStart(2, '0');
+            const ss = (remSec % 60).toString().padStart(2, '0');
+            const clock = document.getElementById('pointTimerClock');
+            if (clock) clock.textContent = `${mm}:${ss}`;
+
+            const pct = Math.min(100, Math.round((pointSamplingState.elapsedSec / pointSamplingState.totalSec) * 100));
+            const pPct = document.getElementById('pointProgressPct');
+            if (pPct) pPct.textContent = pct + '%';
+            const pBar = document.getElementById('timerProgressBar');
+            if (pBar) pBar.style.width = pct + '%';
+        }
+
+        function playCompletionBeep() {
+            try {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, now);
+                osc.frequency.setValueAtTime(1320, now + 0.15);
+                g.gain.setValueAtTime(0.001, now);
+                g.gain.linearRampToValueAtTime(0.4, now + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.connect(g);
+                g.connect(masterGain || audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.36);
+            } catch(e){}
+        }
+
+        function completePointMeasurement() {
+            if (pointTimerInterval) {
+                clearInterval(pointTimerInterval);
+                pointTimerInterval = null;
+            }
+            pointSamplingState.active = false;
+            playCompletionBeep();
+
+            const progressBox = document.getElementById('pointProgressBox');
+            if (progressBox) progressBox.style.display = 'none';
+
+            const pSamples = Math.max(1, pointSamplingState.samples);
+            const finalLeq = 10 * Math.log10(pointSamplingState.leqSum / pSamples);
+            const finalPeak = pointSamplingState.lpeak;
+            const finalLmax = pointSamplingState.lmax;
+            const finalLmin = pointSamplingState.lmin === 140 ? finalLeq : pointSamplingState.lmin;
+
+            // Tiempo permisible con q=5 (Res. 1792/90)
+            let tperm = 8 / Math.pow(2, (finalLeq - 85) / exchangeRateQ);
+            if (finalLeq <= 80) tperm = 24.0;
+            else if (finalLeq >= 125) tperm = 0.005;
+
+            let tpermStr = '≥ 8h 00m';
+            if (tperm < 8 && tperm >= 1) {
+                const h = Math.floor(tperm);
+                const m = Math.round((tperm - h) * 60);
+                tpermStr = `${h}h ${m}m`;
+            } else if (tperm < 1) {
+                const m = Math.floor(tperm * 60);
+                const s = Math.round((tperm * 60 - m) * 60);
+                tpermStr = `${m}m ${s}s`;
+            }
+
+            const dosePct = (8 / tperm) * 100;
+
+            let diagText = '🛡️ Seguro (< 80 dBA)';
+            let diagClass = 'badge-continuo';
+            if (finalPeak >= 140.0) {
+                diagText = '⚠️ CRÍTICO: Pico > 140 dBC (Art. 1 Res. 1792/90)';
+                diagClass = 'badge-impacto';
+            } else if (finalLeq >= 85.0 || dosePct >= 100) {
+                diagText = '🚨 Supera TLV (85 dBA) · PCA Anual';
+                diagClass = 'badge-impacto';
+            } else if (finalLeq >= 80.0 || dosePct >= 50) {
+                diagText = '⚠️ Nivel de Acción (80-84.9 dBA) · PCA Bianual';
+                diagClass = 'badge-intermitente';
+            }
+
+            const newPt = {
+                id: evaluatedPoints.length + 1,
+                tag: 'P' + (evaluatedPoints.length + 1),
+                name: pointSamplingState.name,
+                activeMachines: getActiveMachinesListString(),
+                durationSec: pointSamplingState.elapsedSec || 15,
+                laeq: parseFloat(finalLeq.toFixed(1)),
+                lcpeak: parseFloat(finalPeak.toFixed(1)),
+                lmax: parseFloat(finalLmax.toFixed(1)),
+                lmin: parseFloat(finalLmin.toFixed(1)),
+                tperm: tpermStr,
+                dosePct: parseFloat(dosePct.toFixed(1)),
+                diag: diagText,
+                diagClass: diagClass,
+                coords: { ...sonometerPos }
+            };
+
+            evaluatedPoints.push(newPt);
+            renderPointsTable();
+            renderMeasuredPointPins();
+
+            // Preparar siguiente sugerencia de punto
+            const nextIdx = evaluatedPoints.length + 1;
+            document.getElementById('pointNameInput').value = `P${nextIdx}: Frente de Trabajo ${nextIdx}`;
+        }
+
+        function renderPointsTable() {
+            const tbody = document.getElementById('samplingTableBody');
+            const modalBody = document.getElementById('modalPreviewTableBody');
+            const countTag = document.getElementById('pointsCountTag');
+
+            if (countTag) countTag.textContent = evaluatedPoints.length;
+            if (!tbody) return;
+
+            if (evaluatedPoints.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" style="text-align:center; color:var(--text-dim); padding:1.2rem; font-size:0.75rem;">
+                            No hay puntos registrados aún. Seleccione la ubicación en el plano y pulse "▶ Iniciar Medición".
+                        </td>
+                    </tr>
+                `;
+                if (modalBody) {
+                    modalBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:1rem;">Sin mediciones registradas. Se emitirá con muestra técnica actual.</td></tr>`;
+                }
+                return;
+            }
+
+            tbody.innerHTML = '';
+            if (modalBody) modalBody.innerHTML = '';
+
+            evaluatedPoints.forEach((pt, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${pt.tag}</strong></td>
+                    <td>${pt.name}</td>
+                    <td style="font-size:0.68rem; color:#cbd5e1;">${pt.activeMachines}</td>
+                    <td>${pt.durationSec}s</td>
+                    <td><strong style="color:${pt.laeq>=85?'#f87171':pt.laeq>=80?'#fbbf24':'#34d399'}; font-size:0.85rem;">${pt.laeq.toFixed(1)}</strong></td>
+                    <td style="color:${pt.lcpeak>=140?'#ef4444':'#f97316'}; font-family:monospace;">${pt.lcpeak.toFixed(1)}</td>
+                    <td style="font-size:0.68rem;">${pt.lmax.toFixed(1)} / ${pt.lmin.toFixed(1)}</td>
+                    <td style="font-family:monospace; color:#38bdf8;">${pt.tperm}</td>
+                    <td style="font-family:monospace; font-weight:800; color:${pt.dosePct>=100?'#f87171':pt.dosePct>=50?'#fbbf24':'#34d399'};">${pt.dosePct.toFixed(1)}%</td>
+                    <td><span class="table-pill ${pt.diagClass}">${pt.diag}</span></td>
+                    <td>
+                        <button class="btn-top" onclick="deletePoint(${idx})" style="padding:1px 6px; font-size:0.62rem; color:#f87171;" title="Eliminar punto">✕</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                if (modalBody) {
+                    const mtr = document.createElement('tr');
+                    mtr.innerHTML = `
+                        <td><strong>${pt.tag}</strong></td>
+                        <td>${pt.name}</td>
+                        <td><strong style="color:${pt.laeq>=85?'#ef4444':pt.laeq>=80?'#f59e0b':'#22c55e'};">${pt.laeq.toFixed(1)}</strong></td>
+                        <td>${pt.lcpeak.toFixed(1)}</td>
+                        <td>${pt.tperm}</td>
+                        <td>${pt.dosePct.toFixed(1)}%</td>
+                        <td>${pt.diag}</td>
+                    `;
+                    modalBody.appendChild(mtr);
+                }
+            });
+        }
+
+        function deletePoint(idx) {
+            evaluatedPoints.splice(idx, 1);
+            evaluatedPoints.forEach((p, i) => p.tag = 'P' + (i + 1));
+            renderPointsTable();
+            renderMeasuredPointPins();
+        }
+
+        function renderMeasuredPointPins() {
+            const layer = document.getElementById('measuredPointsPinsLayer');
+            if (!layer) return;
+            layer.innerHTML = '';
+
+            evaluatedPoints.forEach(pt => {
+                const pin = document.createElement('div');
+                pin.className = 'measured-point-tag';
+                pin.style.left = pt.coords.xPct + '%';
+                pin.style.top = pt.coords.yPct + '%';
+                pin.innerHTML = `<span>📍</span> <span>${pt.tag}: ${pt.laeq.toFixed(1)} dBA</span>`;
+                pin.title = `${pt.name} · ${pt.laeq} dBA (Dosis: ${pt.dosePct}%)`;
+                layer.appendChild(pin);
+            });
+        }
+
+        // =========================================================================
+        // 13.7 GENERACIÓN DE INFORME TÉCNICO OFICIAL EN PDF (RES. 2844 / RES. 1792)
+        // =========================================================================
+        function generateHygieneReportPDF() {
+            if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+                alert("La librería jsPDF no se encuentra cargada. Verifique la conexión o el script local.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            const company = (document.getElementById('repCompanyName') ? document.getElementById('repCompanyName').value.trim() : '') || "CONSORCIO VIAL & INFRAESTRUCTURA CIVIL S.A.S.";
+            const workSite = (document.getElementById('repWorkSite') ? document.getElementById('repWorkSite').value.trim() : '') || "Sector A: Pavimentación, Estructura y Movimiento de Tierras";
+            const evaluator = (document.getElementById('repEvaluator') ? document.getElementById('repEvaluator').value.trim() : '') || "Ing. Pedro Noriega - Higienista Ocupacional";
+            const license = (document.getElementById('repLicense') ? document.getElementById('repLicense').value.trim() : '') || "LIC-SST-2026-9942-COL";
+
+            let pointsToReport = [...evaluatedPoints];
+            if (pointsToReport.length === 0) {
+                const currentLeq = leqSamples > 0 ? 10 * Math.log10(leqEnergySum / leqSamples) : 89.4;
+                let tperm = 8 / Math.pow(2, (currentLeq - 85) / exchangeRateQ);
+                if (currentLeq <= 80) tperm = 24.0;
+                const dose = (8 / tperm) * 100;
+                pointsToReport.push({
+                    tag: 'P1',
+                    name: 'Puesto Operador - Frente de Trabajo Sector A',
+                    activeMachines: getActiveMachinesListString(),
+                    durationSec: 300,
+                    laeq: parseFloat(currentLeq.toFixed(1)),
+                    lcpeak: parseFloat(lpeak.toFixed(1)),
+                    lmax: parseFloat(lmax.toFixed(1)),
+                    lmin: parseFloat(lmin.toFixed(1)),
+                    tperm: tperm >= 8 ? '≥ 8h 00m' : `${Math.floor(tperm)}h ${Math.round((tperm-Math.floor(tperm))*60)}m`,
+                    dosePct: parseFloat(dose.toFixed(1)),
+                    diag: currentLeq >= 85 ? '🚨 Supera TLV (85 dBA) · PCA Anual' : currentLeq >= 80 ? '⚠️ Nivel de Acción (80-84.9 dBA) · PCA Bianual' : '🛡️ Seguro (< 80 dBA)'
+                });
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+            // PÁGINA 1
+            // BANNER SUPERIOR
+            doc.setFillColor(15, 23, 42);
+            doc.rect(14, 12, 182, 22, 'F');
+            doc.setFillColor(245, 158, 11);
+            doc.rect(14, 34, 182, 1.5, 'F');
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.setTextColor(255, 255, 255);
+            doc.text("SISTEMA DE GESTIÓN DE SEGURIDAD Y SALUD EN EL TRABAJO (SG-SST)", 105, 19, { align: 'center' });
+
+            doc.setFontSize(8.5);
+            doc.setTextColor(245, 158, 11);
+            doc.text("INFORME TÉCNICO DE EVALUACIÓN HIGIÉNICA DE RUIDO OCUPACIONAL", 105, 25, { align: 'center' });
+
+            doc.setFontSize(6.8);
+            doc.setTextColor(148, 163, 184);
+            doc.text("SOPORTE LEGAL: RESOLUCIÓN 2844 DE 2007 (GATISO-HNIR) · RESOLUCIÓN 1792 DE 1990 · NTC-ISO 9612:2009", 105, 30, { align: 'center' });
+
+            // CUADRO DE IDENTIFICACIÓN DE LA EVALUACIÓN
+            doc.setFillColor(248, 250, 252);
+            doc.rect(14, 38, 182, 28, 'F');
+            doc.setDrawColor(203, 213, 225);
+            doc.rect(14, 38, 182, 28, 'S');
+
+            doc.setFontSize(7.5);
+            doc.setTextColor(15, 23, 42);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Razón Social:", 17, 43);
+            doc.setFont('helvetica', 'normal');
+            doc.text(company, 42, 43);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("Obra / Frente:", 17, 48);
+            doc.setFont('helvetica', 'normal');
+            doc.text(workSite, 42, 48);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("Evaluador SST:", 17, 53);
+            doc.setFont('helvetica', 'normal');
+            doc.text(evaluator, 42, 53);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("Licencia SST:", 17, 58);
+            doc.setFont('helvetica', 'normal');
+            doc.text(license, 42, 58);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("Fecha Emisión:", 120, 43);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${dateStr} - ${timeStr}`, 145, 43);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("Área Evaluada:", 120, 48);
+            doc.setFont('helvetica', 'normal');
+            doc.text("Sector A: 45.0m x 32.0m (1,440 m²)", 145, 48);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("Norma Muestreo:", 120, 53);
+            doc.setFont('helvetica', 'normal');
+            doc.text("NTC-ISO 9612:2009 (Estrategia Puesto)", 145, 53);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("Tasa de Cambio:", 120, 58);
+            doc.setFont('helvetica', 'normal');
+            doc.text("q = 5 dB (Res. 1792/90 Colombia)", 145, 58);
+
+            // 1. MARCO NORMATIVO LEGAL
+            let curY = 70;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+            doc.setTextColor(2, 132, 199);
+            doc.text("1. MARCO NORMATIVO TÉCNICO-LEGAL APLICABLE (COLOMBIA)", 14, curY);
+            curY += 4;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.2);
+            doc.setTextColor(51, 65, 85);
+            const legalText = [
+                "• Resolución 1792 de 1990 (Ministerio de Trabajo y Salud): Establece el Límite Permisible (TLV) en 85 dBA para jornada laboral de 8 horas con tasa de intercambio q = 5 dB (duplicación/reducción de tiempo de exposición por cada 5 dB). Límite absoluto de ruido de impacto: 140 dBC Peak.",
+                "• Resolución 2844 de 2007 (Guía de Atención Integral GATISO-HNIR): Adopta el Nivel de Acción Ocupacional en 80 dBA (Dosis del 50%). Exige inclusión obligatoria en el Programa de Conservación Auditiva (PCA), vigilancia médica tamiz bianual para niveles entre 80 y 84.9 dBA, y tamiz anual obligatoria para niveles >= 85 dBA. Obliga a aplicar el factor de reducción (Derating) del 50% para tapones auditivos.",
+                "• Resolución 2400 de 1979 (Estatuto de Higiene y Seguridad Industrial): Obliga a priorizar el control en la fuente de generación y en el medio de transmisión antes de delegar la protección exclusivamente al equipo de protección personal (EPP)."
+            ];
+            legalText.forEach(line => {
+                const split = doc.splitTextToSize(line, 182);
+                doc.text(split, 14, curY);
+                curY += (split.length * 3.5) + 1;
+            });
+
+            // 2. INSTRUMENTACIÓN Y CONTROL METROLÓGICO
+            curY += 2;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+            doc.setTextColor(2, 132, 199);
+            doc.text("2. INSTRUMENTACIÓN METROLÓGICA Y CONTROL DE CALIDAD", 14, curY);
+            curY += 4;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.2);
+            doc.setTextColor(51, 65, 85);
+            const instText = "Mediciones ejecutadas con Sonómetro Integrador Patrón EXTECH 407780A Clase 2 según IEC 61672-1 y ANSI S1.4. Verificación de campo inicial con Calibrador Acústico a 94.0 dB @ 1000 Hz (+/- 0.3 dB) con lectura de 94.0 dBA. Verificación post-medición: 94.0 dBA (Deriva metrológica: 0.0 dB, admisible <= 0.5 dB conforme a ISO 9612:2009). Micrófono dotado de protector antiviento de celda abierta.";
+            const splitInst = doc.splitTextToSize(instText, 182);
+            doc.text(splitInst, 14, curY);
+            curY += (splitInst.length * 3.5) + 3;
+
+            // 3. TABLA METROLÓGICA
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+            doc.setTextColor(2, 132, 199);
+            doc.text("3. RESULTADOS METROLÓGICOS DE LAS MEDICIONES REALIZADAS", 14, curY);
+            curY += 2;
+
+            const tableRows = pointsToReport.map(pt => [
+                pt.tag,
+                pt.name,
+                pt.activeMachines,
+                `${pt.durationSec}s`,
+                pt.laeq.toFixed(1),
+                pt.lcpeak.toFixed(1),
+                `${pt.lmax.toFixed(1)} / ${pt.lmin.toFixed(1)}`,
+                pt.tperm,
+                `${pt.dosePct.toFixed(1)}%`,
+                pt.diag
+            ]);
+
+            doc.autoTable({
+                startY: curY,
+                head: [['Pto', 'Puesto / Tarea', 'Fuentes Activas', 'Tm', 'LAeq (dBA)', 'LCpeak (dBC)', 'Lmax/min', 'T. Perm.', 'Dosis 8h', 'Diagnóstico Legal GATISO']],
+                body: tableRows,
+                margin: { left: 14, right: 14 },
+                styles: {
+                    fontSize: 6.5,
+                    cellPadding: 1.8,
+                    overflow: 'linebreak',
+                    font: 'helvetica'
+                },
+                headStyles: {
+                    fillColor: [15, 23, 42],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                columnStyles: {
+                    0: { halign: 'center', fontStyle: 'bold', cellWidth: 8 },
+                    1: { cellWidth: 32 },
+                    2: { cellWidth: 26 },
+                    3: { halign: 'center', cellWidth: 9 },
+                    4: { halign: 'center', fontStyle: 'bold', cellWidth: 14 },
+                    5: { halign: 'center', cellWidth: 15 },
+                    6: { halign: 'center', cellWidth: 17 },
+                    7: { halign: 'center', cellWidth: 15 },
+                    8: { halign: 'center', fontStyle: 'bold', cellWidth: 14 },
+                    9: { cellWidth: 32 }
+                },
+                didParseCell: function(data) {
+                    if (data.section === 'body') {
+                        if (data.column.index === 4) {
+                            const val = parseFloat(data.cell.raw);
+                            if (val >= 85) data.cell.styles.textColor = [220, 38, 38];
+                            else if (val >= 80) data.cell.styles.textColor = [217, 119, 6];
+                            else data.cell.styles.textColor = [22, 163, 74];
+                        }
+                    }
+                }
+            });
+
+            curY = doc.lastAutoTable.finalY + 6;
+
+            if (curY > 230) {
+                doc.addPage();
+                curY = 16;
+            }
+
+            // 4. PLAN TÉCNICO DE CONTROL
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+            doc.setTextColor(2, 132, 199);
+            doc.text("4. PLAN TÉCNICO DE CONTROL DEL RUIDO (JERARQUÍA LEGAL)", 14, curY);
+            curY += 4;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.2);
+            doc.setTextColor(51, 65, 85);
+            const controls = [
+                "1. Controles en la Fuente (Prioridad 1 - Res. 2400/79): Reemplazo de discos abrasivos por hojas diamantadas con núcleo fonoamortiguado. Mantenimiento riguroso del émbolo y camisas del martillo neumático con lubricación continua de línea. Encerramiento acústico tipo carrusel con material fonoabsorbente ignífugo para motor de mezcladora de trompo.",
+                "2. Controles en el Medio de Transmisión (Prioridad 2): Implementación de pantallas acústicas modulares móviles con lana mineral y chapa perforada entre el área de picado/corte y las cuadrillas adyacentes. Redistribución de máquinas en el área respetando la ley de divergencia esférica (atenuación de 6 dB por duplicación de distancia).",
+                "3. Controles Administrativos y Organizacionales (Prioridad 3): Rotación obligatoria de operadores en martillo y cortadora restringiendo la exposición continua al tiempo permisible calculado (Tperm < 30 minutos). Programación de tareas de alta emisión en horarios de menor concurrencia de personal.",
+                "4. Elementos de Protección Personal (EPP) con Derating GATISO-HNIR (Prioridad 4): Dotación obligatoria de protectores auditivos de inserción o copa certificados ANSI S3.19. Aplicar factor de atenuación real: NRR derateado al 50% para tapones (Atenuación real <= 12.5 dB) y al 70-75% para orejeras. Para exposiciones combinadas superiores a 100 dBA, exigir doble protección simultánea (tapón premoldeado + orejera de copa)."
+            ];
+            controls.forEach(c => {
+                const splitC = doc.splitTextToSize(c, 182);
+                doc.text(splitC, 14, curY);
+                curY += (splitC.length * 3.5) + 1.2;
+            });
+
+            if (curY > 240) {
+                doc.addPage();
+                curY = 16;
+            }
+
+            // 5. VIGILANCIA EPIDEMIOLÓGICA
+            curY += 2;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+            doc.setTextColor(2, 132, 199);
+            doc.text("5. VIGILANCIA EPIDEMIOLÓGICA AUDITIVA (PVE-HNIR)", 14, curY);
+            curY += 4;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.2);
+            doc.setTextColor(51, 65, 85);
+            const pveText = "Conforme a la Recomendación 6.2 de la GATISO-HNIR (Res. 2844 de 2007), todo trabajador asignado a puestos con LAeq >= 85 dBA o dosis >= 100% debe ser evaluado con audiometría tonal tamiz de vía aérea con periodicidad ANUAL. Para trabajadores en puestos con niveles entre 80.0 y 84.9 dBA (Nivel de Acción), la audiometría periódica debe realizarse cada DOS AÑOS (BIANUAL). Reposo auditivo previo de 16 horas sin exposición a ruido.";
+            const splitPve = doc.splitTextToSize(pveText, 182);
+            doc.text(splitPve, 14, curY);
+            curY += (splitPve.length * 3.5) + 6;
+
+            if (curY > 250) {
+                doc.addPage();
+                curY = 20;
+            }
+
+            // CUADRO DE FIRMAS
+            doc.setDrawColor(148, 163, 184);
+            doc.line(20, curY + 14, 85, curY + 14);
+            doc.line(120, curY + 14, 185, curY + 14);
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7.5);
+            doc.setTextColor(15, 23, 42);
+            doc.text(evaluator, 52.5, curY + 18, { align: 'center' });
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Especialista en SST / Higiene Ocupacional\nLicencia: ${license}`, 52.5, curY + 22, { align: 'center' });
+
+            doc.setFont('helvetica', 'bold');
+            doc.text("RESPONSABLE DEL SG-SST / EMPRESA", 152.5, curY + 18, { align: 'center' });
+            doc.setFont('helvetica', 'normal');
+            doc.text("Firma y Sello de Recibido\nConsorcio Evaluado", 152.5, curY + 22, { align: 'center' });
+
+            // Pie de página en todas las páginas
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(6.5);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Página ${i} de ${pageCount} · Documento Oficial de Soporte Higiénico conforme a Res. 2844/07 GATISO-HNIR y Res. 1792/90`, 105, 290, { align: 'center' });
+            }
+
+            doc.save('Informe_Higienico_Ruido_Res2844_SectorA.pdf');
+
+            const modal = document.getElementById('reportPreviewModal');
+            if (modal) modal.style.display = 'none';
+        }
+
         // ==========================================
-        // 14. ARRANQUE
+        // 13.8 ENLACE DE BOTONES Y EVENTOS DE INTERFAZ
+        // ==========================================
+        // Alternador de modo (Vista individual vs Plano General)
+        const btnModeSingleEl = document.getElementById('btnModeSingle');
+        if (btnModeSingleEl) {
+            btnModeSingleEl.addEventListener('click', () => setStageViewMode('single'));
+        }
+
+        const btnModeOverviewEl = document.getElementById('btnModeOverview');
+        if (btnModeOverviewEl) {
+            btnModeOverviewEl.addEventListener('click', () => setStageViewMode('overview'));
+        }
+
+        // Cinta Métrica
+        const btnRulerEl = document.getElementById('btnRulerTool');
+        if (btnRulerEl) {
+            btnRulerEl.addEventListener('click', () => {
+                isRulerActive = !isRulerActive;
+                btnRulerEl.classList.toggle('active', isRulerActive);
+                btnRulerEl.textContent = `📏 Cinta Métrica: ${isRulerActive ? 'ON' : 'OFF'}`;
+                const cont = document.getElementById('sectorOverviewContainer');
+                if (cont) cont.style.cursor = isRulerActive ? 'crosshair' : 'default';
+                if (!isRulerActive) {
+                    rulerPoints = null;
+                    const info = document.getElementById('rulerOverlayInfo');
+                    if (info) info.style.display = 'none';
+                }
+            });
+        }
+
+        // Acciones multi-fuente en plano general
+        const btnAllOnEl = document.getElementById('btnAllSourcesOn');
+        if (btnAllOnEl) {
+            btnAllOnEl.addEventListener('click', () => {
+                SECTORS['A'].machines.forEach(m => activeOverviewSources.add(m.id));
+                renderOverviewMachineBeacons();
+                renderMultiSourceChips();
+                playCurrentAudio();
+            });
+        }
+
+        const btnAllOffEl = document.getElementById('btnAllSourcesOff');
+        if (btnAllOffEl) {
+            btnAllOffEl.addEventListener('click', () => {
+                activeOverviewSources.clear();
+                renderOverviewMachineBeacons();
+                renderMultiSourceChips();
+                playCurrentAudio();
+            });
+        }
+
+        // Protocolo de Medición
+        const btnStartSampleEl = document.getElementById('btnStartPointMeasurement');
+        if (btnStartSampleEl) {
+            btnStartSampleEl.addEventListener('click', startPointMeasurement);
+        }
+
+        const btnAbortSampleEl = document.getElementById('btnAbortMeasurement');
+        if (btnAbortSampleEl) {
+            btnAbortSampleEl.addEventListener('click', completePointMeasurement);
+        }
+
+        const btnClearPtsEl = document.getElementById('btnClearPoints');
+        if (btnClearPtsEl) {
+            btnClearPtsEl.addEventListener('click', () => {
+                evaluatedPoints = [];
+                renderPointsTable();
+                renderMeasuredPointPins();
+            });
+        }
+
+        // Generación y previsualización de Informe PDF
+        const btnTopRepEl = document.getElementById('btnTopReport');
+        if (btnTopRepEl) {
+            btnTopRepEl.addEventListener('click', () => {
+                renderPointsTable();
+                const m = document.getElementById('reportPreviewModal');
+                if (m) m.style.display = 'flex';
+            });
+        }
+
+        const btnPreviewRepEl = document.getElementById('btnPreviewReportModal');
+        if (btnPreviewRepEl) {
+            btnPreviewRepEl.addEventListener('click', () => {
+                renderPointsTable();
+                const m = document.getElementById('reportPreviewModal');
+                if (m) m.style.display = 'flex';
+            });
+        }
+
+        const btnDownloadRepEl = document.getElementById('btnDownloadReportPdf');
+        if (btnDownloadRepEl) {
+            btnDownloadRepEl.addEventListener('click', generateHygieneReportPDF);
+        }
+
+        const btnExecRepEl = document.getElementById('btnExecutePdfDownload');
+        if (btnExecRepEl) {
+            btnExecRepEl.addEventListener('click', generateHygieneReportPDF);
+        }
+
+        const btnCloseRepEl = document.getElementById('btnCloseReportModal');
+        if (btnCloseRepEl) {
+            btnCloseRepEl.addEventListener('click', () => {
+                const m = document.getElementById('reportPreviewModal');
+                if (m) m.style.display = 'none';
+            });
+        }
+
+        const btnCancelRepEl = document.getElementById('btnCancelReportModal');
+        if (btnCancelRepEl) {
+            btnCancelRepEl.addEventListener('click', () => {
+                const m = document.getElementById('reportPreviewModal');
+                if (m) m.style.display = 'none';
+            });
+        }
+
+        // ==========================================
+        // 14. ARRANQUE DEL SIMULADOR
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
+            overviewCanvas = document.getElementById('overviewCanvas');
+            overviewCtx = overviewCanvas ? overviewCanvas.getContext('2d') : null;
+
             renderMachinesStrip();
             renderMachineIllustration();
             updateWeightingUI();
             updateSpeedUI();
+            initSonometerMapEvents();
+            renderPointsTable();
+            renderMeasuredPointPins();
             requestAnimationFrame(acousticLoop);
         });
     </script>
