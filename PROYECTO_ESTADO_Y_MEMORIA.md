@@ -132,6 +132,93 @@ Simulador_Ruido/
 
 ### 7. Historial de Commits y Estado del Repositorio
 - **Rama:** `main`
-- **Último Commit:** `8556930` (*docs: actualizar memoria tecnica con tema blanco, plano despejado, mini sonometro y logo unico*)
-- **Nuevo Feature Integrado:** Escena animada interactiva `Sector A Construcción_1` con sincronización cinético-acústica selectiva por máquina mediante capas con `clip-path`.
-- **Estado de Trabajo:** Totalmente integrado, testeado y sincronizado con el repositorio remoto. Listo para cerrar la sesión y apagar el equipo con seguridad total.
+- **Último Commit:** `2617e03` (*feat: escena animada Sector A Construccion_1 con sincronizacion cinetico-acustica selectiva por maquina (clip-path)*)
+- **Commits Clave:**
+  - `2617e03`: Escena animada Sector A Construcción_1 con sincronización cinético-acústica selectiva por máquina (`clip-path`).
+  - `8556930`: Actualización de memoria técnica con tema blanco, plano despejado, mini sonómetro y logo único.
+  - `3eabdd6`: Tema blanco base, plano general despejado con solo bocinas, mini sonómetro interactivo y logo institucional sin texto.
+  - `6d6bf33`: Ocultar contraseña en modal, logo institucional en sonómetro y paleta blanco/naranja en plano general.
+  - `011cf17`: Identidad institucional Tecnológica del Oriente, acceso por contraseña CETO2026, eliminación marcas fabricantes.
+  - `02fdaf0`: Máquinas realistas construcción, plano general multifoco con cinta métrica, temporizador de muestreo e informe técnico PDF.
+- **Estado de Trabajo:** Totalmente sincronizado con el repositorio remoto (`origin/main`). Árbol de trabajo limpio.
+
+---
+
+### 8. Registro de Cambios: Aprobados vs. No Aprobados / Descartados
+
+#### A. Cambios Aprobados y Consolidados (100% Funcionales)
+1. **Escena Dinámica e Interactiva (Sector A Construcción_1):**
+   - Sustitución de la escena fija por `Sector A Construcción_1.gif` (640 × 360 px, 16:9).
+   - Base fija sin movimiento `sector_a_construccion_static.jpg` (fotograma 0 exacto) para reposo.
+   - 5 capas de recorte poligonal CSS (`clip-path: polygon(...)`) independientes para cada máquina.
+   - Sincronización estricta: cada máquina **solo se mueve cuando su sonido está activo**. Al apagar la máquina (o mutear el máster), su animación se oculta de inmediato y vuelve al reposo estático.
+2. **Plano General Limpio y Despejado:**
+   - Eliminación total de tarjetas grandes de texto, balizas numéricas invasivas y barras de cotas sobre la fotografía.
+   - Visualización íntegra al 100% de la maquinaria sin recortes ni distorsión.
+   - Cotas físicas situadas en la barra inferior de control (`↔ Ancho: 45.0 m · ↕ Largo: 32.0 m · Escala: 1 cm = 5 m`).
+3. **Control Acústico Intuitivo por Bocinas:**
+   - Cada máquina cuenta exclusivamente con un botón circular interactivo de bocina (`🔊` naranja activo con ondas acústicas / `🔇` blanco inactivo en silencio).
+4. **Mini Mini Sonómetro Móvil Arrastrable:**
+   - Réplica en miniatura del sonómetro integrador con pantalla LCD digital funcional.
+   - Muestra el nivel sonoro en dBA en tiempo real a 60 FPS coordinado con el sonómetro Extech.
+   - Arrastrable libremente por el plano con el mouse para auditar divergencia y campo acústico.
+5. **Identidad Visual Institucional Tecnológica del Oriente:**
+   - Paleta sobre base blanca suave (`#f8fafc` / `#ffffff`), tipografía oscura (`#0f172a`), naranja institucional (`#e67817`), verde sutil (`#16943f`) y mínimo negro.
+   - Exclusividad del Logo Institucional (`assets/logo_tecnologica_oriente.png`) en cabecera y modal de autenticación: **sin ningún texto que repita el nombre de la institución**.
+6. **Seguridad y Acceso Académico (`CETO2026`):**
+   - Modal de acceso con contraseña protegida (tipo `password`).
+   - La contraseña nunca se muestra en pantalla.
+   - Persistencia de sesión con `sessionStorage` y botón superior `🔒 Bloquear`.
+7. **Cero Marcas Comerciales de Fabricantes:**
+   - Rotulación estrictamente metrológica según normativas internacionales (IEC 61672-1 Clase 2 e IEC 60942 Clase 1).
+   - Nombres técnicos de ingeniería en maquinaria.
+8. **Marco Normativo Colombiano e Informe Técnico Oficial en PDF:**
+   - Implementación de Res. 2844 de 2007 (GATISO-HNIR, Nivel de Acción 80 dBA, vigilancia bianual y anual, derating de EPP).
+   - Res. 1792 de 1990 (TLV 85 dBA, tasa legal $q=5\text{ dB}$, impacto 140 dBC Peak).
+   - Generación y descarga directa offline de informes técnicos en PDF con encabezado oficial y trazabilidad.
+
+#### B. Cambios No Aprobados / Descartados / Revertidos por el Usuario
+1. **Mostrar la contraseña `CETO2026` en pantalla:** Descartado por seguridad y directriz explícita del usuario.
+2. **Textos con el nombre de la institución junto al logo:** Descartado para mantener una cabecera minimalista e institucional limpia solo con el isotipo/logo.
+3. **Cajas de datos y cotas superpuestas sobre la foto del plano general:** Descartado por saturar la visual de las máquinas y obstruir el área de trabajo.
+4. **Hologramas o marcadores naranjas grandes en el medio del plano:** Descartado; reemplazado por el mini mini sonómetro arrastrable.
+5. **Escena estática original `Sector A Construcción.jpg`:** Descartada a favor de la animación interactiva `Sector A Construcción_1.gif`.
+6. **Animación en bucle permanente de todas las máquinas:** Descartada; el usuario estableció la regla obligatoria de que solo se mueve la máquina con sonido activo y al apagarla debe congelarse.
+
+---
+
+### 9. Backlog de Propuestas Futuras (Pendientes de Aprobación en Próximas Sesiones)
+
+1. **Escenas Animadas para Sectores Adicionales:**
+   - Incorporar animaciones cinético-acústicas para los sectores B (Manufactura / Calderas) y C (Minería / Molienda) cuando el usuario suministre los GIFs correspondientes.
+2. **Mapa de Calor Acústico (Isófonas 2D):**
+   - Superposición opcional de curvas de igual presión sonora generadas por interpolación en tiempo real sobre el plano general.
+3. **Módulo de Dosimetría Acumulada de Jornada Laboral:**
+   - Simulación de ciclo de trabajo de 8 horas con cálculo proyectado de dosis (%) y $L_{\text{TWA}}$.
+4. **Simulador de Audiometría Tamiz Ocupacional:**
+   - Módulo interactivo para trazar curvas audiométricas (vía aérea de 250 Hz a 8000 Hz) y comparar contra los criterios de cambio de umbral auditivo (STS) de la GATISO-HNIR.
+5. **Selector de EPP Comercial Colombiano:**
+   - Catálogo de protectores auditivos de inserción y de copa comunes en el mercado colombiano con cálculo de atenuación efectiva por bandas de octava.
+
+---
+
+### 10. Protocolo de Reanudación de Sesión (Guía Rápida al Encender el PC)
+
+1. **Iniciar Servidor Local:**
+   ```powershell
+   cd "c:\Users\Estudiante 08\Documents\Pedro_Noriega\Aplicaciones IA\Simulador_Ruido"
+   python -m http.server 3000
+   ```
+2. **Abrir en Navegador:**
+   - Navegar a `http://localhost:3000` o `http://localhost:3000/simulador_higiene_ruido_multisectorial.html`
+3. **Iniciar Sesión:**
+   - Introducir la clave académica `CETO2026`.
+4. **Verificar Estado del Repositorio:**
+   ```powershell
+   git status
+   git pull origin main
+   ```
+5. **Archivos Principales para Continuar Desarrollo:**
+   - Código maestro: `simulador_higiene_ruido_multisectorial.html`
+   - Espejo para GitHub Pages: `index.html` (mantener siempre idéntico al maestro)
+   - Memoria técnica: `PROYECTO_ESTADO_Y_MEMORIA.md`
