@@ -59,14 +59,14 @@ Aplicación web institucional de simulación acústica y metrológica en tiempo 
 5. **Martillo Neumático Rompepavimentos (`martillo_neumatico.jpg`):** Percusión de 32 kg a 26 Hz y ráfagas a 6 bar. Coordenadas: `(86%, 74%)`.
 
 #### B. Plano General Dinámico (Sector A Construcción) con Fotografía Panorámica Limpia de Ultra-Alta Definición y Movimiento Aislado en Canvas 2D
-- **Fotografía Panorámica Continua de Máxima Nitidez Nativa (2400 × 1350 px, Calidad 98%):**
-  - Se utiliza la fotografía de cámara real auténtica (`assets/machines/sector_a_construccion_overview.jpg` y `sector_a_construccion_static.jpg`), eliminando por completo cualquier recorte artificial, parche o ventana rectangular.
-  - **Distribución de Máquinas en la Obra Real:**
-    1. *Cortadora de Disco:* Operario con cortadora en la losa de concreto (`32.5%, 76.3%`).
-    2. *Mezcladora Trompo:* En el terreno central (`42.1%, 40.7%`).
-    3. *Retroexcavadora:* Chasis, cabina y pluma en el talud de excavación (`58.3%, 17.0%`).
-    4. *Vibrocompactador:* Rodillo pata de cabra en la calzada derecha (`82.5%, 41.5%`).
-    5. *Martillo Neumático:* Operario con martillo percutor en la losa de concreto (`63.3%, 78.5%`).
+- **Fotografía Panorámica Aprobada con Separación Espacial Amplia (1376 × 768 px, 16:9):**
+  - Se utiliza la composición aprobada (`assets/machines/sector_a_construccion_overview.jpg` y `sector_a_construccion_static.jpg`), donde las máquinas y operarios están ampliamente distanciados a lo largo del plano para que cada fuente cuente con su área de trabajo despejada.
+  - **Distribución de Máquinas en el Plano Aprobado:**
+    1. *Cortadora de Disco:* Operario con cortadora en la losa inferior izquierda (`17.4%, 75.0%`).
+    2. *Mezcladora Trompo:* En el terreno central-izquierdo (`35.6%, 33.2%`).
+    3. *Retroexcavadora:* En el talud superior central (`56.0%, 12.4%`).
+    4. *Vibrocompactador:* Rodillo pata de cabra en la calzada superior derecha (`91.2%, 25.4%`).
+    5. *Martillo Neumático:* Operario con martillo percutor en la losa inferior derecha (`85.8%, 74.9%`).
 - **Arquitectura de Movimiento 100% Limpio (Sin Divs Clip-Path / Sin Bordes de Parche):**
   - **Eliminación Total de Divs Rectangulares:** Se descartaron por completo las capas CSS con `clip-path` y `<img>` superpuestos porque generaban recortes con bordes visibles inaceptables.
   - **Renderizado Dinámico en Canvas 2D Transparente (`overviewCanvas` a 60 FPS):**
@@ -79,11 +79,11 @@ Aplicación web institucional de simulación acústica y metrológica en tiempo 
       5. *Vibrocompactador:* Ondas elípticas de densificación y compresión del terreno bajo el tambor pata de cabra + destello estroboscópico de advertencia ámbar en el techo de la cabina.
     - **Cero Movimiento Espurio:** Las máquinas apagadas permanecen 100% inmóviles y congeladas. Si el audio se silencia (MUTE), todo el movimiento se detiene al instante.
 - **Botones de Bocinas Interactivos (`🔊`/`🔇`):**
-  - Cortadora de disco: `(32.5%, 76.3%)`
-  - Martillo neumático: `(63.3%, 78.5%)`
-  - Mezcladora trompo: `(42.1%, 40.7%)`
-  - Retroexcavadora: `(58.3%, 17.0%)`
-  - Vibrocompactador: `(82.5%, 41.5%)`
+  - Cortadora de disco: `(17.4%, 75.0%)`
+  - Martillo neumático: `(85.8%, 74.9%)`
+  - Mezcladora trompo: `(35.6%, 33.2%)`
+  - Retroexcavadora: `(56.0%, 12.4%)`
+  - Vibrocompactador: `(91.2%, 25.4%)`
 - **Mini Mini Sonómetro Móvil Arrastrable:**
   - Réplica en miniatura del sonómetro integrador con display LCD digital en tiempo real a 60 FPS, arrastrable libremente por el plano panorámico.
 - **Cotas en Barra Inferior:**

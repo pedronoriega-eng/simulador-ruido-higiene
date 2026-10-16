@@ -2246,8 +2246,8 @@
 
                         <!-- MODO 2: PLANO GENERAL DEL SECTOR CON FOTOGRAFÍA PANORÁMICA LIMPIA Y MOVIMIENTO AISLADO -->
                         <div class="sector-overview-layer" id="sectorOverviewContainer" style="display:none;">
-                            <!-- Fotografía panorámica continua de alta resolución (limpia, nítida, sin recortes ni parches) -->
-                            <img id="overviewBgImg" src="assets/machines/sector_a_construccion_overview.jpg?v=clean_real_2026" alt="Composición General Sector A" class="overview-bg-photo static-layer">
+                            <!-- Fotografía panorámica continua de alta resolución aprobada (con separación espacial amplia entre máquinas) -->
+                            <img id="overviewBgImg" src="assets/machines/sector_a_construccion_overview.jpg?v=approved_dist_2026_v4" alt="Composición General Sector A (Máquinas Separadas)" class="overview-bg-photo static-layer">
 
                             <!-- Canvas 2D a 60 FPS para física, cinemática, ondas acústicas y cinta métrica estrictamente aisladas por fuente -->
                             <canvas id="overviewCanvas" width="880" height="420" style="position:absolute; inset:0; pointer-events:none; z-index:12;"></canvas>
@@ -2886,8 +2886,8 @@
         const SECTORS = {
             'A': {
                 name: "Construcción de Infraestructura y Obras Civiles",
-                overviewPhoto: 'assets/machines/sector_a_construccion_overview.jpg?v=clean_real_2026',
-                overviewStaticPhoto: 'assets/machines/sector_a_construccion_static.jpg?v=clean_real_2026',
+                overviewPhoto: 'assets/machines/sector_a_construccion_overview.jpg?v=approved_dist_2026_v4',
+                overviewStaticPhoto: 'assets/machines/sector_a_construccion_static.jpg?v=approved_dist_2026_v4',
                 dimensions: { width: 45.0, depth: 32.0, area: 1440 },
                 machines: [
                     { 
@@ -2901,7 +2901,7 @@
                         synth: 'saw', 
                         photo: 'assets/machines/cortadora_disco_concreto.jpg', 
                         photoTag: 'MOTOR 2T · 4200 RPM · DISCO DIAMANTADO',
-                        coords: { x: 32.5, y: 76.3 }
+                        coords: { x: 17.4, y: 75.0 }
                     },
                     { 
                         id: 'martillo_neumatico', 
@@ -2914,7 +2914,7 @@
                         synth: 'hammer', 
                         photo: 'assets/machines/martillo_neumatico.jpg', 
                         photoTag: 'HEAVY BREAKER 26Hz 125dBC',
-                        coords: { x: 63.3, y: 78.5 }
+                        coords: { x: 85.8, y: 74.9 }
                     },
                     { 
                         id: 'mezcladora_trompo', 
@@ -2927,7 +2927,7 @@
                         synth: 'mixer', 
                         photo: 'assets/machines/mezcladora_trompo.jpg', 
                         photoTag: 'CONCRETE DRUM MIXER 1BBL',
-                        coords: { x: 42.1, y: 40.7 }
+                        coords: { x: 35.6, y: 33.2 }
                     },
                     { 
                         id: 'retroexcavadora', 
@@ -2940,7 +2940,7 @@
                         synth: 'diesel', 
                         photo: 'assets/machines/retroexcavadora_orugas.jpg', 
                         photoTag: 'CRAWLER EXCAVATOR 6-CYL',
-                        coords: { x: 58.3, y: 17.0 }
+                        coords: { x: 56.0, y: 12.4 }
                     },
                     { 
                         id: 'vibrocompactador', 
@@ -2953,7 +2953,7 @@
                         synth: 'roller', 
                         photo: 'assets/machines/vibrocompactador_pata_cabra.jpg', 
                         photoTag: 'PADFOOT COMPACTOR 30Hz',
-                        coords: { x: 82.5, y: 41.5 }
+                        coords: { x: 91.2, y: 25.4 }
                     }
                 ]
             },
