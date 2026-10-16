@@ -1,7 +1,7 @@
 # 🧠 Memoria Técnica y Estado del Proyecto
 ## Simulador de Higiene Industrial y Ruido Ocupacional
 ### Laboratorio Virtual - SG-SST (Colombia)
-**Fecha de Actualización:** 14 de Octubre de 2026  
+**Fecha de Actualización:** 16 de Octubre de 2026  
 **Repositorio GitHub:** [https://github.com/pedronoriega-eng/simulador-ruido-higiene.git](https://github.com/pedronoriega-eng/simulador-ruido-higiene.git)  
 **Rama:** `main`  
 **Autor:** Pedro Noriega  
@@ -11,6 +11,8 @@
 
 ### 1. Resumen Ejecutivo del Proyecto
 Aplicación web institucional de simulación acústica y metrológica en tiempo real para Higiene Industrial y Seguridad y Salud en el Trabajo (SST), desarrollada con arquitectura puramente nativa (**HTML5 + Vanilla JavaScript + Web Audio API + Canvas 2D a 60 FPS**), sin dependencias externas pesadas. Diseñada con la identidad visual oficial institucional sobre **base blanca**, acceso académico restringido por contraseña (`CETO2026`), ausencia total de marcas comerciales de fabricantes, exportación autónoma de informes técnicos oficiales en PDF (**jsPDF + autoTable**) con soporte offline local, y despliegue en GitHub Pages.
+
+La versión actual integra **Plano General Panorámico Fotorrealista para los 5 Sectores Económicos**, con **animación cinético-acústica aislada por fuente en Canvas 2D**, **memoria interna acumulativa para mediciones individuales y combinadas**, y un módulo de **Identificación del Estudiante Evaluador** para la emisión oficial del informe de laboratorio.
 
 ---
 
@@ -31,7 +33,7 @@ Aplicación web institucional de simulación acústica y metrológica en tiempo 
    - Botón **"🔒 Bloquear"** en la barra superior para rebloquear la aplicación de manera inmediata.
 4. **Sin Marcas Comerciales de Fabricantes:**
    - La instrumentación se rotula estrictamente con estándares metrológicos internacionales (**Sonómetro Digital Integrador Clase 2 / Tipo 2 IEC 61672-1:2013** y **Calibrador Acústico Normalizado IEC 60942 Clase 1**), sin marcas comerciales comerciales.
-   - Las máquinas se presentan por su denominación técnica de ingeniería (ej. *Cortadora de Disco para Concreto Motor 2T*, *Mezcladora Trompo con Volteo de Áridos*, *Retroexcavadora sobre Orugas*, *Vibrocompactador Pata de Cabra*, *Martillo Neumático Rompepavimentos*).
+   - Las máquinas se presentan por su denominación técnica de ingeniería.
 
 ---
 
@@ -49,60 +51,97 @@ Aplicación web institucional de simulación acústica y metrológica en tiempo 
 
 ---
 
-### 4. Maquinaria Realista y Plano General del Sector A (Construcción)
+### 4. Catálogo de los 5 Sectores y Planos Generales Multisectoriales
 
-#### A. Máquinas del Sector A (Construcción e Infraestructura)
-1. **Cortadora de Disco para Concreto (`cortadora_disco_concreto.jpg`):** Motor 2T a 4200 RPM con disco diamantado. Coordenadas: `(20%, 72%)`.
-2. **Mezcladora Trompo con Volteo de Áridos (`mezcladora_trompo.jpg`):** Tambor de 350 L accionado por corona dentada y cascada de grava. Coordenadas: `(38%, 40%)`.
-3. **Retroexcavadora sobre Orugas (`retroexcavadora_orugas.jpg`):** Motor turbodiésel 6 cilindros de 120 kW con bomba de pistones. Coordenadas: `(62%, 22%)`.
-4. **Vibrocompactador Pata de Cabra (`vibrocompactador_pata_cabra.jpg`):** Rodillo excéntrico a 30 Hz y pisado a 60 Hz. Coordenadas: `(86%, 46%)`.
-5. **Martillo Neumático Rompepavimentos (`martillo_neumatico.jpg`):** Percusión de 32 kg a 26 Hz y ráfagas a 6 bar. Coordenadas: `(86%, 74%)`.
+Cada sector cuenta con su propio **Plano General Panorámico 16:9 de Ultra-Alta Definición**, balizas con bocinas interactivas (`🔊`/`🔇`), animación cinético-acústica aislada en Canvas 2D a 60 FPS, mini sonómetro móvil arrastrable con display en tiempo real y cinta métrica calibrada con dimensiones de ingeniería:
 
-#### B. Plano General Dinámico (Sector A Construcción) con Fotografía Panorámica Limpia de Ultra-Alta Definición y Movimiento Aislado en Canvas 2D
-- **Fotografía Panorámica Aprobada con Separación Espacial Amplia (1376 × 768 px, 16:9):**
-  - Se utiliza la composición aprobada (`assets/machines/sector_a_construccion_overview.jpg` y `sector_a_construccion_static.jpg`), donde las máquinas y operarios están ampliamente distanciados a lo largo del plano para que cada fuente cuente con su área de trabajo despejada.
-  - **Distribución de Máquinas en el Plano Aprobado:**
-    1. *Cortadora de Disco:* Operario con cortadora en la losa inferior izquierda (`17.4%, 75.0%`).
-    2. *Mezcladora Trompo:* En el terreno central-izquierdo (`35.6%, 33.2%`).
-    3. *Retroexcavadora:* En el talud superior central (`56.0%, 12.4%`).
-    4. *Vibrocompactador:* Rodillo pata de cabra en la calzada superior derecha (`91.2%, 25.4%`).
-    5. *Martillo Neumático:* Operario con martillo percutor en la losa inferior derecha (`85.8%, 74.9%`).
-- **Arquitectura de Movimiento 100% Limpio (Sin Divs Clip-Path / Sin Bordes de Parche):**
-  - **Eliminación Total de Divs Rectangulares:** Se descartaron por completo las capas CSS con `clip-path` y `<img>` superpuestos porque generaban recortes con bordes visibles inaceptables.
-  - **Renderizado Dinámico en Canvas 2D Transparente (`overviewCanvas` a 60 FPS):**
-    - Todo el movimiento, partículas y ondas acústicas se dibujan en el canvas transparente superpuesto, manteniendo el fondo fotográfico 100% puro y continuo.
-    - **Aislamiento Estricto por Fuente:** Al accionar la bocina (`🔊`) de una máquina, **ÚNICAMENTE** esa máquina genera movimiento físico y ondas acústicas concéntricas:
-      1. *Cortadora de Disco:* Chorro cónico de agua y neblina refrigerante a alta velocidad a lo largo de la ranura de corte en el concreto + micro-chispas de fricción del diamante.
-      2. *Martillo Neumático:* Ciclos de impacto percusivo a 26 Hz con dispersión radial de polvo y esquirlas de concreto en la punta del cincel + destello de fractura.
-      3. *Mezcladora Trompo:* Efecto rotativo continuo en la boca del tambor volteando grava y áridos gruesos + ondas de vibración mecánica.
-      4. *Retroexcavadora:* Pluma de escape turbodiésel translúcida ascendente que se disipa verticalmente desde el tubo de escape + pulsaciones hidráulicas.
-      5. *Vibrocompactador:* Ondas elípticas de densificación y compresión del terreno bajo el tambor pata de cabra + destello estroboscópico de advertencia ámbar en el techo de la cabina.
-    - **Cero Movimiento Espurio:** Las máquinas apagadas permanecen 100% inmóviles y congeladas. Si el audio se silencia (MUTE), todo el movimiento se detiene al instante.
-- **Botones de Bocinas Interactivos (`🔊`/`🔇`):**
-  - Cortadora de disco: `(17.4%, 75.0%)`
-  - Martillo neumático: `(85.8%, 74.9%)`
-  - Mezcladora trompo: `(35.6%, 33.2%)`
-  - Retroexcavadora: `(56.0%, 12.4%)`
-  - Vibrocompactador: `(91.2%, 25.4%)`
-- **Mini Mini Sonómetro Móvil Arrastrable:**
-  - Réplica en miniatura del sonómetro integrador con display LCD digital en tiempo real a 60 FPS, arrastrable libremente por el plano panorámico.
-- **Cotas en Barra Inferior:**
-  - `↔ Ancho: 45.0 m · ↕ Largo: 32.0 m · Escala: 1 cm = 5 m`
-- **Herramienta Cinta Métrica:** Mide distancias en metros y calcula la atenuación acústica teórica en campo libre ($\Delta L = 20\log_{10}(d)$).
+#### Sector A: Construcción de Infraestructura y Obras Civiles
+- **Dimensiones:** Ancho 45.0 m × Largo 32.0 m (1.440 m²) · Escala 1 cm = 5 m.
+- **Imagen Panorámica:** `assets/machines/sector_a_construccion_overview.jpg`
+- **Fuentes Acústicas y Coordenadas:**
+  1. *Cortadora de Disco para Concreto (Motor 2T):* `(17.4%, 75.0%)`
+  2. *Martillo Neumático Rompepavimentos:* `(85.8%, 74.9%)`
+  3. *Mezcladora Trompo con Volteo de Áridos:* `(35.6%, 33.2%)`
+  4. *Retroexcavadora sobre Orugas:* `(56.0%, 12.4%)`
+  5. *Vibrocompactador Pata de Cabra:* `(91.2%, 25.4%)`
+- **Física Aislada en Canvas:** Chorro de agua a presión y microchispas en cortadora; fractura y polvo en martillo; volteo rotativo en trompo; escape diésel en retroexcavadora; ondas elípticas de compactación y destello estroboscópico en vibrocompactador.
+
+#### Sector B: Industria Manufacturera y Metalmecánica
+- **Dimensiones:** Ancho 50.0 m × Largo 30.0 m (1.500 m²) · Escala 1 cm = 5 m.
+- **Imagen Panorámica:** `assets/machines/sector_b_manufactura_overview.jpg`
+- **Fuentes Acústicas y Coordenadas:**
+  1. *Prensa Troqueladora Excéntrica (120 Tn):* `(16.5%, 72.0%)`
+  2. *Martinete de Forja Neumático:* `(24.5%, 52.0%)`
+  3. *Pulidora Angular Industrial 9 pulgadas:* `(41.5%, 68.0%)`
+  4. *Compresor de Tornillo Rotativo (75 kW):* `(66.0%, 53.0%)`
+  5. *Ventilador Centrífugo de Extracción:* `(90.0%, 57.0%)`
+- **Física Aislada en Canvas:** Impacto vertical de estampado y cortina óptica en prensa; golpe de maza y vibración en martinete; haz de chispas tangenciales incandescentes en pulidora; ondas de flujo neumático en compresor; rotación de aspas y turbulencia en ventilador.
+
+#### Sector C: Comercio al por Menor y Entretenimiento (Ocio)
+- **Dimensiones:** Ancho 40.0 m × Largo 25.0 m (1.000 m²) · Escala 1 cm = 5 m.
+- **Imagen Panorámica:** `assets/machines/sector_c_comercio_overview.jpg`
+- **Fuentes Acústicas y Coordenadas:**
+  1. *Pista de Karts Indoor (Motor 4T):* `(17.5%, 77.0%)`
+  2. *Discoteca / Sistema Line Array PA:* `(20.0%, 36.0%)`
+  3. *Restaurante y Cocina Comercial (Campana):* `(51.0%, 56.0%)`
+  4. *Campana Extractora de Alta Potencia:* `(75.0%, 34.0%)`
+  5. *Pistas de Bowling / Bolera:* `(82.0%, 75.0%)`
+- **Física Aislada en Canvas:** Escape y tracción de karts; pulsos rítmicos de sub-graves y luces en discoteca; vapores culinarios en cocina; vórtice centrífugo de extracción; derribo e impacto cinético de bolos.
+
+#### Sector D: Explotación de Minas y Canteras
+- **Dimensiones:** Ancho 120.0 m × Largo 80.0 m (9.600 m²) · Escala 1 cm = 10 m.
+- **Imagen Panorámica:** `assets/machines/sector_d_mineria_overview.jpg`
+- **Fuentes Acústicas y Coordenadas:**
+  1. *Frente de Voladura Controlada con Detonación:* `(18.0%, 30.0%)`
+  2. *Jumbo de Perforación Hidráulica:* `(36.0%, 57.0%)`
+  3. *Trituradora Primaria de Mandíbula:* `(54.0%, 31.0%)`
+  4. *Criba / Zaranda Vibratoria Multimalla:* `(74.0%, 46.0%)`
+  5. *Camión Volqueta / Dumper Fuera de Carretera (70 Tn):* `(74.0%, 80.0%)`
+- **Física Aislada en Canvas:** Onda de choque de detonación y nube de polvo; avance de broca y neblina de refrigeración en jumbo; trituración de bloques de roca y polvo pétreo; oscilación vertical elíptica en zaranda; descarga de mineral y nube de acarreo en dumper.
+
+#### Sector E: Áreas Administrativas y de Servicios
+- **Dimensiones:** Ancho 35.0 m × Largo 22.0 m (770 m²) · Escala 1 cm = 4 m.
+- **Imagen Panorámica:** `assets/machines/sector_e_servicios_overview.jpg`
+- **Fuentes Acústicas y Coordenadas:**
+  1. *Data Center (Servidores en Rack y Clima Inrow):* `(11.5%, 52.0%)`
+  2. *Call Center / Puestos de Operadores Telefónicos:* `(34.5%, 68.0%)`
+  3. *Área de Impresión Gran Formato / Plotter Industrial:* `(51.0%, 46.0%)`
+  4. *Cafetería y Zona de Pausa Activa:* `(66.5%, 58.0%)`
+  5. *Oficinas de Despacho y Logística:* `(89.0%, 55.0%)`
+- **Física Aislada en Canvas:** Flujo laminar de aire frío y LEDs de rack; ondas vocales de conversación en call center; vaivén horizontal de carro de impresión en plotter; vapor de espresso en cafetería; llamadas y tecleo en despacho.
 
 ---
 
-### 5. Protocolo de Muestreo Higiénico e Informe Técnico en PDF
+### 5. Memoria Interna de Mediciones y Reporte Académico Oficial
 
-- **Temporizador de Muestreo:** Presets de 15s (screening), 1m, 5m y 15m (ISO 9612 / GATISO), barra de avance y señal acústica.
-- **Tabla Metrológica:** Cálculo automático de $L_{\text{Aeq}}$, $L_{\text{Cpeak}}$, $L_{\text{max}}$, $L_{\text{min}}$, tiempo permisible ($T_{\text{perm}}$, $q=5$), dosis de 8 horas y diagnóstico.
-- **Informe Técnico Oficial en PDF (jsPDF + autoTable):**
-  - Encabezado institucional con el Logo Oficial.
-  - Soporte legal detallado (Res. 2844 de 2007, Res. 1792 de 1990, Res. 2400 de 1979, NTC-ISO 9612:2009).
-  - Trazabilidad metrológica y calibración acústica previa y posterior.
-  - Tabla de resultados metrológicos por punto con colores normativos de riesgo.
-  - Jerarquía de controles y derating de EPP auditivo.
-  - Firmas de responsabilidad técnica.
+1. **Memoria Interna Acumulativa (`evaluatedPoints`):**
+   - Almacena de forma persistente durante la sesión todas las mediciones realizadas por el estudiante.
+   - Permite registrar mediciones de:
+     - **Fuentes individuales:** evaluando el aporte puntual de una máquina.
+     - **Fuentes combinadas:** evaluando 2, 3 o todas las fuentes encendidas simultáneamente.
+     - **Ruido de fondo residual:** con todas las máquinas apagadas.
+   - Cada punto almacena: código (`P1, P2...`), sector, modalidad de fuentes activas, duración, $L_{\text{Aeq}}$, $L_{\text{Cpeak}}$, $L_{\text{max}}$, $L_{\text{min}}$, tiempo permisible ($T_{\text{perm}}$, $q=5$), dosis proyectada, diagnóstico normativo, coordenadas cartesianas y hora.
+   - **Badge Dinámico de Memoria (`#memoryCounterBadge`):** Muestra el número exacto de mediciones acumuladas y cambia a estado activo con animación pulsante.
+2. **Identificación Obligatoria del Estudiante Evaluador:**
+   - Previo a la emisión del informe, el estudiante debe digitar:
+     - **Nombre Completo del Estudiante** (campo obligatorio con validación activa).
+     - **Documento de Identidad / Código Estudiantil**.
+     - **Asignatura / Programa Académico**.
+     - **Docente a Cargo**.
+     - **Conclusiones y Observaciones Técnicas** redactadas por el estudiante.
+3. **Informe Técnico Oficial en PDF (jsPDF + autoTable):**
+   - Encabezado institucional de la Corporación Tecnológica del Oriente.
+   - Cuadro formal de identificación con los datos del estudiante evaluador.
+   - Marco normativo legal colombiano (Res. 1792/90, Res. 2844/07 GATISO-HNIR, Res. 2400/79).
+   - Trazabilidad metrológica e instrumentación IEC 61672 Clase 2.
+   - **Tabla Metrológica Completa** que integra todas las mediciones acumuladas en la memoria interna (individuales y combinadas).
+   - Conclusiones y análisis redactados por el estudiante.
+   - Plan jerárquico de control y vigilancia epidemiológica (PVE-HNIR).
+   - **Cuadro de Firmas:** Firma del Estudiante Evaluador y Firma del Docente Evaluador.
+   - Nombre de archivo personalizado: `Informe_Laboratorio_Ruido_[NombreEstudiante].pdf`.
+4. **Ciclo de Reinicio Post-Laboratorio:**
+   - Tras descargar el informe oficial, el sistema consulta al estudiante si desea reiniciar la memoria interna.
+   - El botón **"🔄 Nueva Simulación / Borrar Memoria"** permite vaciar la memoria previa confirmación para dar paso a un nuevo estudiante o práctica.
 
 ---
 
@@ -119,91 +158,35 @@ Simulador_Ruido/
     ├── logo_tecnologica_oriente.png           # Logo oficial institucional
     ├── js/                                    # Librerías offline para PDF (jsPDF, autoTable)
     └── machines/                              # Fotografías y animaciones de maquinaria
-        ├── sector_a_construccion_1.gif        # Escena animada dinámica panorámica 16:9 (640x360 px)
-        ├── sector_a_construccion_static.jpg   # Base fija estática del fotograma 0 (640x360 px)
-        ├── sector_a_construccion_overview.jpg # Plano estático original
-        ├── cortadora_disco_concreto.jpg       # Cortadora de concreto con motor 2T
-        ├── martillo_neumatico.jpg             # Martillo rompepavimentos neumático
-        ├── mezcladora_trompo.jpg              # Mezcladora de volteo
-        ├── retroexcavadora_orugas.jpg         # Retroexcavadora sobre orugas
-        └── vibrocompactador_pata_cabra.jpg    # Vibrocompactador pata de cabra
+        ├── sector_a_construccion_overview.jpg # Plano panorámico 16:9 Sector A
+        ├── sector_a_construccion_static.jpg   # Copia estática Sector A
+        ├── sector_b_manufactura_overview.jpg  # Plano panorámico 16:9 Sector B
+        ├── sector_b_manufactura_static.jpg    # Copia estática Sector B
+        ├── sector_c_comercio_overview.jpg     # Plano panorámico 16:9 Sector C
+        ├── sector_c_comercio_static.jpg       # Copia estática Sector C
+        ├── sector_d_mineria_overview.jpg      # Plano panorámico 16:9 Sector D
+        ├── sector_d_mineria_static.jpg        # Copia estática Sector D
+        ├── sector_e_servicios_overview.jpg    # Plano panorámico 16:9 Sector E
+        ├── sector_e_servicios_static.jpg      # Copia estática Sector E
+        └── [25 fotografías individuales de cada máquina...]
 ```
 
 ---
 
 ### 7. Historial de Commits y Estado del Repositorio
 - **Rama:** `main`
-- **Último Commit:** `2617e03` (*feat: escena animada Sector A Construccion_1 con sincronizacion cinetico-acustica selectiva por maquina (clip-path)*)
 - **Commits Clave:**
-  - `2617e03`: Escena animada Sector A Construcción_1 con sincronización cinético-acústica selectiva por máquina (`clip-path`).
+  - `feat`: Planos generales panorámicos 16:9 limpios para Sectores B, C, D y E con física aislada en Canvas 2D.
+  - `feat`: Memoria interna acumulativa para mediciones individuales y combinadas.
+  - `feat`: Módulo de datos del estudiante evaluador y reporte técnico oficial en PDF con firmas y reinicio.
+  - `2617e03`: Escena animada Sector A Construcción con sincronización cinético-acústica selectiva.
   - `8556930`: Actualización de memoria técnica con tema blanco, plano despejado, mini sonómetro y logo único.
-  - `3eabdd6`: Tema blanco base, plano general despejado con solo bocinas, mini sonómetro interactivo y logo institucional sin texto.
-  - `6d6bf33`: Ocultar contraseña en modal, logo institucional en sonómetro y paleta blanco/naranja en plano general.
   - `011cf17`: Identidad institucional Tecnológica del Oriente, acceso por contraseña CETO2026, eliminación marcas fabricantes.
-  - `02fdaf0`: Máquinas realistas construcción, plano general multifoco con cinta métrica, temporizador de muestreo e informe técnico PDF.
 - **Estado de Trabajo:** Totalmente sincronizado con el repositorio remoto (`origin/main`). Árbol de trabajo limpio.
 
 ---
 
-### 8. Registro de Cambios: Aprobados vs. No Aprobados / Descartados
-
-#### A. Cambios Aprobados y Consolidados (100% Funcionales)
-1. **Escena Dinámica e Interactiva (Sector A Construcción_1):**
-   - Sustitución de la escena fija por `Sector A Construcción_1.gif` (640 × 360 px, 16:9).
-   - Base fija sin movimiento `sector_a_construccion_static.jpg` (fotograma 0 exacto) para reposo.
-   - 5 capas de recorte poligonal CSS (`clip-path: polygon(...)`) independientes para cada máquina.
-   - Sincronización estricta: cada máquina **solo se mueve cuando su sonido está activo**. Al apagar la máquina (o mutear el máster), su animación se oculta de inmediato y vuelve al reposo estático.
-2. **Plano General Limpio y Despejado:**
-   - Eliminación total de tarjetas grandes de texto, balizas numéricas invasivas y barras de cotas sobre la fotografía.
-   - Visualización íntegra al 100% de la maquinaria sin recortes ni distorsión.
-   - Cotas físicas situadas en la barra inferior de control (`↔ Ancho: 45.0 m · ↕ Largo: 32.0 m · Escala: 1 cm = 5 m`).
-3. **Control Acústico Intuitivo por Bocinas:**
-   - Cada máquina cuenta exclusivamente con un botón circular interactivo de bocina (`🔊` naranja activo con ondas acústicas / `🔇` blanco inactivo en silencio).
-4. **Mini Mini Sonómetro Móvil Arrastrable:**
-   - Réplica en miniatura del sonómetro integrador con pantalla LCD digital funcional.
-   - Muestra el nivel sonoro en dBA en tiempo real a 60 FPS coordinado con el sonómetro Extech.
-   - Arrastrable libremente por el plano con el mouse para auditar divergencia y campo acústico.
-5. **Identidad Visual Institucional Tecnológica del Oriente:**
-   - Paleta sobre base blanca suave (`#f8fafc` / `#ffffff`), tipografía oscura (`#0f172a`), naranja institucional (`#e67817`), verde sutil (`#16943f`) y mínimo negro.
-   - Exclusividad del Logo Institucional (`assets/logo_tecnologica_oriente.png`) en cabecera y modal de autenticación: **sin ningún texto que repita el nombre de la institución**.
-6. **Seguridad y Acceso Académico (`CETO2026`):**
-   - Modal de acceso con contraseña protegida (tipo `password`).
-   - La contraseña nunca se muestra en pantalla.
-   - Persistencia de sesión con `sessionStorage` y botón superior `🔒 Bloquear`.
-7. **Cero Marcas Comerciales de Fabricantes:**
-   - Rotulación estrictamente metrológica según normativas internacionales (IEC 61672-1 Clase 2 e IEC 60942 Clase 1).
-   - Nombres técnicos de ingeniería en maquinaria.
-8. **Marco Normativo Colombiano e Informe Técnico Oficial en PDF:**
-   - Implementación de Res. 2844 de 2007 (GATISO-HNIR, Nivel de Acción 80 dBA, vigilancia bianual y anual, derating de EPP).
-   - Res. 1792 de 1990 (TLV 85 dBA, tasa legal $q=5\text{ dB}$, impacto 140 dBC Peak).
-   - Generación y descarga directa offline de informes técnicos en PDF con encabezado oficial y trazabilidad.
-
-#### B. Cambios No Aprobados / Descartados / Revertidos por el Usuario
-1. **Mostrar la contraseña `CETO2026` en pantalla:** Descartado por seguridad y directriz explícita del usuario.
-2. **Textos con el nombre de la institución junto al logo:** Descartado para mantener una cabecera minimalista e institucional limpia solo con el isotipo/logo.
-3. **Cajas de datos y cotas superpuestas sobre la foto del plano general:** Descartado por saturar la visual de las máquinas y obstruir el área de trabajo.
-4. **Hologramas o marcadores naranjas grandes en el medio del plano:** Descartado; reemplazado por el mini mini sonómetro arrastrable.
-5. **Escena estática original `Sector A Construcción.jpg`:** Descartada a favor de la animación interactiva `Sector A Construcción_1.gif`.
-6. **Animación en bucle permanente de todas las máquinas:** Descartada; el usuario estableció la regla obligatoria de que solo se mueve la máquina con sonido activo y al apagarla debe congelarse.
-
----
-
-### 9. Backlog de Propuestas Futuras (Pendientes de Aprobación en Próximas Sesiones)
-
-1. **Escenas Animadas para Sectores Adicionales:**
-   - Incorporar animaciones cinético-acústicas para los sectores B (Manufactura / Calderas) y C (Minería / Molienda) cuando el usuario suministre los GIFs correspondientes.
-2. **Mapa de Calor Acústico (Isófonas 2D):**
-   - Superposición opcional de curvas de igual presión sonora generadas por interpolación en tiempo real sobre el plano general.
-3. **Módulo de Dosimetría Acumulada de Jornada Laboral:**
-   - Simulación de ciclo de trabajo de 8 horas con cálculo proyectado de dosis (%) y $L_{\text{TWA}}$.
-4. **Simulador de Audiometría Tamiz Ocupacional:**
-   - Módulo interactivo para trazar curvas audiométricas (vía aérea de 250 Hz a 8000 Hz) y comparar contra los criterios de cambio de umbral auditivo (STS) de la GATISO-HNIR.
-5. **Selector de EPP Comercial Colombiano:**
-   - Catálogo de protectores auditivos de inserción y de copa comunes en el mercado colombiano con cálculo de atenuación efectiva por bandas de octava.
-
----
-
-### 10. Protocolo de Reanudación de Sesión (Guía Rápida al Encender el PC)
+### 8. Protocolo de Reanudación de Sesión (Guía Rápida al Encender el PC)
 
 1. **Iniciar Servidor Local:**
    ```powershell
@@ -219,7 +202,8 @@ Simulador_Ruido/
    git status
    git pull origin main
    ```
-5. **Archivos Principales para Continuar Desarrollo:**
+5. **Archivos Principales:**
    - Código maestro: `simulador_higiene_ruido_multisectorial.html`
    - Espejo para GitHub Pages: `index.html` (mantener siempre idéntico al maestro)
    - Memoria técnica: `PROYECTO_ESTADO_Y_MEMORIA.md`
+

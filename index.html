@@ -420,6 +420,46 @@
             box-shadow: 0 2px 8px rgba(230, 120, 23, 0.35);
         }
 
+        .btn-top-green {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1.5px solid #10b981;
+            box-shadow: 0 1px 4px rgba(16, 185, 129, 0.15);
+        }
+        .btn-top-green:hover {
+            background: #d1fae5;
+            color: #047857;
+            border-color: #059669;
+        }
+
+        /* BADGE DE MEMORIA INTERNA DE SESIÓN */
+        .memory-badge {
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+        .memory-badge.empty {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+        }
+        .memory-badge.has-data {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1.5px solid #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.22);
+            animation: pulseMemory 2s infinite ease-in-out;
+        }
+        @keyframes pulseMemory {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
         /* MAIN CONTAINER */
         main {
             max-width: 1560px;
@@ -2120,11 +2160,17 @@
             <button class="btn-top" id="btnAudioMute">
                 <span id="muteIcon">🔊</span> <span id="muteLabel">Audio: ON</span>
             </button>
+            <div class="memory-badge empty" id="memoryCounterBadge" title="Número de mediciones almacenadas en la memoria interna de la sesión">
+                💾 Memoria: 0 mediciones
+            </div>
             <button class="btn-top" id="btnOpenModalTop">
                 📋 Prácticas (4)
             </button>
-            <button class="btn-top btn-top-ceto" id="btnTopReport" title="Generar Informe Técnico Oficial de Higiene Industrial en PDF">
-                📄 Informe Técnico PDF (Res. 2844)
+            <button class="btn-top btn-top-ceto" id="btnTopReport" title="Finalizar práctica de laboratorio y generar Informe Técnico Oficial en PDF">
+                🏁 Finalizar / Informe PDF
+            </button>
+            <button class="btn-top" id="btnResetMemoryTop" title="Borrar la memoria interna de mediciones y comenzar una nueva simulación" style="background:#fff1f2; border-color:#fecdd3; color:#e11d48; font-weight:700;">
+                🔄 Nueva Simulación
             </button>
             <button class="btn-top btn-top-lock" id="btnCetoLock" onclick="logoutCeto()" title="Bloquear el acceso al simulador con contraseña institucional">
                 🔒 Bloquear
@@ -2301,9 +2347,9 @@
                     </div>
 
                     <!-- BARRA MULTI-FUENTE Y COTAS (ACTIVA EN MODO PLANO GENERAL) -->
-                    <div class="overview-multisource-bar" id="overviewControlsBar" style="display:none;">
-                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-                            <div class="overview-dim-tag" style="background:#f8fafc; border:1.5px solid var(--ceto-orange); padding:4px 12px; border-radius:8px; font-size:0.75rem; font-weight:800; color:#0f172a; display:flex; gap:0.6rem; align-items:center;">
+                    <div class="overview-multisource-bar" id="overviewControlsBar" style="display:none; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+                            <div class="overview-dim-tag" id="overviewDimTag" style="background:#f8fafc; border:1.5px solid var(--ceto-orange); padding:4px 12px; border-radius:8px; font-size:0.75rem; font-weight:800; color:#0f172a; display:flex; gap:0.6rem; align-items:center;">
                                 <span>↔ Ancho: <strong style="color:var(--ceto-orange);">45.0 m</strong></span>
                                 <span>·</span>
                                 <span>↕ Largo: <strong style="color:var(--ceto-orange);">32.0 m</strong></span>
@@ -2311,18 +2357,24 @@
                                 <span>Escala: <strong style="color:var(--ceto-orange);">1 cm = 5 m</strong></span>
                             </div>
                             <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
-                                <span style="font-weight:800; color:#475569; font-size:0.74rem;">Fuentes:</span>
+                                <span style="font-weight:800; color:#475569; font-size:0.74rem;">Fuentes Activas:</span>
                                 <div class="source-chips-row" id="multiSourceChips">
                                     <!-- Chips generados por JS -->
                                 </div>
                             </div>
                         </div>
-                        <div style="display:flex; gap:0.4rem; align-items:center;">
-                            <button class="btn-top btn-top-ceto" id="btnAllSourcesOn" style="padding:3px 10px; font-size:0.72rem;">
+                        <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                            <button class="btn-top btn-top-green" id="btnSaveOverviewMeasurement" style="padding:4px 11px; font-size:0.73rem; font-weight:800;" title="Guardar la medición acústica de las fuentes activas en la memoria interna de la sesión">
+                                💾 Registrar Medición
+                            </button>
+                            <button class="btn-top" id="btnAllSourcesOn" style="padding:3px 8px; font-size:0.71rem;">
                                 ⚡ Todas ON
                             </button>
-                            <button class="btn-top" id="btnAllSourcesOff" style="padding:3px 10px; font-size:0.72rem;">
+                            <button class="btn-top" id="btnAllSourcesOff" style="padding:3px 8px; font-size:0.71rem;">
                                 ⏹ Todas OFF
+                            </button>
+                            <button class="btn-top btn-top-ceto" id="btnFinishOverviewReport" style="padding:4px 11px; font-size:0.73rem; font-weight:800;" title="Finalizar práctica de laboratorio y abrir descarga del informe oficial">
+                                🏁 Finalizar Laboratorio
                             </button>
                         </div>
                     </div>
@@ -2809,69 +2861,95 @@
 
     <!-- MODAL DE VISTA PREVIA Y PERSONALIZACIÓN DE INFORME TÉCNICO PDF -->
     <div class="modal-overlay" id="reportPreviewModal">
-        <div class="modal-card" style="max-width:880px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:0.6rem;">
-                <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <span style="font-size:1.3rem;">📄</span>
+        <div class="modal-card" style="max-width:920px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid var(--border-panel); padding-bottom:0.75rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <div style="background:#fff7ed; border:1.5px solid var(--ceto-orange); width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                        📄
+                    </div>
                     <div>
-                        <h3 style="color:#fff; font-size:1.1rem; font-weight:800;">Informe de Evaluación Higiénica de Ruido Ocupacional</h3>
-                        <div style="font-size:0.68rem; color:var(--text-muted);">Soporte Técnico Legal conforme a Res. 2844 de 2007 (GATISO-HNIR), Res. 1792 de 1990 e ISO 9612:2009</div>
+                        <h3 style="color:#0f172a; font-size:1.15rem; font-weight:800;">Informe Oficial de Evaluación Higiénica de Ruido Ocupacional</h3>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">Soporte Legal Metrológico: Res. 2844 de 2007 (GATISO-HNIR) · Res. 1792 de 1990 (q=5 dB) · NTC-ISO 9612:2009</div>
                     </div>
                 </div>
-                <button id="btnCloseReportModal" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer;">&times;</button>
+                <button id="btnCloseReportModal" style="background:none; border:none; color:#64748b; font-size:1.6rem; cursor:pointer;" title="Cerrar">&times;</button>
             </div>
 
-            <!-- Parámetros Editables de la Evaluación -->
-            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.75rem; background:#080d16; padding:0.85rem; border-radius:8px; border:1px solid #1e293b;">
-                <div class="form-row">
-                    <label>Empresa / Razón Social:</label>
-                    <input type="text" id="repCompanyName" value="Corporación Tecnológica del Oriente" class="input-point-name">
+            <!-- SECCIÓN 1: IDENTIFICACIÓN DEL ESTUDIANTE Y EVALUACIÓN -->
+            <div style="display:flex; flex-direction:column; gap:0.5rem; background:#f8fafc; border:1.5px solid var(--border-panel); padding:0.9rem; border-radius:10px;">
+                <div style="font-size:0.75rem; font-weight:800; color:var(--ceto-orange); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:0.4rem;">
+                    <span>🎓</span> DATOS DEL ESTUDIANTE EVALUADOR (OBLIGATORIO PARA EL INFORME)
                 </div>
-                <div class="form-row">
-                    <label>Obra / Frente de Trabajo:</label>
-                    <input type="text" id="repWorkSite" value="Laboratorio de Higiene Industrial / Obra Sector A" class="input-point-name">
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.75rem;">
+                    <div class="form-row">
+                        <label style="color:#0f172a; font-weight:700;">Nombre Completo del Estudiante: <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="repStudentName" placeholder="Escriba aquí sus Nombres y Apellidos completos" required class="input-point-name" style="border:1.5px solid var(--ceto-orange); background:#ffffff; font-weight:700; color:#0f172a;">
+                    </div>
+                    <div class="form-row">
+                        <label style="color:#0f172a; font-weight:700;">Documento de Identidad / Código Estudiantil:</label>
+                        <input type="text" id="repStudentID" placeholder="Cédula de Ciudadanía o Código institucional" class="input-point-name" style="background:#ffffff; color:#0f172a;">
+                    </div>
+                    <div class="form-row">
+                        <label style="color:#0f172a; font-weight:700;">Asignatura / Programa Académico:</label>
+                        <input type="text" id="repSubject" value="Higiene Industrial - Seguridad y Salud en el Trabajo (SG-SST)" class="input-point-name" style="background:#ffffff; color:#0f172a;">
+                    </div>
+                    <div class="form-row">
+                        <label style="color:#0f172a; font-weight:700;">Docente / Evaluador a Cargo:</label>
+                        <input type="text" id="repTeacher" value="Ing. Pedro Noriega - Docente SG-SST" class="input-point-name" style="background:#ffffff; color:#0f172a;">
+                    </div>
                 </div>
-                <div class="form-row">
-                    <label>Especialista en Higiene / Evaluador SST:</label>
-                    <input type="text" id="repEvaluator" value="Ing. Pedro Noriega - Docente / Evaluador SST" class="input-point-name">
-                </div>
-                <div class="form-row">
-                    <label>Licencia en Seguridad y Salud en el Trabajo (SST):</label>
-                    <input type="text" id="repLicense" value="LIC-SST-2026-9942-COL" class="input-point-name">
+                <div class="form-row" style="margin-top:0.25rem;">
+                    <label style="color:#0f172a; font-weight:700;">Conclusiones y Observaciones del Estudiante sobre las Mediciones:</label>
+                    <textarea id="repStudentObs" rows="2" placeholder="Escriba aquí sus conclusiones técnicas sobre las fuentes evaluadas de forma individual y combinadas, y el riesgo identificado..." style="width:100%; border:1px solid var(--border-panel); border-radius:6px; padding:0.5rem 0.75rem; font-size:0.75rem; font-family:inherit; resize:vertical; background:#ffffff; color:#0f172a;"></textarea>
                 </div>
             </div>
 
-            <!-- Resumen de Instrumentación y Calibración -->
-            <div style="font-size:0.72rem; color:#cbd5e1; background:#0f172a; padding:0.65rem 0.85rem; border-radius:6px; border-left:3px solid #38bdf8; display:flex; flex-direction:column; gap:2px;">
-                <strong>Instrumento Patrón:</strong> Sonómetro Digital Integrador Clase 2 (IEC 61672-1) · Calibrador Acústico Normalizado 94.0 dB @ 1000 Hz · Verificación Acústica Inicial y Final: 94.0 dBA (Deriva 0.0 dB) · Filtros IEC 61260 en bandas de octava.
+            <!-- Resumen de Instrumentación y Calibración Metrológica -->
+            <div style="font-size:0.72rem; color:#334155; background:#ffffff; padding:0.65rem 0.85rem; border-radius:8px; border:1px solid #e2e8f0; border-left:4px solid var(--ceto-orange); display:flex; flex-direction:column; gap:2px;">
+                <div style="font-weight:700; color:#0f172a;">Trazabilidad Metrológica e Instrumentación:</div>
+                <div>Sonómetro Digital Integrador Clase 2 (IEC 61672-1:2013) · Calibrador Acústico Normalizado 94.0 dB @ 1000 Hz · Verificación Acústica Inicial y Final: 94.0 dBA (Deriva 0.0 dB) · Tasa legal de duplicación q = 5 dB (Res. 1792/90) · Nivel de Acción 80 dBA (GATISO-HNIR).</div>
             </div>
 
-            <!-- Vista Previa de Tabla de Puntos -->
-            <div style="max-height:220px; overflow-y:auto; border:1px solid #1e293b; border-radius:6px;">
-                <table class="sampling-table" id="modalPreviewTable">
+            <!-- SECCIÓN 2: REGISTRO DE MEMORIA INTERNA DE MEDICIONES -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.2rem;">
+                <div style="font-size:0.78rem; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:0.4rem;">
+                    <span>💾</span> MEDICIONES REGISTRADAS EN MEMORIA INTERNA (<span id="modalMemPointsCount">0</span> PUNTOS)
+                </div>
+                <div style="font-size:0.7rem; color:var(--text-muted);">
+                    Se integrarán todas las mediciones de fuentes individuales y combinadas en el informe oficial
+                </div>
+            </div>
+
+            <div style="max-height:190px; overflow-y:auto; border:1.5px solid var(--border-panel); border-radius:8px; background:#ffffff;">
+                <table class="sampling-table" id="modalPreviewTable" style="margin:0; width:100%;">
                     <thead>
                         <tr>
                             <th>Pto</th>
-                            <th>Ubicación / Tarea</th>
+                            <th>Sector</th>
+                            <th>Fuentes Evaluadas (Individual / Combinada)</th>
                             <th>LAeq (dBA)</th>
                             <th>LCpeak (dBC)</th>
                             <th>T. Perm. (q=5)</th>
                             <th>Dosis 8h</th>
                             <th>Diagnóstico GATISO</th>
+                            <th>Quitar</th>
                         </tr>
                     </thead>
                     <tbody id="modalPreviewTableBody">
-                        <!-- Llenado dinámico -->
+                        <!-- Llenado dinámico por JS desde evaluatedPoints -->
                     </tbody>
                 </table>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem; padding-top:0.6rem; border-top:1px solid #1e293b;">
-                <span id="reportModalStatus" style="font-size:0.75rem; color:#38bdf8; font-weight:700;">Listo para emitir documento oficial</span>
-                <div style="display:flex; gap:0.6rem;">
-                    <button class="btn-top" id="btnCancelReportModal">Cerrar</button>
-                    <button class="btn-top btn-top-amber" id="btnExecutePdfDownload" style="padding:0.5rem 1.1rem; font-weight:800;">
-                        📥 Descargar Informe PDF Oficial
+            <!-- SECCIÓN 3: PIE Y ACCIONES FINALES -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem; padding-top:0.75rem; border-top:1.5px solid var(--border-panel); flex-wrap:wrap; gap:0.5rem;">
+                <button class="btn-top" id="btnResetMemoryModal" style="background:#fff1f2; border-color:#fecdd3; color:#e11d48; font-weight:700;" title="Borrar la memoria interna de puntos medidos para iniciar una nueva práctica">
+                    🔄 Borrar Memoria / Nueva Simulación
+                </button>
+                <div style="display:flex; gap:0.6rem; align-items:center;">
+                    <button class="btn-top" id="btnCancelReportModal">Continuar Medición</button>
+                    <button class="btn-top btn-top-amber" id="btnExecutePdfDownload" style="padding:0.55rem 1.35rem; font-weight:800; font-size:0.82rem; display:flex; align-items:center; gap:0.4rem;">
+                        <span>🏁</span> Descargar Informe Oficial PDF
                     </button>
                 </div>
             </div>
@@ -2888,7 +2966,7 @@
                 name: "Construcción de Infraestructura y Obras Civiles",
                 overviewPhoto: 'assets/machines/sector_a_construccion_overview.jpg?v=approved_dist_2026_v4',
                 overviewStaticPhoto: 'assets/machines/sector_a_construccion_static.jpg?v=approved_dist_2026_v4',
-                dimensions: { width: 45.0, depth: 32.0, area: 1440 },
+                dimensions: { width: 45.0, depth: 32.0, area: 1440, scale: '1 cm = 5 m' },
                 machines: [
                     { 
                         id: 'cortadora_disco', 
@@ -2959,42 +3037,294 @@
             },
             'B': {
                 name: "Industria Manufacturera y Metalmecánica",
+                overviewPhoto: 'assets/machines/sector_b_manufactura_overview.jpg?v=2026',
+                overviewStaticPhoto: 'assets/machines/sector_b_manufactura_static.jpg?v=2026',
+                dimensions: { width: 50.0, depth: 30.0, area: 1500, scale: '1 cm = 5 m' },
                 machines: [
-                    { id: 'prensa_excentrica_ep500', name: 'Prensa Excéntrica Mecánica de Estampado (500 kN)', type: 'impacto', splRange: '94-98 dBA base', peak: '136.5 dBC Peak', baseSpl: 95.0, desc: 'Prensa mecánica industrial de 500 kN con volante de inercia y matriz de estampado.', synth: 'punch', photo: 'assets/machines/prensa_excentrica_ep500.jpg', photoTag: 'EP-500 MECHANICAL PRESS' },
-                    { id: 'martinete_forja_industrial', name: 'Martinete de Forja Pesada con Acero Incandescente', type: 'impacto', splRange: '102-106 dBA', peak: '138.2 dBC Peak', baseSpl: 104.0, desc: 'Golpeo de maza neumática sobre lingote incandescente a 1100°C con lluvia de esquirlas.', synth: 'forging', photo: 'assets/machines/martinete_forja_industrial.jpg', photoTag: 'FORGING HAMMER 1100°C' },
-                    { id: 'pulidora_bosch_gws', name: 'Amoladora Angular Industrial (Disco 230 mm)', type: 'intermitente', splRange: '98-102 dBA', peak: '112 dBC Peak', baseSpl: 99.0, desc: 'Disco abrasivo de 230 mm desbastando cordón de soldadura a 8500 RPM.', synth: 'grinder', photo: 'assets/machines/pulidora_bosch_gws.jpg', photoTag: 'BOSCH PROFESSIONAL 230mm' },
-                    { id: 'compresor_kaeser_csdx165', name: 'Compresor Rotativo de Tornillo Industrial (90 kW)', type: 'continuo', splRange: '88-92 dBA', peak: '101 dBC Peak', baseSpl: 90.5, desc: 'Rotores helicoidales Sigma Profile acoplados a motor trifásico de 90 kW.', synth: 'compressor', photo: 'assets/machines/compresor_kaeser_csdx165.jpg', photoTag: 'KAESER CSDX 165 ROTARY' },
-                    { id: 'ventilador_centrifugo_industrial', name: 'Ventilador Centrífugo Industrial de Tiro Forzado', type: 'continuo', splRange: '86-90 dBA', peak: '98 dBC Peak', baseSpl: 88.0, desc: 'Rodete multipala con paso de álabes (BPF a 480 Hz) y succión aerodinámica masiva.', synth: 'blower', photo: 'assets/machines/ventilador_centrifugo_industrial.jpg', photoTag: 'INDUSTRIAL BLOWER FAN' }
+                    { 
+                        id: 'prensa_excentrica_ep500', 
+                        name: 'Prensa Excéntrica Mecánica de Estampado (500 kN)', 
+                        type: 'impacto', 
+                        splRange: '94-98 dBA base', 
+                        peak: '136.5 dBC Peak', 
+                        baseSpl: 95.0, 
+                        desc: 'Prensa mecánica industrial de 500 kN con volante de inercia y matriz de estampado en chapa metálica.', 
+                        synth: 'punch', 
+                        photo: 'assets/machines/prensa_excentrica_ep500.jpg', 
+                        photoTag: 'EP-500 MECHANICAL PRESS',
+                        coords: { x: 16.5, y: 72.0 }
+                    },
+                    { 
+                        id: 'martinete_forja_industrial', 
+                        name: 'Martinete de Forja Pesada con Acero Incandescente', 
+                        type: 'impacto', 
+                        splRange: '102-106 dBA', 
+                        peak: '138.2 dBC Peak', 
+                        baseSpl: 104.0, 
+                        desc: 'Golpeo de maza neumática sobre lingote incandescente a 1100°C con lluvia de esquirlas ardientes.', 
+                        synth: 'forging', 
+                        photo: 'assets/machines/martinete_forja_industrial.jpg', 
+                        photoTag: 'FORGING HAMMER 1100°C',
+                        coords: { x: 24.5, y: 52.0 }
+                    },
+                    { 
+                        id: 'pulidora_bosch_gws', 
+                        name: 'Amoladora Angular Industrial (Disco 230 mm)', 
+                        type: 'intermitente', 
+                        splRange: '98-102 dBA', 
+                        peak: '112 dBC Peak', 
+                        baseSpl: 99.0, 
+                        desc: 'Disco abrasivo de 230 mm desbastando cordón de soldadura en acero a 8500 RPM.', 
+                        synth: 'grinder', 
+                        photo: 'assets/machines/pulidora_bosch_gws.jpg', 
+                        photoTag: 'BOSCH PROFESSIONAL 230mm',
+                        coords: { x: 41.5, y: 68.0 }
+                    },
+                    { 
+                        id: 'compresor_kaeser_csdx165', 
+                        name: 'Compresor Rotativo de Tornillo Industrial (90 kW)', 
+                        type: 'continuo', 
+                        splRange: '88-92 dBA', 
+                        peak: '101 dBC Peak', 
+                        baseSpl: 90.5, 
+                        desc: 'Rotores helicoidales Sigma Profile acoplados a motor trifásico de 90 kW suministrando aire a 8 bar.', 
+                        synth: 'compressor', 
+                        photo: 'assets/machines/compresor_kaeser_csdx165.jpg', 
+                        photoTag: 'KAESER CSDX 165 ROTARY',
+                        coords: { x: 66.0, y: 53.0 }
+                    },
+                    { 
+                        id: 'ventilador_centrifugo_industrial', 
+                        name: 'Ventilador Centrífugo Industrial de Tiro Forzado', 
+                        type: 'continuo', 
+                        splRange: '86-90 dBA', 
+                        peak: '98 dBC Peak', 
+                        baseSpl: 88.0, 
+                        desc: 'Rodete multipala con paso de álabes (BPF a 480 Hz) y succión aerodinámica masiva de tiro forzado.', 
+                        synth: 'blower', 
+                        photo: 'assets/machines/ventilador_centrifugo_industrial.jpg', 
+                        photoTag: 'INDUSTRIAL BLOWER FAN',
+                        coords: { x: 90.0, y: 57.0 }
+                    }
                 ]
             },
             'C': {
                 name: "Comercio al por Menor y Entretenimiento (Ocio)",
+                overviewPhoto: 'assets/machines/sector_c_comercio_overview.jpg?v=2026',
+                overviewStaticPhoto: 'assets/machines/sector_c_comercio_static.jpg?v=2026',
+                dimensions: { width: 40.0, depth: 25.0, area: 1000, scale: '1 cm = 4 m' },
                 machines: [
-                    { id: 'discoteca_subwoofers', name: 'Sound System Discoteca (Subwoofers)', type: 'continuo', splRange: '98-104 dBA', peak: '120 dBC Peak', baseSpl: 101.0, desc: 'Refuerzo sonoro masivo en subgraves (40-90 Hz) a 128 BPM.', synth: 'club', illustration: 'club' },
-                    { id: 'bolera_bowling', name: 'Bolera / Bowling Profesional', type: 'impacto', splRange: '82-86 dBA', peak: '115 dBC Peak', baseSpl: 84.0, desc: 'Rodamiento denso de uretano + colisión violenta de bolos.', synth: 'bowling', illustration: 'bowling' },
-                    { id: 'campana_extractora', name: 'Campana Extractora y Lavavajillas', type: 'continuo', splRange: '78-83 dBA', peak: '90 dBC Peak', baseSpl: 80.5, desc: 'Turbulencia centrífuga y aspersores de agua presurizada.', synth: 'hood', illustration: 'hood' },
-                    { id: 'restaurante_aforo', name: 'Restaurante con Aforo al 100%', type: 'continuo', splRange: '75-81 dBA', peak: '89 dBC Peak', baseSpl: 78.0, desc: 'Efecto Lombard: murmullo colectivo babélico de 80 comensales.', synth: 'lombard', illustration: 'lombard' },
-                    { id: 'karting_indoor', name: 'Pista de Karts Bajo Techo (4T)', type: 'intermitente', splRange: '95-101 dBA', peak: '114 dBC Peak', baseSpl: 97.5, desc: 'Motores monocilíndricos 270cc con aceleraciones bruscas.', synth: 'kart', illustration: 'kart' }
+                    { 
+                        id: 'karting_indoor', 
+                        name: 'Pista de Karts Bajo Techo (Motor 4T 270cc)', 
+                        type: 'intermitente', 
+                        splRange: '95-101 dBA', 
+                        peak: '114 dBC Peak', 
+                        baseSpl: 97.5, 
+                        desc: 'Motores monocilíndricos 270cc 4T con aceleraciones bruscas y derrapes en pista de concreto pulido.', 
+                        synth: 'kart', 
+                        photo: 'assets/machines/karting_indoor.jpg',
+                        illustration: 'kart',
+                        coords: { x: 17.5, y: 77.0 }
+                    },
+                    { 
+                        id: 'discoteca_subwoofers', 
+                        name: 'Sound System Discoteca (Muro de Subwoofers)', 
+                        type: 'continuo', 
+                        splRange: '98-104 dBA', 
+                        peak: '120 dBC Peak', 
+                        baseSpl: 101.0, 
+                        desc: 'Refuerzo sonoro masivo en subgraves (40-90 Hz) a 128 BPM con arreglos lineales de alta potencia.', 
+                        synth: 'club', 
+                        photo: 'assets/machines/discoteca_subwoofers.jpg',
+                        illustration: 'club',
+                        coords: { x: 20.0, y: 36.0 }
+                    },
+                    { 
+                        id: 'restaurante_aforo', 
+                        name: 'Restaurante / Comedor con Aforo al 100%', 
+                        type: 'continuo', 
+                        splRange: '75-81 dBA', 
+                        peak: '89 dBC Peak', 
+                        baseSpl: 78.0, 
+                        desc: 'Efecto Lombard: murmullo colectivo vocal de comensales, tintineo de copas y vajilla en hora pico.', 
+                        synth: 'lombard', 
+                        photo: 'assets/machines/restaurante_aforo.jpg',
+                        illustration: 'lombard',
+                        coords: { x: 51.0, y: 56.0 }
+                    },
+                    { 
+                        id: 'campana_extractora', 
+                        name: 'Campana Extractora y Lavavajillas Comercial', 
+                        type: 'continuo', 
+                        splRange: '78-83 dBA', 
+                        peak: '90 dBC Peak', 
+                        baseSpl: 80.5, 
+                        desc: 'Turbulencia centrífuga de extracción de humos y aspersores de agua presurizada en cocina gastronómica.', 
+                        synth: 'hood', 
+                        photo: 'assets/machines/campana_extractora.jpg',
+                        illustration: 'hood',
+                        coords: { x: 75.0, y: 34.0 }
+                    },
+                    { 
+                        id: 'bolera_bowling', 
+                        name: 'Bolera / Bowling Profesional (Pistas y Bolos)', 
+                        type: 'impacto', 
+                        splRange: '82-86 dBA', 
+                        peak: '115 dBC Peak', 
+                        baseSpl: 84.0, 
+                        desc: 'Rodamiento de bolas de uretano sobre madera de arce y colisión violenta contra juego de bolos.', 
+                        synth: 'bowling', 
+                        photo: 'assets/machines/bolera_bowling.jpg',
+                        illustration: 'bowling',
+                        coords: { x: 82.0, y: 75.0 }
+                    }
                 ]
             },
             'D': {
                 name: "Explotación de Minas y Canteras",
+                overviewPhoto: 'assets/machines/sector_d_mineria_overview.jpg?v=2026',
+                overviewStaticPhoto: 'assets/machines/sector_d_mineria_static.jpg?v=2026',
+                dimensions: { width: 120.0, depth: 80.0, area: 9600, scale: '1 cm = 12 m' },
                 machines: [
-                    { id: 'voladura_banco', name: 'Voladura en Banco con ANFO', type: 'impacto', splRange: 'Detonación', peak: '> 142 dBC Peak', baseSpl: 115.0, desc: 'Detonación expansiva masiva con sobrepresión subsónica extrema.', synth: 'blast', illustration: 'blast' },
-                    { id: 'trituradora_mandibulas', name: 'Trituradora de Mandíbulas (Chancadora)', type: 'impacto', splRange: '98-103 dBA', peak: '130 dBC Peak', baseSpl: 101.0, desc: 'Aplastamiento y fractura de roca entre muelas de manganeso.', synth: 'crusher', illustration: 'crusher' },
-                    { id: 'jumbo_perforacion', name: 'Jumbo Electrohidráulico Subterráneo', type: 'intermitente', splRange: '104-108 dBA', peak: '126 dBC Peak', baseSpl: 106.0, desc: 'Percusión de alta velocidad a 50 Hz perforando galería.', synth: 'jumbo', illustration: 'jumbo' },
-                    { id: 'zaranda_vibratoria', name: 'Criba / Zaranda Vibratoria', type: 'continuo', splRange: '92-96 dBA', peak: '106 dBC Peak', baseSpl: 94.0, desc: 'Mallas de acero a 16 Hz cribando toneladas de áridos gruesos.', synth: 'screen', illustration: 'screen' },
-                    { id: 'dumper_minero', name: 'Camión Dumper Fuera de Carretera (300t)', type: 'continuo', splRange: '92-96 dBA', peak: '112 dBC Peak', baseSpl: 94.5, desc: 'Motor diésel V16 biturbo de 3500 HP en rampa de subida.', synth: 'truck', illustration: 'truck' }
+                    { 
+                        id: 'voladura_banco', 
+                        name: 'Voladura en Banco con ANFO en Frente Rocoso', 
+                        type: 'impacto', 
+                        splRange: 'Detonación', 
+                        peak: '> 142 dBC Peak', 
+                        baseSpl: 115.0, 
+                        desc: 'Detonación expansiva masiva de barreno con sobrepresión subsónica extrema y fractura de macizo rocoso.', 
+                        synth: 'blast', 
+                        photo: 'assets/machines/voladura_banco.jpg',
+                        illustration: 'blast',
+                        coords: { x: 18.0, y: 30.0 }
+                    },
+                    { 
+                        id: 'jumbo_perforacion', 
+                        name: 'Jumbo Electrohidráulico de Perforación de Roca', 
+                        type: 'intermitente', 
+                        splRange: '104-108 dBA', 
+                        peak: '126 dBC Peak', 
+                        baseSpl: 106.0, 
+                        desc: 'Percusión de barreno a 50 Hz bajo alta presión hidráulica perforando roca dura en frente de avance.', 
+                        synth: 'jumbo', 
+                        photo: 'assets/machines/jumbo_perforacion.jpg',
+                        illustration: 'jumbo',
+                        coords: { x: 36.0, y: 57.0 }
+                    },
+                    { 
+                        id: 'trituradora_mandibulas', 
+                        name: 'Trituradora Primaria de Mandíbulas (Chancadora)', 
+                        type: 'impacto', 
+                        splRange: '98-103 dBA', 
+                        peak: '130 dBC Peak', 
+                        baseSpl: 101.0, 
+                        desc: 'Aplastamiento y fractura por impacto continuo de grandes bloques de piedra entre muelas de manganeso.', 
+                        synth: 'crusher', 
+                        photo: 'assets/machines/trituradora_mandibulas.jpg',
+                        illustration: 'crusher',
+                        coords: { x: 54.0, y: 31.0 }
+                    },
+                    { 
+                        id: 'zaranda_vibratoria', 
+                        name: 'Criba / Zaranda Vibratoria Clasificadora', 
+                        type: 'continuo', 
+                        splRange: '92-96 dBA', 
+                        peak: '106 dBC Peak', 
+                        baseSpl: 94.0, 
+                        desc: 'Mallas de alambre de alta resistencia a 16 Hz con caída libre de toneladas de grava y áridos triturados.', 
+                        synth: 'screen', 
+                        photo: 'assets/machines/zaranda_vibratoria.jpg',
+                        illustration: 'screen',
+                        coords: { x: 74.0, y: 46.0 }
+                    },
+                    { 
+                        id: 'dumper_minero', 
+                        name: 'Camión Dumper Fuera de Carretera (300 Toneladas)', 
+                        type: 'continuo', 
+                        splRange: '92-96 dBA', 
+                        peak: '112 dBC Peak', 
+                        baseSpl: 94.5, 
+                        desc: 'Motor diésel V16 biturbo de 3500 HP con tren motriz diésel-eléctrico en rampa de acarreo cargado.', 
+                        synth: 'truck', 
+                        photo: 'assets/machines/dumper_minero.jpg',
+                        illustration: 'truck',
+                        coords: { x: 74.0, y: 80.0 }
+                    }
                 ]
             },
             'E': {
                 name: "Áreas Administrativas y de Servicios",
+                overviewPhoto: 'assets/machines/sector_e_servicios_overview.jpg?v=2026',
+                overviewStaticPhoto: 'assets/machines/sector_e_servicios_static.jpg?v=2026',
+                dimensions: { width: 35.0, depth: 22.0, area: 770, scale: '1 cm = 3.5 m' },
                 machines: [
-                    { id: 'datacenter_servidores', name: 'Data Center (Servidores Blade y CRAC)', type: 'continuo', splRange: '68-74 dBA', peak: '82 dBC Peak', baseSpl: 71.0, desc: 'Flujo laminar de ventiladores a 14000 RPM en racks de 1U.', synth: 'datacenter', illustration: 'datacenter' },
-                    { id: 'call_center', name: 'Oficina Abierta Call Center (Hora Pico)', type: 'continuo', splRange: '60-66 dBA', peak: '75 dBC Peak', baseSpl: 63.5, desc: 'Múltiples voces telefónicas superpuestas y tecleo constante.', synth: 'callcenter', illustration: 'callcenter' },
-                    { id: 'plotter_imprenta', name: 'Centro de Copiado con Plotter Industrial', type: 'intermitente', splRange: '68-73 dBA', peak: '83 dBC Peak', baseSpl: 70.5, desc: 'Carro de impresión en vaivén a 520 Hz con rodillos de paso.', synth: 'plotter', illustration: 'plotter' },
-                    { id: 'cafeteria_corporativa', name: 'Cafetería: Molinillo y Vapor de Caldera', type: 'intermitente', splRange: '72-78 dBA', peak: '91 dBC Peak', baseSpl: 75.0, desc: 'Picos de molienda de café alternados con vaporización.', synth: 'coffee', illustration: 'coffee' },
-                    { id: 'despacho_avenida', name: 'Despacho con Ventana a Tráfico Pesado', type: 'continuo', splRange: '64-70 dBA', peak: '84 dBC Peak', baseSpl: 67.0, desc: 'Rodadura de neumáticos y frenado neumático de autobuses.', synth: 'traffic', illustration: 'traffic' }
+                    { 
+                        id: 'datacenter_servidores', 
+                        name: 'Data Center (Servidores Blade y Enfriamiento CRAC)', 
+                        type: 'continuo', 
+                        splRange: '68-74 dBA', 
+                        peak: '82 dBC Peak', 
+                        baseSpl: 71.0, 
+                        desc: 'Flujo laminar de ventiladores de alta velocidad a 14000 RPM en racks blade y compresores de precisión CRAC.', 
+                        synth: 'datacenter', 
+                        photo: 'assets/machines/datacenter_servidores.jpg',
+                        illustration: 'datacenter',
+                        coords: { x: 11.5, y: 52.0 }
+                    },
+                    { 
+                        id: 'call_center', 
+                        name: 'Oficina Abierta Call Center (Puestos Operadores)', 
+                        type: 'continuo', 
+                        splRange: '60-66 dBA', 
+                        peak: '75 dBC Peak', 
+                        baseSpl: 63.5, 
+                        desc: 'Múltiples conversaciones telefónicas superpuestas con diademas y tecleo continuo en espacio abierto.', 
+                        synth: 'callcenter', 
+                        photo: 'assets/machines/call_center.jpg',
+                        illustration: 'callcenter',
+                        coords: { x: 34.5, y: 68.0 }
+                    },
+                    { 
+                        id: 'plotter_imprenta', 
+                        name: 'Centro de Copiado con Plotter Industrial de Planos', 
+                        type: 'intermitente', 
+                        splRange: '68-73 dBA', 
+                        peak: '83 dBC Peak', 
+                        baseSpl: 70.5, 
+                        desc: 'Carro de cabezales de inyección en vaivén a 520 Hz con rodillos de alimentación de papel de gran formato.', 
+                        synth: 'plotter', 
+                        photo: 'assets/machines/plotter_imprenta.jpg',
+                        illustration: 'plotter',
+                        coords: { x: 51.0, y: 46.0 }
+                    },
+                    { 
+                        id: 'cafeteria_corporativa', 
+                        name: 'Cafetería: Molinillo y Vapor de Máquina de Espresso', 
+                        type: 'intermitente', 
+                        splRange: '72-78 dBA', 
+                        peak: '91 dBC Peak', 
+                        baseSpl: 75.0, 
+                        desc: 'Picos de molienda de granos de café con muelas cónicas alternados con purgas de vapor a 1.5 bar.', 
+                        synth: 'coffee', 
+                        photo: 'assets/machines/cafeteria_corporativa.jpg',
+                        illustration: 'coffee',
+                        coords: { x: 66.5, y: 58.0 }
+                    },
+                    { 
+                        id: 'despacho_avenida', 
+                        name: 'Despacho con Gran Ventanal a Tráfico Pesado', 
+                        type: 'continuo', 
+                        splRange: '64-70 dBA', 
+                        peak: '84 dBC Peak', 
+                        baseSpl: 67.0, 
+                        desc: 'Rodadura de neumáticos sobre asfalto mojado, motores diésel de transporte público y frenados neumáticos.', 
+                        synth: 'traffic', 
+                        photo: 'assets/machines/despacho_avenida.jpg',
+                        illustration: 'traffic',
+                        coords: { x: 89.0, y: 55.0 }
+                    }
                 ]
             }
         };
@@ -3776,18 +4106,23 @@
             if (!isPowered) return;
             multiSourceGains = {};
 
-            if (currentSector !== 'A') return;
+            const sec = SECTORS[currentSector];
+            if (!sec || !sec.machines) return;
 
             // Restablecer ganancia maestra de distancia en el plano general
             if (distanceGain) {
                 distanceGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
             }
 
-            SECTORS['A'].machines.forEach(m => {
+            const dim = sec.dimensions || { width: 45.0, depth: 32.0 };
+            const scaleX = dim.width / 100.0;
+            const scaleY = dim.depth / 100.0;
+
+            sec.machines.forEach(m => {
                 if (activeOverviewSources.has(m.id)) {
-                    // Distancia física al sonómetro en metros (45m x 32m)
-                    const dxM = (sonometerPos.xPct - m.coords.x) * 0.45;
-                    const dyM = (sonometerPos.yPct - m.coords.y) * 0.32;
+                    // Distancia física al sonómetro en metros según dimensiones del sector
+                    const dxM = (sonometerPos.xPct - m.coords.x) * scaleX;
+                    const dyM = (sonometerPos.yPct - m.coords.y) * scaleY;
                     const distM = Math.max(1.0, Math.sqrt(dxM * dxM + dyM * dyM));
                     // Factor de atenuación geométrica por divergencia esférica (1/r)
                     const attGain = Math.min(1.0, 1.0 / distM);
@@ -3804,7 +4139,7 @@
         }
 
         function playCurrentAudio() {
-            if (viewMode === 'overview' && currentSector === 'A') {
+            if (viewMode === 'overview') {
                 playOverviewMultiSource();
             } else {
                 playCurrentMachine();
@@ -3812,13 +4147,19 @@
         }
 
         function updateOverviewAcousticGains() {
-            if (viewMode !== 'overview' || currentSector !== 'A' || !audioCtx) return;
+            if (viewMode !== 'overview' || !audioCtx) return;
+            const sec = SECTORS[currentSector];
+            if (!sec || !sec.machines) return;
             const now = audioCtx.currentTime;
-            SECTORS['A'].machines.forEach(m => {
+            const dim = sec.dimensions || { width: 45.0, depth: 32.0 };
+            const scaleX = dim.width / 100.0;
+            const scaleY = dim.depth / 100.0;
+
+            sec.machines.forEach(m => {
                 const entry = multiSourceGains[m.id];
                 if (entry && activeOverviewSources.has(m.id)) {
-                    const dxM = (sonometerPos.xPct - m.coords.x) * 0.45;
-                    const dyM = (sonometerPos.yPct - m.coords.y) * 0.32;
+                    const dxM = (sonometerPos.xPct - m.coords.x) * scaleX;
+                    const dyM = (sonometerPos.yPct - m.coords.y) * scaleY;
                     const distM = Math.max(1.0, Math.sqrt(dxM * dxM + dyM * dyM));
                     entry.dist = distM;
                     const attGain = Math.min(1.0, 1.0 / distM);
@@ -5125,11 +5466,31 @@
                 tab.classList.add('active');
                 currentSector = tab.getAttribute('data-sec');
                 currentMachine = SECTORS[currentSector].machines[0];
-                if (currentSector !== 'A' && viewMode === 'overview') {
-                    setStageViewMode('single');
-                }
+
                 renderMachinesStrip();
                 renderMachineIllustration();
+
+                if (viewMode === 'overview') {
+                    // Mantener vista de plano general con el sector seleccionado
+                    const sec = SECTORS[currentSector];
+                    const bgImg = document.getElementById('overviewBgImg');
+                    if (bgImg && sec.overviewPhoto) {
+                        bgImg.src = sec.overviewPhoto;
+                    }
+                    const stageBadge = document.getElementById('stageModeBadge');
+                    const dim = sec.dimensions || { width: 45.0, depth: 32.0 };
+                    if (stageBadge) stageBadge.textContent = `PLANO GENERAL (${dim.width}m x ${dim.depth}m)`;
+                    const stageTitle = document.getElementById('stageMachineName');
+                    if (stageTitle) stageTitle.textContent = `${sec.name} · Plano General Multisectorial`;
+
+                    // Actualizar las cotas, balizas con bocinas y chips del sector seleccionado
+                    updateOverviewDimensionsUI();
+                    renderOverviewMachineBeacons();
+                    renderMultiSourceChips();
+                    updateSonometerPinPosition();
+                    updateOverviewAcousticGains();
+                }
+
                 playCurrentAudio();
             });
         });
@@ -5434,14 +5795,13 @@
             const h = overviewCanvas.height;
             overviewCtx.clearRect(0, 0, w, h);
 
-            const sonoX = (sonometerPos.xPct / 100) * w;
-            const sonoY = (sonometerPos.yPct / 100) * h;
-
             const isMuted = isAudioMuted;
+            const sec = SECTORS[currentSector];
+            if (!sec || !sec.machines) return;
 
             if (showAcousticWaves && !isMuted) {
-                SECTORS['A'].machines.forEach(m => {
-                    // Aislamiento estricto: solo se genera animación y ondas en la máquina activa
+                sec.machines.forEach(m => {
+                    // Aislamiento estricto: solo se genera animación y ondas en la máquina con audio activo
                     if (activeOverviewSources.has(m.id)) {
                         const mx = (m.coords.x / 100) * w;
                         const my = (m.coords.y / 100) * h;
@@ -5462,9 +5822,9 @@
                             overviewCtx.stroke();
                         }
 
-                        // 2. Micro-efectos físicos cinéticos localizados en tiempo real por máquina
+                        // 2. Micro-efectos físicos cinéticos localizados en tiempo real por sector y máquina
+                        // ================= SECTOR A: CONSTRUCCIÓN =================
                         if (m.id === 'cortadora_disco') {
-                            // Chorro de agua y neblina de corte sobre la losa de concreto
                             const cutX = mx + 16;
                             const cutY = my + 14;
                             overviewCtx.fillStyle = 'rgba(240, 245, 250, 0.45)';
@@ -5474,13 +5834,11 @@
                                 overviewCtx.arc(cutX + sprayProg * 28, cutY - sprayProg * 4 + Math.sin(sprayProg * 12) * 2.5, 1.2 + sprayProg * 2.2, 0, Math.PI * 2);
                                 overviewCtx.fill();
                             }
-                            // Destello y micro-chispas de fricción del disco diamantado
                             overviewCtx.fillStyle = 'rgba(255, 250, 200, 0.85)';
                             overviewCtx.beginPath();
                             overviewCtx.arc(cutX, cutY, 2.5, 0, Math.PI * 2);
                             overviewCtx.fill();
                         } else if (m.id === 'martillo_neumatico') {
-                            // Percusión de cincel a 26 Hz y fractura con expulsión radial de esquirlas/polvo de concreto
                             const tipX = mx - 8;
                             const tipY = my + 24;
                             const impactCycle = (waveTime * 26) % 1.0;
@@ -5499,7 +5857,6 @@
                                 overviewCtx.fill();
                             }
                         } else if (m.id === 'mezcladora_trompo') {
-                            // Shimmer de rotación y volteo de áridos en la boca del tambor
                             overviewCtx.fillStyle = 'rgba(245, 158, 11, 0.35)';
                             for (let p = 0; p < 4; p++) {
                                 const rotAng = waveTime * 4.5 + (p * Math.PI / 2);
@@ -5510,7 +5867,6 @@
                                 overviewCtx.fill();
                             }
                         } else if (m.id === 'retroexcavadora') {
-                            // Pluma de escape turbodiésel ascendente translúcida
                             const exX = mx + 20;
                             const exY = my - 16;
                             overviewCtx.fillStyle = 'rgba(175, 175, 185, 0.25)';
@@ -5521,7 +5877,6 @@
                                 overviewCtx.fill();
                             }
                         } else if (m.id === 'vibrocompactador') {
-                            // Ondas de choque por densificación vibratoria de suelo bajo el rodillo
                             const groundY = my + 18;
                             for (let v = 0; v < 2; v++) {
                                 const vProg = ((waveTime * 3.0 + v / 2) % 1);
@@ -5532,7 +5887,6 @@
                                 overviewCtx.ellipse(mx, groundY, vProg * 35, vProg * 10, 0, 0, Math.PI * 2);
                                 overviewCtx.stroke();
                             }
-                            // Destello estroboscópico de advertencia ámbar en la cabina
                             const strobePhase = (waveTime * 3.2) % 1.0;
                             if (strobePhase < 0.28) {
                                 const glowAlpha = Math.sin((strobePhase / 0.28) * Math.PI) * 0.6;
@@ -5540,6 +5894,220 @@
                                 overviewCtx.beginPath();
                                 overviewCtx.arc(mx, my - 24, 12, 0, Math.PI * 2);
                                 overviewCtx.fill();
+                            }
+                        }
+
+                        // ================= SECTOR B: MANUFACTURA =================
+                        else if (m.id === 'prensa_excentrica_ep500') {
+                            const cycle = (waveTime * 1.4) % 1.0;
+                            const pressY = my + 10 + (cycle < 0.35 ? (cycle / 0.35) * 14 : (1 - (cycle - 0.35) / 0.65) * 14);
+                            overviewCtx.fillStyle = 'rgba(2, 132, 199, 0.7)';
+                            overviewCtx.fillRect(mx - 8, pressY - 3, 16, 6);
+                            if (cycle >= 0.32 && cycle <= 0.38) {
+                                overviewCtx.fillStyle = 'rgba(255, 245, 200, 0.9)';
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx, pressY + 3, 7, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'martinete_forja_industrial') {
+                            const forjaCycle = (waveTime * 1.1) % 1.0;
+                            const lingoteX = mx + 4;
+                            const lingoteY = my + 16;
+                            overviewCtx.fillStyle = `rgba(239, 68, 68, ${0.4 + Math.sin(waveTime * 6) * 0.2})`;
+                            overviewCtx.beginPath();
+                            overviewCtx.arc(lingoteX, lingoteY, 14, 0, Math.PI * 2);
+                            overviewCtx.fill();
+                            if (forjaCycle < 0.25) {
+                                overviewCtx.fillStyle = 'rgba(255, 200, 50, 0.9)';
+                                for (let p = 0; p < 8; p++) {
+                                    const ang = (p / 8) * Math.PI * 2;
+                                    const spDist = (forjaCycle / 0.25) * 32;
+                                    overviewCtx.beginPath();
+                                    overviewCtx.arc(lingoteX + Math.cos(ang) * spDist, lingoteY + Math.sin(ang) * spDist * 0.7, 1.8, 0, Math.PI * 2);
+                                    overviewCtx.fill();
+                                }
+                            }
+                        } else if (m.id === 'pulidora_bosch_gws') {
+                            const grindX = mx - 2;
+                            const grindY = my + 12;
+                            overviewCtx.fillStyle = 'rgba(255, 215, 0, 0.85)';
+                            for (let p = 0; p < 9; p++) {
+                                const sparkProg = ((waveTime * 14 + p / 9) % 1);
+                                const sx = grindX + sparkProg * 35;
+                                const sy = grindY + Math.pow(sparkProg, 1.5) * 18 + (p % 3) * 1.5;
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(sx, sy, 1.2 + (1 - sparkProg) * 1.5, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'compresor_kaeser_csdx165') {
+                            const compY = my - 12;
+                            for (let p = 0; p < 3; p++) {
+                                const prog = ((waveTime * 2.8 + p / 3) % 1);
+                                const alpha = (1 - prog) * 0.35;
+                                overviewCtx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+                                overviewCtx.lineWidth = 1.5;
+                                overviewCtx.strokeRect(mx - 15 - prog * 8, compY - prog * 12, 30 + prog * 16, 24 + prog * 24);
+                            }
+                        } else if (m.id === 'ventilador_centrifugo_industrial') {
+                            for (let p = 0; p < 4; p++) {
+                                const rot = waveTime * 6.5 + (p * Math.PI / 2);
+                                overviewCtx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+                                overviewCtx.lineWidth = 2.0;
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx, my, 8 + p * 4, rot, rot + 1.2);
+                                overviewCtx.stroke();
+                            }
+                        }
+
+                        // ================= SECTOR C: COMERCIO Y OCIO =================
+                        else if (m.id === 'karting_indoor') {
+                            const kartExX = mx - 14;
+                            const kartExY = my + 8;
+                            overviewCtx.fillStyle = 'rgba(160, 165, 175, 0.35)';
+                            for (let p = 0; p < 5; p++) {
+                                const prog = ((waveTime * 5 + p / 5) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(kartExX - prog * 22, kartExY - prog * 6 + Math.sin(prog * 10) * 3, 2 + prog * 5, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'discoteca_subwoofers') {
+                            const beatPhase = (waveTime * 2.13) % 1.0;
+                            const pulse = Math.pow(1 - beatPhase, 2);
+                            overviewCtx.strokeStyle = `rgba(168, 85, 247, ${pulse * 0.65})`;
+                            overviewCtx.lineWidth = 2.5;
+                            overviewCtx.beginPath();
+                            overviewCtx.arc(mx, my, 12 + (1 - pulse) * 45, 0, Math.PI * 2);
+                            overviewCtx.stroke();
+                            if (beatPhase < 0.25) {
+                                overviewCtx.fillStyle = `rgba(236, 72, 153, ${0.4 * (1 - beatPhase / 0.25)})`;
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx, my - 15, 20, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'restaurante_aforo') {
+                            for (let p = 0; p < 3; p++) {
+                                const prog = ((waveTime * 1.5 + p / 3) % 1);
+                                overviewCtx.strokeStyle = `rgba(245, 158, 11, ${(1 - prog) * 0.3})`;
+                                overviewCtx.lineWidth = 1.2;
+                                overviewCtx.strokeRect(mx - 24 * prog, my - 14 * prog, 48 * prog, 28 * prog);
+                            }
+                        } else if (m.id === 'campana_extractora') {
+                            const hoodY = my + 14;
+                            overviewCtx.fillStyle = 'rgba(235, 240, 245, 0.35)';
+                            for (let p = 0; p < 6; p++) {
+                                const vProg = ((waveTime * 3.5 + p / 6) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx + (p - 2.5) * 6, hoodY - vProg * 26, 2.5 + vProg * 3.5, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'bolera_bowling') {
+                            const impactCycle = (waveTime * 0.8) % 1.0;
+                            if (impactCycle < 0.2) {
+                                overviewCtx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx + 6, my - 8, 12 * (impactCycle / 0.2), 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        }
+
+                        // ================= SECTOR D: MINERÍA Y CANTERAS =================
+                        else if (m.id === 'voladura_banco') {
+                            const blastProg = (waveTime * 0.6) % 1.0;
+                            overviewCtx.fillStyle = `rgba(200, 190, 180, ${(1 - blastProg) * 0.45})`;
+                            for (let p = 0; p < 6; p++) {
+                                const ang = (p / 6) * Math.PI * 2;
+                                const rad = blastProg * 36;
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx + Math.cos(ang) * rad, my + Math.sin(ang) * rad * 0.6, 6 + blastProg * 12, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'jumbo_perforacion') {
+                            const drillX = mx - 12;
+                            const drillY = my + 4;
+                            overviewCtx.fillStyle = 'rgba(225, 225, 220, 0.6)';
+                            for (let p = 0; p < 5; p++) {
+                                const prog = ((waveTime * 12 + p / 5) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(drillX - prog * 18, drillY + (p - 2) * 2, 1.5 + prog * 3, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'trituradora_mandibulas') {
+                            const crushY = my + 12;
+                            overviewCtx.fillStyle = 'rgba(180, 170, 160, 0.4)';
+                            for (let p = 0; p < 4; p++) {
+                                const prog = ((waveTime * 4.5 + p / 4) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx + (p - 1.5) * 8, crushY + prog * 18, 2 + prog * 3, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'zaranda_vibratoria') {
+                            const screenX = mx + 2;
+                            const screenY = my + 14;
+                            overviewCtx.fillStyle = 'rgba(202, 138, 4, 0.65)';
+                            for (let p = 0; p < 8; p++) {
+                                const dropProg = ((waveTime * 9 + p / 8) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(screenX + (p - 3.5) * 4, screenY + dropProg * 22, 1.4, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'dumper_minero') {
+                            const exhaustX = mx - 14;
+                            const exhaustY = my - 20;
+                            overviewCtx.fillStyle = 'rgba(140, 140, 150, 0.35)';
+                            for (let p = 0; p < 6; p++) {
+                                const prog = ((waveTime * 2.8 + p / 6) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(exhaustX - prog * 8, exhaustY - prog * 24, 3 + prog * 6, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        }
+
+                        // ================= SECTOR E: SERVICIOS Y ADMINISTRATIVO =================
+                        else if (m.id === 'datacenter_servidores') {
+                            for (let p = 0; p < 6; p++) {
+                                const ledFlicker = Math.sin(waveTime * 15 + p * 3) > 0;
+                                if (ledFlicker) {
+                                    overviewCtx.fillStyle = p % 2 === 0 ? 'rgba(34, 197, 94, 0.85)' : 'rgba(56, 189, 248, 0.85)';
+                                    overviewCtx.fillRect(mx - 8 + (p % 3) * 6, my - 6 + Math.floor(p / 3) * 8, 3, 3);
+                                }
+                            }
+                            overviewCtx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+                            overviewCtx.lineWidth = 1.0;
+                            for (let l = 0; l < 3; l++) {
+                                const lProg = ((waveTime * 2 + l / 3) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.moveTo(mx - 14, my - 16 + lProg * 32);
+                                overviewCtx.lineTo(mx + 14, my - 16 + lProg * 32);
+                                overviewCtx.stroke();
+                            }
+                        } else if (m.id === 'call_center') {
+                            for (let p = 0; p < 3; p++) {
+                                const prog = ((waveTime * 1.8 + p / 3) % 1);
+                                overviewCtx.strokeStyle = `rgba(22, 148, 63, ${(1 - prog) * 0.4})`;
+                                overviewCtx.lineWidth = 1.2;
+                                overviewCtx.strokeRect(mx - 18 * prog, my - 12 * prog, 36 * prog, 24 * prog);
+                            }
+                        } else if (m.id === 'plotter_imprenta') {
+                            const carriageProg = Math.sin(waveTime * 4);
+                            const plotX = mx + carriageProg * 14;
+                            overviewCtx.fillStyle = 'rgba(2, 132, 199, 0.85)';
+                            overviewCtx.fillRect(plotX - 4, my + 6, 8, 4);
+                        } else if (m.id === 'cafeteria_corporativa') {
+                            const steamX = mx - 4;
+                            const steamY = my + 6;
+                            overviewCtx.fillStyle = 'rgba(240, 245, 250, 0.55)';
+                            for (let p = 0; p < 5; p++) {
+                                const prog = ((waveTime * 6 + p / 5) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(steamX + prog * 16, steamY - prog * 12, 1.5 + prog * 3, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'despacho_avenida') {
+                            const winX = mx + 10;
+                            for (let v = 0; v < 3; v++) {
+                                const vProg = ((waveTime * 1.2 + v / 3) % 1);
+                                overviewCtx.fillStyle = 'rgba(203, 213, 225, 0.45)';
+                                overviewCtx.fillRect(winX - 10 + vProg * 24, my + (v - 1) * 8, 8, 4);
                             }
                         }
                     }
@@ -5568,6 +6136,20 @@
             }
         }
 
+        function updateOverviewDimensionsUI() {
+            const dimTag = document.getElementById('overviewDimTag');
+            if (!dimTag) return;
+            const sec = SECTORS[currentSector];
+            const dim = sec.dimensions || { width: 45.0, depth: 32.0, scale: '1 cm = 5 m' };
+            dimTag.innerHTML = `
+                <span>↔ Ancho: <strong style="color:var(--ceto-orange);">${dim.width.toFixed(1)} m</strong></span>
+                <span>·</span>
+                <span>↕ Largo: <strong style="color:var(--ceto-orange);">${dim.depth.toFixed(1)} m</strong></span>
+                <span>·</span>
+                <span>Escala: <strong style="color:var(--ceto-orange);">${dim.scale || '1 cm = 5 m'}</strong></span>
+            `;
+        }
+
         function setStageViewMode(mode) {
             viewMode = mode;
             const btnSingle = document.getElementById('btnModeSingle');
@@ -5588,14 +6170,24 @@
                 if (floor) floor.style.display = 'none';
                 if (svgCont) svgCont.style.display = 'none';
                 if (fxCvs) fxCvs.style.display = 'none';
-                if (hotspotCont) hotspotCont.style.display = 'none'; // Quitar balizas numeradas que tapaban la foto
+                if (hotspotCont) hotspotCont.style.display = 'none';
                 if (singleControls) singleControls.style.display = 'none';
                 if (overviewLayer) overviewLayer.style.display = 'flex';
                 if (overviewControls) overviewControls.style.display = 'flex';
                 if (viewport) viewport.classList.add('overview-mode-active');
-                if (stageBadge) stageBadge.textContent = 'PLANO GENERAL (45m x 32m)';
-                document.getElementById('stageMachineName').textContent = 'Sector A: Obras Civiles y Construcción';
+                
+                const sec = SECTORS[currentSector];
+                const dim = sec.dimensions || { width: 45.0, depth: 32.0 };
+                if (stageBadge) stageBadge.textContent = `PLANO GENERAL (${dim.width}m x ${dim.depth}m)`;
+                const stageTitle = document.getElementById('stageMachineName');
+                if (stageTitle) stageTitle.textContent = `${sec.name} · Plano General Multisectorial`;
 
+                const bgImg = document.getElementById('overviewBgImg');
+                if (bgImg && sec.overviewPhoto) {
+                    bgImg.src = sec.overviewPhoto;
+                }
+
+                updateOverviewDimensionsUI();
                 renderOverviewMachineBeacons();
                 renderMultiSourceChips();
                 updateSonometerPinPosition();
@@ -5621,18 +6213,7 @@
         }
 
         function updateMachineAnimationLayers() {
-            const isMuted = isAudioMuted;
-            SECTORS['A'].machines.forEach(m => {
-                const layer = document.getElementById(`animLayer_${m.id}`);
-                if (layer) {
-                    const isActive = activeOverviewSources.has(m.id) && !isMuted;
-                    if (isActive) {
-                        layer.classList.add('is-active');
-                    } else {
-                        layer.classList.remove('is-active');
-                    }
-                }
-            });
+            // Mantenido para compatibilidad
         }
 
         function renderOverviewMachineBeacons() {
@@ -5640,7 +6221,10 @@
             if (!layer) return;
             layer.innerHTML = '';
 
-            SECTORS['A'].machines.forEach(m => {
+            const sec = SECTORS[currentSector];
+            if (!sec || !sec.machines) return;
+
+            sec.machines.forEach(m => {
                 const isActive = activeOverviewSources.has(m.id);
                 const beacon = document.createElement('div');
                 beacon.className = `machine-map-beacon ${isActive ? 'is-active' : 'is-off'}`;
@@ -5665,14 +6249,12 @@
                     }
                     renderOverviewMachineBeacons();
                     renderMultiSourceChips();
-                    updateMachineAnimationLayers();
+                    updateOverviewAcousticGains();
                     playCurrentAudio();
                 });
 
                 layer.appendChild(beacon);
             });
-
-            updateMachineAnimationLayers();
         }
 
         function renderMultiSourceChips() {
@@ -5680,11 +6262,14 @@
             if (!container) return;
             container.innerHTML = '';
 
-            SECTORS['A'].machines.forEach(m => {
+            const sec = SECTORS[currentSector];
+            if (!sec || !sec.machines) return;
+
+            sec.machines.forEach(m => {
                 const isActive = activeOverviewSources.has(m.id);
                 const chip = document.createElement('button');
                 chip.className = `source-chip ${isActive ? 'active' : ''}`;
-                chip.innerHTML = `<span>${isActive ? '●' : '○'}</span> <span>${m.name}</span>`;
+                chip.innerHTML = `<span>${isActive ? '🔊' : '🔇'}</span> <span>${m.name}</span>`;
                 chip.addEventListener('click', () => {
                     if (activeOverviewSources.has(m.id)) {
                         activeOverviewSources.delete(m.id);
@@ -5693,6 +6278,7 @@
                     }
                     renderOverviewMachineBeacons();
                     renderMultiSourceChips();
+                    updateOverviewAcousticGains();
                     playCurrentAudio();
                 });
                 container.appendChild(chip);
@@ -5744,8 +6330,9 @@
                     rulerPoints.x2 = e.clientX - rect.left;
                     rulerPoints.y2 = e.clientY - rect.top;
 
-                    const dxM = ((rulerPoints.x2 - rulerPoints.x1) / rect.width) * 45.0;
-                    const dyM = ((rulerPoints.y2 - rulerPoints.y1) / rect.height) * 32.0;
+                    const dim = (SECTORS[currentSector] && SECTORS[currentSector].dimensions) || { width: 45.0, depth: 32.0 };
+                    const dxM = ((rulerPoints.x2 - rulerPoints.x1) / rect.width) * dim.width;
+                    const dyM = ((rulerPoints.y2 - rulerPoints.y1) / rect.height) * dim.depth;
                     const distM = Math.sqrt(dxM * dxM + dyM * dyM);
                     const deltaL = 20 * Math.log10(Math.max(1.0, distM));
 
@@ -5773,17 +6360,157 @@
         }
 
         // =========================================================================
-        // 13.6 PROTOCOLO DE MEDICIÓN HIGIÉNICA (ISO 9612 / RES. 2844)
+        // 13.6 PROTOCOLO DE MEDICIÓN HIGIÉNICA Y MEMORIA INTERNA ACUMULATIVA (ISO 9612 / RES. 2844)
         // =========================================================================
         function getActiveMachinesListString() {
-            if (viewMode === 'overview' && currentSector === 'A') {
-                const names = [];
-                SECTORS['A'].machines.forEach(m => {
-                    if (activeOverviewSources.has(m.id)) names.push(m.name.split(' ')[0] + (m.name.includes('Martillo') ? ' Neumático' : m.name.includes('Cortadora') ? ' Disco' : ''));
+            if (viewMode === 'overview') {
+                const sec = SECTORS[currentSector];
+                if (!sec || !sec.machines) return 'Ruido Residual';
+                const activeNames = [];
+                sec.machines.forEach(m => {
+                    if (activeOverviewSources.has(m.id)) {
+                        activeNames.push(m.name);
+                    }
                 });
-                return names.length > 0 ? names.join(', ') : 'Ninguna (Ruido de Fondo)';
+                if (activeNames.length === 0) return 'Ruido de Fondo Residual (0 fuentes)';
+                if (activeNames.length === 1) return `Fuente Individual: ${activeNames[0]}`;
+                if (activeNames.length === sec.machines.length) return `Fuentes Combinadas: TODAS (${activeNames.length} activas)`;
+                return `Fuentes Combinadas (${activeNames.length}): ${activeNames.join(' + ')}`;
             }
-            return currentMachine.name;
+            return `Fuente Individual: ${currentMachine.name}`;
+        }
+
+        function updateMemoryCounterUI() {
+            const count = evaluatedPoints.length;
+            const badge = document.getElementById('memoryCounterBadge');
+            if (badge) {
+                badge.textContent = `💾 Memoria: ${count} medición${count === 1 ? '' : 'es'}`;
+                if (count > 0) {
+                    badge.classList.remove('empty');
+                    badge.classList.add('has-data');
+                } else {
+                    badge.classList.remove('has-data');
+                    badge.classList.add('empty');
+                }
+            }
+            const modalCount = document.getElementById('modalMemPointsCount');
+            if (modalCount) modalCount.textContent = count;
+            const countTag = document.getElementById('pointsCountTag');
+            if (countTag) countTag.textContent = count;
+        }
+
+        function saveCurrentMeasurementToMemory() {
+            initAudio();
+            const sec = SECTORS[currentSector];
+            const secName = sec ? sec.name : `Sector ${currentSector}`;
+            const sourcesDesc = getActiveMachinesListString();
+
+            // Niveles acústicos medidos en tiempo real por el sonómetro integrador
+            const currentLeq = leqSamples > 0 ? (10 * Math.log10(leqEnergySum / leqSamples)) : (instantSpl || 78.5);
+            const currentPeak = Math.max(lpeak, currentLeq + 11.2);
+            const currentLmax = lmax > 40 ? lmax : (currentLeq + 3.4);
+            const currentLmin = lmin < 140 ? lmin : Math.max(38.0, currentLeq - 4.8);
+
+            // Tiempo permisible legal según Res. 1792/90 con tasa q=5 dB
+            let tperm = 8 / Math.pow(2, (currentLeq - 85) / exchangeRateQ);
+            if (currentLeq <= 80) tperm = 24.0;
+            else if (currentLeq >= 125) tperm = 0.005;
+
+            let tpermStr = '≥ 8h 00m';
+            if (tperm < 8 && tperm >= 1) {
+                const h = Math.floor(tperm);
+                const m = Math.round((tperm - h) * 60);
+                tpermStr = `${h}h ${m}m`;
+            } else if (tperm < 1) {
+                const m = Math.floor(tperm * 60);
+                const s = Math.round((tperm * 60 - m) * 60);
+                tpermStr = `${m}m ${s}s`;
+            }
+
+            const dosePct = (8 / tperm) * 100;
+
+            let diagText = '🛡️ Seguro (< 80 dBA)';
+            let diagClass = 'badge-continuo';
+            if (currentPeak >= 140.0) {
+                diagText = '⚠️ CRÍTICO: Pico > 140 dBC (Art. 1 Res. 1792/90)';
+                diagClass = 'badge-impacto';
+            } else if (currentLeq >= 85.0 || dosePct >= 100) {
+                diagText = '🚨 Supera TLV (85 dBA) · PCA Anual';
+                diagClass = 'badge-impacto';
+            } else if (currentLeq >= 80.0 || dosePct >= 50) {
+                diagText = '⚠️ Nivel de Acción (80-84.9 dBA) · PCA Bianual';
+                diagClass = 'badge-intermitente';
+            }
+
+            const ptIndex = evaluatedPoints.length + 1;
+            const ptTag = 'P' + ptIndex;
+            const ptName = viewMode === 'overview'
+                ? `${ptTag}: Área ${sec.name.split(' ')[0]} - (${sourcesDesc.split(':')[0]})`
+                : `${ptTag}: Puesto de Trabajo - ${currentMachine.name}`;
+
+            const newPt = {
+                id: ptIndex,
+                tag: ptTag,
+                sec: currentSector,
+                secName: secName,
+                name: ptName,
+                activeMachines: sourcesDesc,
+                durationSec: 300,
+                laeq: parseFloat(currentLeq.toFixed(1)),
+                lcpeak: parseFloat(currentPeak.toFixed(1)),
+                lmax: parseFloat(currentLmax.toFixed(1)),
+                lmin: parseFloat(currentLmin.toFixed(1)),
+                tperm: tpermStr,
+                dosePct: parseFloat(dosePct.toFixed(1)),
+                diag: diagText,
+                diagClass: diagClass,
+                coords: { ...sonometerPos },
+                timestamp: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
+
+            evaluatedPoints.push(newPt);
+            renderPointsTable();
+            renderMeasuredPointPins();
+            updateMemoryCounterUI();
+            playCompletionBeep();
+
+            // Notificación visual en botón
+            const btnSave = document.getElementById('btnSaveOverviewMeasurement');
+            if (btnSave) {
+                const orig = btnSave.innerHTML;
+                btnSave.innerHTML = `✅ ¡Guardado ${ptTag}! (${newPt.laeq} dBA)`;
+                btnSave.style.background = '#059669';
+                setTimeout(() => {
+                    btnSave.innerHTML = orig;
+                    btnSave.style.background = '';
+                }, 1700);
+            }
+        }
+
+        function resetSimulationAndMemory() {
+            if (evaluatedPoints.length === 0) {
+                alert("La memoria interna del simulador ya está vacía (0 mediciones).");
+                return;
+            }
+
+            const ok = confirm(`¿Desea reiniciar la simulación y vaciar la memoria interna de ${evaluatedPoints.length} mediciones?\n\nEsta acción borrará los registros acumulados para permitir iniciar un nuevo laboratorio con otro estudiante o sector.`);
+            if (!ok) return;
+
+            evaluatedPoints = [];
+            leqEnergySum = 0;
+            leqSamples = 0;
+            lpeak = 40.0;
+            lmax = 40.0;
+            lmin = 140.0;
+
+            renderPointsTable();
+            renderMeasuredPointPins();
+            updateMemoryCounterUI();
+
+            const modal = document.getElementById('reportPreviewModal');
+            if (modal) modal.style.display = 'none';
+
+            alert("🔄 Memoria interna borrada exitosamente. Puede comenzar una nueva sesión de mediciones individuales o combinadas.");
         }
 
         function startPointMeasurement() {
@@ -5902,9 +6629,12 @@
                 diagClass = 'badge-intermitente';
             }
 
+            const sec = SECTORS[currentSector];
             const newPt = {
                 id: evaluatedPoints.length + 1,
                 tag: 'P' + (evaluatedPoints.length + 1),
+                sec: currentSector,
+                secName: sec ? sec.name : `Sector ${currentSector}`,
                 name: pointSamplingState.name,
                 activeMachines: getActiveMachinesListString(),
                 durationSec: pointSamplingState.elapsedSec || 15,
@@ -5922,30 +6652,31 @@
             evaluatedPoints.push(newPt);
             renderPointsTable();
             renderMeasuredPointPins();
+            updateMemoryCounterUI();
 
             // Preparar siguiente sugerencia de punto
             const nextIdx = evaluatedPoints.length + 1;
-            document.getElementById('pointNameInput').value = `P${nextIdx}: Frente de Trabajo ${nextIdx}`;
+            const inputPt = document.getElementById('pointNameInput');
+            if (inputPt) inputPt.value = `P${nextIdx}: Frente de Trabajo ${nextIdx}`;
         }
 
         function renderPointsTable() {
             const tbody = document.getElementById('samplingTableBody');
             const modalBody = document.getElementById('modalPreviewTableBody');
-            const countTag = document.getElementById('pointsCountTag');
+            updateMemoryCounterUI();
 
-            if (countTag) countTag.textContent = evaluatedPoints.length;
             if (!tbody) return;
 
             if (evaluatedPoints.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="11" style="text-align:center; color:var(--text-dim); padding:1.2rem; font-size:0.75rem;">
-                            No hay puntos registrados aún. Seleccione la ubicación en el plano y pulse "▶ Iniciar Medición".
+                            No hay puntos registrados aún. Seleccione la ubicación en el plano y pulse "💾 Registrar Medición" o "▶ Iniciar Medición".
                         </td>
                     </tr>
                 `;
                 if (modalBody) {
-                    modalBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:1rem;">Sin mediciones registradas. Se emitirá con muestra técnica actual.</td></tr>`;
+                    modalBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8; padding:1.2rem;">Sin mediciones registradas en la memoria interna. Realice mediciones individuales o combinadas antes de finalizar.</td></tr>`;
                 }
                 return;
             }
@@ -5976,12 +6707,16 @@
                     const mtr = document.createElement('tr');
                     mtr.innerHTML = `
                         <td><strong>${pt.tag}</strong></td>
-                        <td>${pt.name}</td>
-                        <td><strong style="color:${pt.laeq>=85?'#ef4444':pt.laeq>=80?'#f59e0b':'#22c55e'};">${pt.laeq.toFixed(1)}</strong></td>
-                        <td>${pt.lcpeak.toFixed(1)}</td>
-                        <td>${pt.tperm}</td>
-                        <td>${pt.dosePct.toFixed(1)}%</td>
-                        <td>${pt.diag}</td>
+                        <td style="font-size:0.7rem; font-weight:700; color:#0f172a;">${pt.sec ? ('Sector ' + pt.sec) : 'Sector A'}</td>
+                        <td style="font-size:0.7rem; color:#334155;">${pt.activeMachines}</td>
+                        <td><strong style="color:${pt.laeq>=85?'#ef4444':pt.laeq>=80?'#f59e0b':'#22c55e'}; font-size:0.82rem;">${pt.laeq.toFixed(1)}</strong></td>
+                        <td style="font-family:monospace; color:${pt.lcpeak>=140?'#ef4444':'#f97316'}; font-size:0.75rem;">${pt.lcpeak.toFixed(1)}</td>
+                        <td style="font-family:monospace; color:#0284c7; font-size:0.75rem;">${pt.tperm}</td>
+                        <td style="font-family:monospace; font-weight:800; color:${pt.dosePct>=100?'#ef4444':pt.dosePct>=50?'#f59e0b':'#22c55e'}; font-size:0.75rem;">${pt.dosePct.toFixed(1)}%</td>
+                        <td style="font-size:0.68rem; font-weight:700;">${pt.diag}</td>
+                        <td style="text-align:center;">
+                            <button onclick="deletePoint(${idx})" style="background:#fee2e2; border:1px solid #fca5a5; color:#ef4444; border-radius:4px; padding:1px 6px; cursor:pointer; font-size:0.7rem;" title="Eliminar medición de la memoria">✕</button>
+                        </td>
                     `;
                     modalBody.appendChild(mtr);
                 }
@@ -5993,6 +6728,7 @@
             evaluatedPoints.forEach((p, i) => p.tag = 'P' + (i + 1));
             renderPointsTable();
             renderMeasuredPointPins();
+            updateMemoryCounterUI();
         }
 
         function renderMeasuredPointPins() {
@@ -6012,7 +6748,7 @@
         }
 
         // =========================================================================
-        // 13.7 GENERACIÓN DE INFORME TÉCNICO OFICIAL EN PDF (RES. 2844 / RES. 1792)
+        // 13.7 GENERACIÓN DE INFORME TÉCNICO OFICIAL EN PDF CON DATOS DEL ESTUDIANTE Y MEMORIA
         // =========================================================================
         function generateHygieneReportPDF() {
             if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
@@ -6020,23 +6756,40 @@
                 return;
             }
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
+            const studentNameInput = document.getElementById('repStudentName');
+            const studentName = studentNameInput ? studentNameInput.value.trim() : '';
 
-            const company = (document.getElementById('repCompanyName') ? document.getElementById('repCompanyName').value.trim() : '') || "Corporación Tecnológica del Oriente";
-            const workSite = (document.getElementById('repWorkSite') ? document.getElementById('repWorkSite').value.trim() : '') || "Laboratorio de Higiene Industrial / Obra Sector A";
-            const evaluator = (document.getElementById('repEvaluator') ? document.getElementById('repEvaluator').value.trim() : '') || "Ing. Pedro Noriega - Docente / Evaluador SST";
-            const license = (document.getElementById('repLicense') ? document.getElementById('repLicense').value.trim() : '') || "LIC-SST-2026-9942-COL";
+            if (!studentName) {
+                alert("⚠️ ATENCIÓN: Es obligatorio que el estudiante digite su Nombre Completo para generar el informe oficial de laboratorio.");
+                if (studentNameInput) {
+                    studentNameInput.focus();
+                    studentNameInput.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.8)';
+                    setTimeout(() => { studentNameInput.style.boxShadow = ''; }, 2500);
+                }
+                return;
+            }
+
+            const studentID = (document.getElementById('repStudentID') ? document.getElementById('repStudentID').value.trim() : '') || "No especificado";
+            const subject = (document.getElementById('repSubject') ? document.getElementById('repSubject').value.trim() : '') || "Higiene Industrial - SG-SST";
+            const teacher = (document.getElementById('repTeacher') ? document.getElementById('repTeacher').value.trim() : '') || "Ing. Pedro Noriega - Docente SG-SST";
+            const studentObs = (document.getElementById('repStudentObs') ? document.getElementById('repStudentObs').value.trim() : '');
+
+            const company = "Corporación Tecnológica del Oriente";
+            const currentSecObj = SECTORS[currentSector];
+            const secName = currentSecObj ? currentSecObj.name : "Construcción";
+            const dimObj = (currentSecObj && currentSecObj.dimensions) || { width: 45.0, depth: 32.0 };
 
             let pointsToReport = [...evaluatedPoints];
             if (pointsToReport.length === 0) {
-                const currentLeq = leqSamples > 0 ? 10 * Math.log10(leqEnergySum / leqSamples) : 89.4;
+                const currentLeq = leqSamples > 0 ? 10 * Math.log10(leqEnergySum / leqSamples) : 84.5;
                 let tperm = 8 / Math.pow(2, (currentLeq - 85) / exchangeRateQ);
                 if (currentLeq <= 80) tperm = 24.0;
                 const dose = (8 / tperm) * 100;
                 pointsToReport.push({
                     tag: 'P1',
-                    name: 'Puesto Operador - Frente de Trabajo Sector A',
+                    sec: currentSector,
+                    secName: secName,
+                    name: `P1: Monitoreo en ${secName.split(' ')[0]}`,
                     activeMachines: getActiveMachinesListString(),
                     durationSec: 300,
                     laeq: parseFloat(currentLeq.toFixed(1)),
@@ -6049,128 +6802,146 @@
                 });
             }
 
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
             const now = new Date();
             const dateStr = now.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
             const timeStr = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
 
-            // PÁGINA 1
-            // BANNER SUPERIOR
-            doc.setFillColor(15, 23, 42);
+            // ENCABEZADO INSTITUCIONAL
+            doc.setFillColor(15, 23, 42); // Azul medianoche
             doc.rect(14, 12, 182, 22, 'F');
-            doc.setFillColor(230, 120, 23);
+            doc.setFillColor(230, 120, 23); // Naranja CETO
             doc.rect(14, 34, 182, 1.5, 'F');
 
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
+            doc.setFontSize(10.5);
             doc.setTextColor(255, 255, 255);
-            doc.text("SISTEMA DE GESTIÓN DE SEGURIDAD Y SALUD EN EL TRABAJO (SG-SST)", 105, 19, { align: 'center' });
+            doc.text("CORPORACIÓN TECNOLÓGICA DEL ORIENTE", 105, 18.5, { align: 'center' });
 
-            doc.setFontSize(8.5);
+            doc.setFontSize(8.2);
             doc.setTextColor(230, 120, 23);
-            doc.text("INFORME TÉCNICO DE EVALUACIÓN HIGIÉNICA DE RUIDO OCUPACIONAL", 105, 25, { align: 'center' });
+            doc.text("LABORATORIO VIRTUAL DE HIGIENE INDUSTRIAL Y RUIDO OCUPACIONAL", 105, 24.5, { align: 'center' });
 
             doc.setFontSize(6.8);
             doc.setTextColor(148, 163, 184);
-            doc.text("SOPORTE LEGAL: RESOLUCIÓN 2844 DE 2007 (GATISO-HNIR) · RESOLUCIÓN 1792 DE 1990 · NTC-ISO 9612:2009", 105, 30, { align: 'center' });
+            doc.text("INFORME OFICIAL DE EVALUACIÓN HIGIÉNICA · RES. 2844/07 (GATISO-HNIR) · RES. 1792/90 · NTC-ISO 9612", 105, 30, { align: 'center' });
 
-            // CUADRO DE IDENTIFICACIÓN DE LA EVALUACIÓN
+            // CUADRO DE IDENTIFICACIÓN: DATOS DEL ESTUDIANTE Y EVALUACIÓN
             doc.setFillColor(248, 250, 252);
-            doc.rect(14, 38, 182, 28, 'F');
+            doc.rect(14, 38, 182, 34, 'F');
             doc.setDrawColor(203, 213, 225);
-            doc.rect(14, 38, 182, 28, 'S');
+            doc.rect(14, 38, 182, 34, 'S');
 
-            doc.setFontSize(7.5);
+            doc.setFontSize(7.3);
+            doc.setTextColor(15, 23, 42);
+
+            // Columna 1: Estudiante y Asignatura
+            doc.setFont('helvetica', 'bold');
+            doc.text("Estudiante Evaluador:", 17, 43.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(2, 132, 199);
+            doc.text(studentName, 49, 43.5);
+
             doc.setTextColor(15, 23, 42);
             doc.setFont('helvetica', 'bold');
-            doc.text("Razón Social:", 17, 43);
+            doc.text("Documento / Código:", 17, 49);
             doc.setFont('helvetica', 'normal');
-            doc.text(company, 42, 43);
+            doc.text(studentID, 49, 49);
 
             doc.setFont('helvetica', 'bold');
-            doc.text("Obra / Frente:", 17, 48);
+            doc.text("Asignatura / Programa:", 17, 54.5);
             doc.setFont('helvetica', 'normal');
-            doc.text(workSite, 42, 48);
+            doc.text(subject, 49, 54.5);
 
             doc.setFont('helvetica', 'bold');
-            doc.text("Evaluador SST:", 17, 53);
+            doc.text("Docente / Evaluador:", 17, 60);
             doc.setFont('helvetica', 'normal');
-            doc.text(evaluator, 42, 53);
+            doc.text(teacher, 49, 60);
 
             doc.setFont('helvetica', 'bold');
-            doc.text("Licencia SST:", 17, 58);
+            doc.text("Institución Académica:", 17, 65.5);
             doc.setFont('helvetica', 'normal');
-            doc.text(license, 42, 58);
+            doc.text(company + " (Bucaramanga, Col.)", 49, 65.5);
+
+            // Columna 2: Parámetros del Laboratorio
+            doc.setFont('helvetica', 'bold');
+            doc.text("Fecha y Hora:", 118, 43.5);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${dateStr} - ${timeStr}`, 143, 43.5);
 
             doc.setFont('helvetica', 'bold');
-            doc.text("Fecha Emisión:", 120, 43);
+            doc.text("Sector Evaluado:", 118, 49);
             doc.setFont('helvetica', 'normal');
-            doc.text(`${dateStr} - ${timeStr}`, 145, 43);
+            doc.text(`Sector ${currentSector}: ${secName.substring(0, 23)}...`, 143, 49);
 
             doc.setFont('helvetica', 'bold');
-            doc.text("Área Evaluada:", 120, 48);
+            doc.text("Dimensiones Área:", 118, 54.5);
             doc.setFont('helvetica', 'normal');
-            doc.text("Sector A: Ancho 45.0m x Largo 32.0m", 145, 48);
+            doc.text(`${dimObj.width}m x ${dimObj.depth}m (${dimObj.width * dimObj.depth} m²)`, 143, 54.5);
 
             doc.setFont('helvetica', 'bold');
-            doc.text("Norma Muestreo:", 120, 53);
+            doc.text("Tasa Intercambio:", 118, 60);
             doc.setFont('helvetica', 'normal');
-            doc.text("NTC-ISO 9612:2009 (Estrategia Puesto)", 145, 53);
+            doc.text("q = 5 dB (Res. 1792/90 Colombia)", 143, 60);
 
             doc.setFont('helvetica', 'bold');
-            doc.text("Tasa de Cambio:", 120, 58);
+            doc.text("Memoria Muestreo:", 118, 65.5);
             doc.setFont('helvetica', 'normal');
-            doc.text("q = 5 dB (Res. 1792/90 Colombia)", 145, 58);
+            doc.setTextColor(230, 120, 23);
+            doc.text(`${pointsToReport.length} Mediciones Registradas en Memoria`, 143, 65.5);
 
             // 1. MARCO NORMATIVO LEGAL
-            let curY = 70;
+            let curY = 76;
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8.5);
+            doc.setFontSize(8.3);
             doc.setTextColor(2, 132, 199);
-            doc.text("1. MARCO NORMATIVO TÉCNICO-LEGAL APLICABLE (COLOMBIA)", 14, curY);
-            curY += 4;
+            doc.text("1. MARCO NORMATIVO TÉCNICO-LEGAL APLICABLE EN COLOMBIA", 14, curY);
+            curY += 3.8;
 
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(7.2);
+            doc.setFontSize(7.0);
             doc.setTextColor(51, 65, 85);
-            const legalText = [
-                "• Resolución 1792 de 1990 (Ministerio de Trabajo y Salud): Establece el Límite Permisible (TLV) en 85 dBA para jornada laboral de 8 horas con tasa de intercambio q = 5 dB (duplicación/reducción de tiempo de exposición por cada 5 dB). Límite absoluto de ruido de impacto: 140 dBC Peak.",
-                "• Resolución 2844 de 2007 (Guía de Atención Integral GATISO-HNIR): Adopta el Nivel de Acción Ocupacional en 80 dBA (Dosis del 50%). Exige inclusión obligatoria en el Programa de Conservación Auditiva (PCA), vigilancia médica tamiz bianual para niveles entre 80 y 84.9 dBA, y tamiz anual obligatoria para niveles >= 85 dBA. Obliga a aplicar el factor de reducción (Derating) del 50% para tapones auditivos.",
-                "• Resolución 2400 de 1979 (Estatuto de Higiene y Seguridad Industrial): Obliga a priorizar el control en la fuente de generación y en el medio de transmisión antes de delegar la protección exclusivamente al equipo de protección personal (EPP)."
+            const legalLines = [
+                "• Resolución 1792 de 1990 (Ministerios de Trabajo y Salud): TLV de 85 dBA para jornada laboral de 8 horas con tasa de intercambio q = 5 dB (reducción del tiempo a la mitad por cada 5 dB adicionales). Límite de impacto absoluto: 140 dBC Peak.",
+                "• Resolución 2844 de 2007 (Guía GATISO-HNIR): Adopta Nivel de Acción Ocupacional en 80 dBA (Dosis del 50%). Vigilancia médica audiológica periódica tamiz bianual (80-84.9 dBA) y tamiz anual (>=85 dBA). Factor de derating del 50% para tapones auditivos.",
+                "• Resolución 2400 de 1979: Obligatoriedad técnica de controlar el ruido preferentemente en la fuente y en el medio de propagación antes del EPP."
             ];
-            legalText.forEach(line => {
-                const split = doc.splitTextToSize(line, 182);
-                doc.text(split, 14, curY);
-                curY += (split.length * 3.5) + 1;
+            legalLines.forEach(l => {
+                const sp = doc.splitTextToSize(l, 182);
+                doc.text(sp, 14, curY);
+                curY += (sp.length * 3.3) + 0.8;
             });
 
-            // 2. INSTRUMENTACIÓN Y CONTROL METROLÓGICO
-            curY += 2;
+            // 2. INSTRUMENTACIÓN METROLÓGICA
+            curY += 1.5;
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8.5);
+            doc.setFontSize(8.3);
             doc.setTextColor(2, 132, 199);
-            doc.text("2. INSTRUMENTACIÓN METROLÓGICA Y CONTROL DE CALIDAD", 14, curY);
-            curY += 4;
+            doc.text("2. INSTRUMENTACIÓN METROLÓGICA Y TRAZABILIDAD (IEC 61672)", 14, curY);
+            curY += 3.8;
 
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(7.2);
+            doc.setFontSize(7.0);
             doc.setTextColor(51, 65, 85);
-            const instText = "Mediciones ejecutadas con Sonómetro Digital Integrador Clase 2 / Tipo 2 según normas IEC 61672-1:2013 y ANSI S1.4. Verificación de campo inicial con Calibrador Acústico a 94.0 dB @ 1000 Hz (+/- 0.3 dB) con lectura de 94.0 dBA. Verificación post-medición: 94.0 dBA (Deriva metrológica: 0.0 dB, admisible <= 0.5 dB conforme a ISO 9612:2009). Micrófono dotado de protector antiviento de celda abierta.";
-            const splitInst = doc.splitTextToSize(instText, 182);
-            doc.text(splitInst, 14, curY);
-            curY += (splitInst.length * 3.5) + 3;
+            const instLine = "Mediciones ejecutadas con Sonómetro Digital Integrador Clase 2 / Tipo 2 según IEC 61672-1:2013 y ANSI S1.4. Verificación inicial de campo mediante Calibrador Acústico Normalizado a 94.0 dB @ 1000 Hz (+/- 0.3 dB) con lectura de 94.0 dBA. Verificación acústica post-medición: 94.0 dBA (Deriva metrológica 0.0 dB <= 0.5 dB conforme a NTC-ISO 9612:2009). Micrófono con protector antiviento de celda abierta.";
+            const spInst = doc.splitTextToSize(instLine, 182);
+            doc.text(spInst, 14, curY);
+            curY += (spInst.length * 3.3) + 2.5;
 
-            // 3. TABLA METROLÓGICA
+            // 3. TABLA METROLÓGICA COMPLETA DE MEDICIONES EN MEMORIA
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8.5);
+            doc.setFontSize(8.3);
             doc.setTextColor(2, 132, 199);
-            doc.text("3. RESULTADOS METROLÓGICOS DE LAS MEDICIONES REALIZADAS", 14, curY);
+            doc.text("3. REGISTRO METROLÓGICO DE MEDICIONES REALIZADAS (MEMORIA INTERNA DE LA PRÁCTICA)", 14, curY);
             curY += 2;
 
-            const tableRows = pointsToReport.map(pt => [
+            const tableData = pointsToReport.map(pt => [
                 pt.tag,
-                pt.name,
+                pt.sec ? `Sector ${pt.sec}` : `Sec. ${currentSector}`,
                 pt.activeMachines,
-                `${pt.durationSec}s`,
+                `${pt.durationSec || 300}s`,
                 pt.laeq.toFixed(1),
                 pt.lcpeak.toFixed(1),
                 `${pt.lmax.toFixed(1)} / ${pt.lmin.toFixed(1)}`,
@@ -6181,12 +6952,12 @@
 
             doc.autoTable({
                 startY: curY,
-                head: [['Pto', 'Puesto / Tarea', 'Fuentes Activas', 'Tm', 'LAeq (dBA)', 'LCpeak (dBC)', 'Lmax/min', 'T. Perm.', 'Dosis 8h', 'Diagnóstico Legal GATISO']],
-                body: tableRows,
+                head: [['Pto', 'Sector', 'Fuentes Evaluadas (Individual / Combinadas)', 'Tm', 'LAeq (dBA)', 'LCpeak (dBC)', 'Lmax/min', 'T. Perm.', 'Dosis 8h', 'Diagnóstico GATISO-HNIR']],
+                body: tableData,
                 margin: { left: 14, right: 14 },
                 styles: {
-                    fontSize: 6.5,
-                    cellPadding: 1.8,
+                    fontSize: 6.2,
+                    cellPadding: 1.6,
                     overflow: 'linebreak',
                     font: 'helvetica'
                 },
@@ -6198,114 +6969,162 @@
                 },
                 columnStyles: {
                     0: { halign: 'center', fontStyle: 'bold', cellWidth: 8 },
-                    1: { cellWidth: 32 },
-                    2: { cellWidth: 26 },
+                    1: { halign: 'center', cellWidth: 14 },
+                    2: { cellWidth: 42 },
                     3: { halign: 'center', cellWidth: 9 },
                     4: { halign: 'center', fontStyle: 'bold', cellWidth: 14 },
                     5: { halign: 'center', cellWidth: 15 },
-                    6: { halign: 'center', cellWidth: 17 },
-                    7: { halign: 'center', cellWidth: 15 },
+                    6: { halign: 'center', cellWidth: 16 },
+                    7: { halign: 'center', cellWidth: 14 },
                     8: { halign: 'center', fontStyle: 'bold', cellWidth: 14 },
-                    9: { cellWidth: 32 }
+                    9: { cellWidth: 36 }
                 },
                 didParseCell: function(data) {
-                    if (data.section === 'body') {
-                        if (data.column.index === 4) {
-                            const val = parseFloat(data.cell.raw);
-                            if (val >= 85) data.cell.styles.textColor = [220, 38, 38];
-                            else if (val >= 80) data.cell.styles.textColor = [217, 119, 6];
-                            else data.cell.styles.textColor = [22, 163, 74];
-                        }
+                    if (data.section === 'body' && data.column.index === 4) {
+                        const val = parseFloat(data.cell.raw);
+                        if (val >= 85) data.cell.styles.textColor = [220, 38, 38];
+                        else if (val >= 80) data.cell.styles.textColor = [217, 119, 6];
+                        else data.cell.styles.textColor = [22, 163, 74];
                     }
                 }
             });
 
-            curY = doc.lastAutoTable.finalY + 6;
+            curY = doc.lastAutoTable.finalY + 5;
 
-            if (curY > 230) {
+            if (curY > 215) {
                 doc.addPage();
                 curY = 16;
             }
 
-            // 4. PLAN TÉCNICO DE CONTROL
+            // 4. CONCLUSIONES Y OBSERVACIONES DEL ESTUDIANTE
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8.5);
+            doc.setFontSize(8.3);
             doc.setTextColor(2, 132, 199);
-            doc.text("4. PLAN TÉCNICO DE CONTROL DEL RUIDO (JERARQUÍA LEGAL)", 14, curY);
-            curY += 4;
+            doc.text("4. CONCLUSIONES TÉCNICAS Y ANÁLISIS DEL ESTUDIANTE EVALUADOR", 14, curY);
+            curY += 3.8;
 
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(7.2);
+            doc.setFontSize(7.1);
             doc.setTextColor(51, 65, 85);
-            const controls = [
-                "1. Controles en la Fuente (Prioridad 1 - Res. 2400/79): Reemplazo de discos abrasivos por hojas diamantadas con núcleo fonoamortiguado. Mantenimiento riguroso del émbolo y camisas del martillo neumático con lubricación continua de línea. Encerramiento acústico tipo carrusel con material fonoabsorbente ignífugo para motor de mezcladora de trompo.",
-                "2. Controles en el Medio de Transmisión (Prioridad 2): Implementación de pantallas acústicas modulares móviles con lana mineral y chapa perforada entre el área de picado/corte y las cuadrillas adyacentes. Redistribución de máquinas en el área respetando la ley de divergencia esférica (atenuación de 6 dB por duplicación de distancia).",
-                "3. Controles Administrativos y Organizacionales (Prioridad 3): Rotación obligatoria de operadores en martillo y cortadora restringiendo la exposición continua al tiempo permisible calculado (Tperm < 30 minutos). Programación de tareas de alta emisión en horarios de menor concurrencia de personal.",
-                "4. Elementos de Protección Personal (EPP) con Derating GATISO-HNIR (Prioridad 4): Dotación obligatoria de protectores auditivos de inserción o copa certificados ANSI S3.19. Aplicar factor de atenuación real: NRR derateado al 50% para tapones (Atenuación real <= 12.5 dB) y al 70-75% para orejeras. Para exposiciones combinadas superiores a 100 dBA, exigir doble protección simultánea (tapón premoldeado + orejera de copa)."
+
+            let studentConclusions = studentObs;
+            if (!studentConclusions) {
+                studentConclusions = `En la práctica de laboratorio se analizaron ${pointsToReport.length} puntos de medición bajo modalidades de fuente individual y combinadas en el ${secName}. Se corroboró experimentalmente que la activación simultánea de fuentes incrementa la dosis ocupacional de acuerdo con el principio logarítmico de suma de potencias acústicas, superando en los focos críticos el Nivel de Acción de 80 dBA y el TLV de 85 dBA. Es imperativo adoptar el Programa de Conservación Auditiva (PCA) y aplicar controles jerárquicos según la Resolución 2400 de 1979 y la GATISO-HNIR.`;
+            }
+
+            const spObs = doc.splitTextToSize(studentConclusions, 182);
+            doc.setFillColor(248, 250, 252);
+            doc.rect(14, curY - 1, 182, (spObs.length * 3.4) + 4, 'F');
+            doc.setDrawColor(226, 232, 240);
+            doc.rect(14, curY - 1, 182, (spObs.length * 3.4) + 4, 'S');
+            doc.text(spObs, 17, curY + 2.5);
+            curY += (spObs.length * 3.4) + 8;
+
+            if (curY > 225) {
+                doc.addPage();
+                curY = 16;
+            }
+
+            // 5. PLAN TÉCNICO DE CONTROL
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.3);
+            doc.setTextColor(2, 132, 199);
+            doc.text("5. PLAN TÉCNICO DE CONTROL DEL RUIDO (JERARQUÍA LEGAL)", 14, curY);
+            curY += 3.8;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.0);
+            doc.setTextColor(51, 65, 85);
+            const controlsText = [
+                "1. Controles en la Fuente (Prioridad 1 - Res. 2400/79): Mantenimiento predictivo, balanceo de componentes rotativos, fonoamortiguación de tolvas y bancadas, silenciadores de escape y lubricación.",
+                "2. Controles en el Medio (Prioridad 2): Barreras acústicas modulares fonoabsorbentes con lana mineral y chapa microperforada, redistribución de puestos aprovechando la divergencia esférica (6 dB por duplicación de distancia).",
+                "3. Controles Administrativos (Prioridad 3): Rotación de trabajadores respetando el tiempo permisible (Tperm), demarcación de zonas de alto ruido y restricción de acceso.",
+                "4. Elementos de Protección Personal con Derating (Prioridad 4): Dotación de protectores certificados ANSI S3.19. Aplicar derating GATISO del 50% para tapones (Atenuación real <= 12.5 dB) y 70% para orejeras. Para niveles combinados > 100 dBA, exigir doble protección simultánea."
             ];
-            controls.forEach(c => {
-                const splitC = doc.splitTextToSize(c, 182);
-                doc.text(splitC, 14, curY);
-                curY += (splitC.length * 3.5) + 1.2;
+            controlsText.forEach(c => {
+                const spC = doc.splitTextToSize(c, 182);
+                doc.text(spC, 14, curY);
+                curY += (spC.length * 3.2) + 0.8;
             });
 
-            if (curY > 240) {
+            if (curY > 235) {
                 doc.addPage();
                 curY = 16;
             }
 
-            // 5. VIGILANCIA EPIDEMIOLÓGICA
-            curY += 2;
+            // 6. VIGILANCIA EPIDEMIOLÓGICA
+            curY += 1.5;
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8.5);
+            doc.setFontSize(8.3);
             doc.setTextColor(2, 132, 199);
-            doc.text("5. VIGILANCIA EPIDEMIOLÓGICA AUDITIVA (PVE-HNIR)", 14, curY);
-            curY += 4;
+            doc.text("6. VIGILANCIA EPIDEMIOLÓGICA AUDITIVA (GATISO-HNIR RECOMENDACIÓN 6.2)", 14, curY);
+            curY += 3.8;
 
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(7.2);
+            doc.setFontSize(7.0);
             doc.setTextColor(51, 65, 85);
-            const pveText = "Conforme a la Recomendación 6.2 de la GATISO-HNIR (Res. 2844 de 2007), todo trabajador asignado a puestos con LAeq >= 85 dBA o dosis >= 100% debe ser evaluado con audiometría tonal tamiz de vía aérea con periodicidad ANUAL. Para trabajadores en puestos con niveles entre 80.0 y 84.9 dBA (Nivel de Acción), la audiometría periódica debe realizarse cada DOS AÑOS (BIANUAL). Reposo auditivo previo de 16 horas sin exposición a ruido.";
-            const splitPve = doc.splitTextToSize(pveText, 182);
-            doc.text(splitPve, 14, curY);
-            curY += (splitPve.length * 3.5) + 6;
+            const pveText = "Para trabajadores expuestos a LAeq >= 85 dBA o dosis >= 100%, audiometría tonal tamiz de vía aérea con periodicidad ANUAL. Para niveles entre 80.0 y 84.9 dBA (Nivel de Acción), audiometría tamiz obligatoria cada DOS AÑOS (BIANUAL). Reposo auditivo previo de 16 horas sin exposición a ruido ocupacional o recreativo.";
+            const spPve = doc.splitTextToSize(pveText, 182);
+            doc.text(spPve, 14, curY);
+            curY += (spPve.length * 3.2) + 6;
 
-            if (curY > 250) {
+            if (curY > 248) {
                 doc.addPage();
                 curY = 20;
             }
 
-            // CUADRO DE FIRMAS
+            // 7. CUADRO DE FIRMAS
             doc.setDrawColor(148, 163, 184);
-            doc.line(20, curY + 14, 85, curY + 14);
-            doc.line(120, curY + 14, 185, curY + 14);
+            doc.line(20, curY + 12, 85, curY + 12);
+            doc.line(120, curY + 12, 185, curY + 12);
 
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(7.5);
             doc.setTextColor(15, 23, 42);
-            doc.text(evaluator, 52.5, curY + 18, { align: 'center' });
+            doc.text(studentName, 52.5, curY + 16, { align: 'center' });
             doc.setFont('helvetica', 'normal');
-            doc.text(`Especialista en SST / Higiene Ocupacional\nLicencia: ${license}`, 52.5, curY + 22, { align: 'center' });
+            doc.setFontSize(6.8);
+            doc.text(`Estudiante Evaluador\nDoc: ${studentID} · ${subject}`, 52.5, curY + 20, { align: 'center' });
 
             doc.setFont('helvetica', 'bold');
-            doc.text("RESPONSABLE DEL SG-SST / EMPRESA", 152.5, curY + 18, { align: 'center' });
+            doc.setFontSize(7.5);
+            doc.text(teacher, 152.5, curY + 16, { align: 'center' });
             doc.setFont('helvetica', 'normal');
-            doc.text("Firma y Sello de Recibido\nConsorcio Evaluado", 152.5, curY + 22, { align: 'center' });
+            doc.setFontSize(6.8);
+            doc.text(`Docente Evaluador SG-SST\nCorporación Tecnológica del Oriente`, 152.5, curY + 20, { align: 'center' });
 
-            // Pie de página en todas las páginas
+            // PIE DE PÁGINA EN TODAS LAS HOJAS
             const pageCount = doc.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
                 doc.setFont('helvetica', 'italic');
                 doc.setFontSize(6.5);
                 doc.setTextColor(148, 163, 184);
-                doc.text(`Página ${i} de ${pageCount} · Documento Oficial de Soporte Higiénico conforme a Res. 2844/07 GATISO-HNIR y Res. 1792/90`, 105, 290, { align: 'center' });
+                doc.text(`Página ${i} de ${pageCount} · Informe Oficial de Laboratorio - Corporación Tecnológica del Oriente · Estudiante: ${studentName}`, 105, 290, { align: 'center' });
             }
 
-            doc.save('Informe_Higienico_Ruido_Res2844_SectorA.pdf');
+            const cleanFileName = `Informe_Laboratorio_Ruido_${studentName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            doc.save(cleanFileName);
 
             const modal = document.getElementById('reportPreviewModal');
             if (modal) modal.style.display = 'none';
+
+            // Preguntar si desea reiniciar la memoria interna tras finalizar el laboratorio
+            setTimeout(() => {
+                const wantReset = confirm(`🎉 ¡Informe Oficial descargado con éxito!\n\nArchivo guardado: ${cleanFileName}\n\n¿Desea borrar la memoria interna ahora para realizar otra simulación con un nuevo estudiante o sector?`);
+                if (wantReset) {
+                    evaluatedPoints = [];
+                    leqEnergySum = 0;
+                    leqSamples = 0;
+                    lpeak = 40.0;
+                    lmax = 40.0;
+                    lmin = 140.0;
+                    renderPointsTable();
+                    renderMeasuredPointPins();
+                    updateMemoryCounterUI();
+                    alert("🔄 Memoria interna reiniciada. El simulador está listo para una nueva práctica.");
+                }
+            }, 800);
         }
 
         // ==========================================
@@ -6343,9 +7162,13 @@
         const btnAllOnEl = document.getElementById('btnAllSourcesOn');
         if (btnAllOnEl) {
             btnAllOnEl.addEventListener('click', () => {
-                SECTORS['A'].machines.forEach(m => activeOverviewSources.add(m.id));
+                const sec = SECTORS[currentSector];
+                if (sec && sec.machines) {
+                    sec.machines.forEach(m => activeOverviewSources.add(m.id));
+                }
                 renderOverviewMachineBeacons();
                 renderMultiSourceChips();
+                updateOverviewAcousticGains();
                 playCurrentAudio();
             });
         }
@@ -6356,8 +7179,36 @@
                 activeOverviewSources.clear();
                 renderOverviewMachineBeacons();
                 renderMultiSourceChips();
+                updateOverviewAcousticGains();
                 playCurrentAudio();
             });
+        }
+
+        // Botón Registrar Medición en Memoria Interna
+        const btnSaveOverviewEl = document.getElementById('btnSaveOverviewMeasurement');
+        if (btnSaveOverviewEl) {
+            btnSaveOverviewEl.addEventListener('click', saveCurrentMeasurementToMemory);
+        }
+
+        // Botón Finalizar Laboratorio desde barra de plano general
+        const btnFinishOverviewEl = document.getElementById('btnFinishOverviewReport');
+        if (btnFinishOverviewEl) {
+            btnFinishOverviewEl.addEventListener('click', () => {
+                renderPointsTable();
+                const m = document.getElementById('reportPreviewModal');
+                if (m) m.style.display = 'flex';
+            });
+        }
+
+        // Botones de Reinicio de Memoria Interna
+        const btnResetTopEl = document.getElementById('btnResetMemoryTop');
+        if (btnResetTopEl) {
+            btnResetTopEl.addEventListener('click', resetSimulationAndMemory);
+        }
+
+        const btnResetModalEl = document.getElementById('btnResetMemoryModal');
+        if (btnResetModalEl) {
+            btnResetModalEl.addEventListener('click', resetSimulationAndMemory);
         }
 
         // Protocolo de Medición
@@ -6373,11 +7224,7 @@
 
         const btnClearPtsEl = document.getElementById('btnClearPoints');
         if (btnClearPtsEl) {
-            btnClearPtsEl.addEventListener('click', () => {
-                evaluatedPoints = [];
-                renderPointsTable();
-                renderMeasuredPointPins();
-            });
+            btnClearPtsEl.addEventListener('click', resetSimulationAndMemory);
         }
 
         // Generación y previsualización de Informe PDF
@@ -6401,7 +7248,11 @@
 
         const btnDownloadRepEl = document.getElementById('btnDownloadReportPdf');
         if (btnDownloadRepEl) {
-            btnDownloadRepEl.addEventListener('click', generateHygieneReportPDF);
+            btnDownloadRepEl.addEventListener('click', () => {
+                renderPointsTable();
+                const m = document.getElementById('reportPreviewModal');
+                if (m) m.style.display = 'flex';
+            });
         }
 
         const btnExecRepEl = document.getElementById('btnExecutePdfDownload');
@@ -6440,6 +7291,7 @@
             initSonometerMapEvents();
             renderPointsTable();
             renderMeasuredPointPins();
+            updateMemoryCounterUI();
             requestAnimationFrame(acousticLoop);
         });
     </script>
