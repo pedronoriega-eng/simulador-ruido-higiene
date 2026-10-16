@@ -1554,7 +1554,8 @@
             opacity: 1;
         }
 
-        .machine-anim-clip img {
+        .machine-anim-clip img,
+        .machine-anim-clip picture {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -2248,21 +2249,36 @@
                             <!-- Capa base estática (Frame 0 sin movimiento cuando las máquinas están apagadas) -->
                             <img id="overviewBgImg" src="assets/machines/sector_a_construccion_static.jpg" alt="Composición General Sector A" class="overview-bg-photo static-layer">
 
-                            <!-- Capas de movimiento individual animadas (Sector A Construcción_1.gif con clip-path por fuente) -->
-                            <div id="animLayer_cortadora_disco" class="machine-anim-clip" style="clip-path: polygon(15% 48%, 46% 48%, 46% 98%, 15% 98%);">
-                                <img src="assets/machines/sector_a_construccion_1.gif" alt="Cortadora en Movimiento" class="overview-bg-photo">
+                            <!-- Capas de movimiento individual animadas de alta definición (con clip-path estrictamente aislado por fuente) -->
+                            <div id="animLayer_cortadora_disco" class="machine-anim-clip" style="clip-path: polygon(6% 56%, 25% 56%, 25% 92%, 6% 92%);">
+                                <picture>
+                                    <source srcset="assets/machines/anim_cortadora_disco.webp" type="image/webp">
+                                    <img src="assets/machines/anim_cortadora_disco.gif" alt="Cortadora de Disco en Movimiento" class="overview-bg-photo">
+                                </picture>
                             </div>
-                            <div id="animLayer_martillo_neumatico" class="machine-anim-clip" style="clip-path: polygon(52% 46%, 74% 46%, 74% 98%, 52% 98%);">
-                                <img src="assets/machines/sector_a_construccion_1.gif" alt="Martillo en Movimiento" class="overview-bg-photo">
+                            <div id="animLayer_martillo_neumatico" class="machine-anim-clip" style="clip-path: polygon(77% 56%, 99% 56%, 99% 92%, 77% 92%);">
+                                <picture>
+                                    <source srcset="assets/machines/anim_martillo_neumatico.webp" type="image/webp">
+                                    <img src="assets/machines/anim_martillo_neumatico.gif" alt="Martillo Neumático en Movimiento" class="overview-bg-photo">
+                                </picture>
                             </div>
-                            <div id="animLayer_mezcladora_trompo" class="machine-anim-clip" style="clip-path: polygon(26% 28%, 54% 28%, 54% 65%, 26% 65%);">
-                                <img src="assets/machines/sector_a_construccion_1.gif" alt="Mezcladora en Movimiento" class="overview-bg-photo">
+                            <div id="animLayer_mezcladora_trompo" class="machine-anim-clip" style="clip-path: polygon(28% 22%, 44% 22%, 44% 45%, 28% 45%);">
+                                <picture>
+                                    <source srcset="assets/machines/anim_mezcladora_trompo.webp" type="image/webp">
+                                    <img src="assets/machines/anim_mezcladora_trompo.gif" alt="Mezcladora Trompo en Movimiento" class="overview-bg-photo">
+                                </picture>
                             </div>
-                            <div id="animLayer_retroexcavadora" class="machine-anim-clip" style="clip-path: polygon(25% 0%, 76% 0%, 76% 46%, 25% 46%);">
-                                <img src="assets/machines/sector_a_construccion_1.gif" alt="Retroexcavadora en Movimiento" class="overview-bg-photo">
+                            <div id="animLayer_retroexcavadora" class="machine-anim-clip" style="clip-path: polygon(44% 1%, 68% 1%, 68% 24%, 44% 24%);">
+                                <picture>
+                                    <source srcset="assets/machines/anim_retroexcavadora.webp" type="image/webp">
+                                    <img src="assets/machines/anim_retroexcavadora.gif" alt="Retroexcavadora en Movimiento" class="overview-bg-photo">
+                                </picture>
                             </div>
-                            <div id="animLayer_vibrocompactador" class="machine-anim-clip" style="clip-path: polygon(60% 15%, 98% 15%, 98% 66%, 60% 66%);">
-                                <img src="assets/machines/sector_a_construccion_1.gif" alt="Vibrocompactador en Movimiento" class="overview-bg-photo">
+                            <div id="animLayer_vibrocompactador" class="machine-anim-clip" style="clip-path: polygon(83% 14%, 99% 14%, 99% 37%, 83% 37%);">
+                                <picture>
+                                    <source srcset="assets/machines/anim_vibrocompactador.webp" type="image/webp">
+                                    <img src="assets/machines/anim_vibrocompactador.gif" alt="Vibrocompactador en Movimiento" class="overview-bg-photo">
+                                </picture>
                             </div>
 
                             <!-- Canvas 2D para Ondas Acústicas y Cinta Métrica -->
@@ -2902,7 +2918,7 @@
         const SECTORS = {
             'A': {
                 name: "Construcción de Infraestructura y Obras Civiles",
-                overviewPhoto: 'assets/machines/sector_a_construccion_1.gif',
+                overviewPhoto: 'assets/machines/sector_a_construccion_overview.jpg',
                 overviewStaticPhoto: 'assets/machines/sector_a_construccion_static.jpg',
                 dimensions: { width: 45.0, depth: 32.0, area: 1440 },
                 machines: [
@@ -2917,7 +2933,7 @@
                         synth: 'saw', 
                         photo: 'assets/machines/cortadora_disco_concreto.jpg', 
                         photoTag: 'MOTOR 2T · 4200 RPM · DISCO DIAMANTADO',
-                        coords: { x: 35, y: 74 }
+                        coords: { x: 17.4, y: 75.0 }
                     },
                     { 
                         id: 'martillo_neumatico', 
@@ -2930,7 +2946,7 @@
                         synth: 'hammer', 
                         photo: 'assets/machines/martillo_neumatico.jpg', 
                         photoTag: 'HEAVY BREAKER 26Hz 125dBC',
-                        coords: { x: 61, y: 78 }
+                        coords: { x: 85.8, y: 74.9 }
                     },
                     { 
                         id: 'mezcladora_trompo', 
@@ -2943,7 +2959,7 @@
                         synth: 'mixer', 
                         photo: 'assets/machines/mezcladora_trompo.jpg', 
                         photoTag: 'CONCRETE DRUM MIXER 1BBL',
-                        coords: { x: 42, y: 44 }
+                        coords: { x: 35.6, y: 33.2 }
                     },
                     { 
                         id: 'retroexcavadora', 
@@ -2956,7 +2972,7 @@
                         synth: 'diesel', 
                         photo: 'assets/machines/retroexcavadora_orugas.jpg', 
                         photoTag: 'CRAWLER EXCAVATOR 6-CYL',
-                        coords: { x: 58, y: 20 }
+                        coords: { x: 56.0, y: 12.4 }
                     },
                     { 
                         id: 'vibrocompactador', 
@@ -2969,7 +2985,7 @@
                         synth: 'roller', 
                         photo: 'assets/machines/vibrocompactador_pata_cabra.jpg', 
                         photoTag: 'PADFOOT COMPACTOR 30Hz',
-                        coords: { x: 82, y: 44 }
+                        coords: { x: 91.2, y: 25.4 }
                     }
                 ]
             },
@@ -5466,12 +5482,51 @@
                             const alpha = (1 - prog) * 0.35;
                             overviewCtx.strokeStyle = m.type === 'impacto' ? `rgba(248, 113, 113, ${alpha})` : m.type === 'intermitente' ? `rgba(251, 191, 36, ${alpha})` : `rgba(56, 189, 248, ${alpha})`;
                             overviewCtx.lineWidth = 2.0;
-                            overviewCtx.beginPath();
-                            overviewCtx.arc(mx, my, rad, 0, Math.PI * 2);
                             overviewCtx.stroke();
                         }
 
-                        // El sonido se calcula en tiempo real para el sonómetro derecho sin trazos invasivos en la escena
+                        // Micro-efectos físicos cinéticos localizados en tiempo real por máquina
+                        if (m.id === 'cortadora_disco') {
+                            const cutX = mx + 12;
+                            const cutY = my + 14;
+                            overviewCtx.fillStyle = 'rgba(240, 240, 245, 0.45)';
+                            for (let p = 0; p < 6; p++) {
+                                const sprayProg = ((waveTime * 8 + p / 6) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(cutX + sprayProg * 25, cutY - sprayProg * 6 + Math.sin(sprayProg * 10) * 3, 1.2 + sprayProg * 2, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'martillo_neumatico') {
+                            const tipX = mx - 6;
+                            const tipY = my + 26;
+                            overviewCtx.fillStyle = 'rgba(235, 235, 240, 0.55)';
+                            for (let p = 0; p < 5; p++) {
+                                const burstProg = ((waveTime * 10 + p / 5) % 1);
+                                const angle = (p - 2) * 0.45;
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(tipX + Math.sin(angle) * burstProg * 18, tipY - Math.cos(angle) * burstProg * 10, 1.0 + burstProg * 2, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'vibrocompactador') {
+                            const strobePhase = (waveTime * 3.5) % 1.0;
+                            if (strobePhase < 0.25) {
+                                const glowAlpha = Math.sin((strobePhase / 0.25) * Math.PI) * 0.45;
+                                overviewCtx.fillStyle = `rgba(245, 158, 11, ${glowAlpha})`;
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(mx, my - 24, 10, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        } else if (m.id === 'retroexcavadora') {
+                            const exX = mx + 24;
+                            const exY = my - 16;
+                            overviewCtx.fillStyle = 'rgba(180, 180, 190, 0.22)';
+                            for (let p = 0; p < 4; p++) {
+                                const prog = ((waveTime * 2.0 + p / 4) % 1);
+                                overviewCtx.beginPath();
+                                overviewCtx.arc(exX + Math.sin(prog * 6) * 4 + prog * 6, exY - prog * 24, 2.0 + prog * 5, 0, Math.PI * 2);
+                                overviewCtx.fill();
+                            }
+                        }
                     }
                 });
             }

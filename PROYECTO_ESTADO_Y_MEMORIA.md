@@ -58,33 +58,33 @@ Aplicación web institucional de simulación acústica y metrológica en tiempo 
 4. **Vibrocompactador Pata de Cabra (`vibrocompactador_pata_cabra.jpg`):** Rodillo excéntrico a 30 Hz y pisado a 60 Hz. Coordenadas: `(86%, 46%)`.
 5. **Martillo Neumático Rompepavimentos (`martillo_neumatico.jpg`):** Percusión de 32 kg a 26 Hz y ráfagas a 6 bar. Coordenadas: `(86%, 74%)`.
 
-#### B. Plano General Dinámico (Sector A Construcción_1) y Movimiento por Máquina
-- **Escena Dinámica de Alta Fidelidad:**
-  - Se sustituyó la escena estática por `Sector A Construcción_1` (`assets/machines/sector_a_construccion_1.gif`, 640 × 360 px, formato panorámico 16:9).
-  - Capa base fija sin movimiento: `assets/machines/sector_a_construccion_static.jpg` (extraída del fotograma 0 exacto del GIF para evitar desfases o saltos de píxeles).
-- **Arquitectura de Movimiento Selectivo por Máquina (CSS `clip-path` Multicapa):**
-  - Para cumplir con la regla de que **solo la máquina encendida se mueve y al apagarse se detiene por completo**, se implementaron 5 capas de sobreposición animada con recorte geométrico poligonal (`clip-path: polygon(...)`) independiente:
-    1. *Cortadora de Disco:* Capa recortada `polygon(15% 48%, 46% 48%, 46% 98%, 15% 98%)`.
-    2. *Martillo Neumático:* Capa recortada `polygon(52% 46%, 74% 46%, 74% 98%, 52% 98%)`.
-    3. *Mezcladora Trompo:* Capa recortada `polygon(26% 28%, 54% 28%, 54% 65%, 26% 65%)`.
-    4. *Retroexcavadora:* Capa recortada `polygon(25% 0%, 76% 0%, 76% 46%, 25% 46%)`.
-    5. *Vibrocompactador:* Capa recortada `polygon(60% 15%, 98% 15%, 98% 66%, 60% 66%)`.
-  - Función controladora `updateMachineAnimationLayers()`: activa (`opacity: 1`) o detiene/oculta (`opacity: 0`) la capa animada de cada máquina en estricta sincronización con su estado sonoro (`activeOverviewSources.has(m.id)` y `!isAudioMuted`).
-  - Si una máquina se apaga, su capa animada se oculta y queda visible únicamente la máquina estática en su posición de reposo.
-- **Sin Elementos Obstructivos:** Se eliminaron las cajas de texto y las barras superpuestas de cotas sobre la imagen, dejando despejadas al 100% las máquinas.
-- **Solo Botones de Bocinas:**
-  - Cada máquina tiene únicamente un botón circular interactivo de bocina (`🔊` activo naranja con onda acústica / `🔇` inactivo blanco).
-  - Al hacer clic se activa o desactiva la máquina al instante (activando o pausando el sonido y la animación de forma simultánea).
-  - Coordenadas ajustadas a la perspectiva del nuevo plano:
-    - Cortadora de disco: `(35%, 74%)`
-    - Martillo neumático: `(61%, 78%)`
-    - Mezcladora trompo: `(42%, 44%)`
-    - Retroexcavadora: `(58%, 20%)`
-    - Vibrocompactador: `(82%, 44%)`
+#### B. Plano General Dinámico (Sector A Construcción) con Separación Espacial Amplia y Aislamiento Cinético Estricto
+- **Escena Panorámica de Alta Definición y Máxima Nitidez (1376 × 768, 16:9):**
+  - Se sustituyó la escena anterior por una panorámica fotorrealista ultra-nítida (`assets/machines/sector_a_construccion_overview.jpg` y `sector_a_construccion_static.jpg`, calidad 96%).
+  - **Distribución Espacial con Zonas de Seguridad Amplias (Cero Colisión / Cero Solapamiento):**
+    1. *Cortadora de Disco:* Losa inferior izquierda (`x: 6% - 25%`, `y: 56% - 92%`).
+    2. *Mezcladora Trompo:* Patio central-izquierdo de tierra (`x: 28% - 44%`, `y: 22% - 45%`), con más de 18% de distancia libre vertical hacia el operario de corte.
+    3. *Retroexcavadora:* Foso superior central (`x: 44% - 68%`, `y: 1% - 24%`), completamente aislada en el talud de excavación.
+    4. *Vibrocompactador:* Calzada superior derecha (`x: 83% - 99%`, `y: 14% - 37%`), en carril de compactación independiente.
+    5. *Martillo Neumático:* Losa inferior derecha (`x: 77% - 99%`, `y: 56% - 92%`), con más de 25% de distancia vertical hacia el rodillo y 52% de distancia transversal hacia la cortadora.
+- **Arquitectura Cinética Aislada (5 Animaciones Dedicadas en WebP + Fallback GIF):**
+  - Cada máquina cuenta con su propio archivo de animación en loop (`anim_cortadora_disco.webp/.gif`, `anim_martillo_neumatico.webp/.gif`, `anim_mezcladora_trompo.webp/.gif`, `anim_retroexcavadora.webp/.gif`, `anim_vibrocompactador.webp/.gif`) y su capa CSS `clip-path` estrictamente acotada a su cuadrante:
+    1. *Cortadora:* `polygon(6% 56%, 25% 56%, 25% 92%, 6% 92%)`. Muestra rotación de disco, niebla de corte por refrigeración, micro-vibración del operario y chispas.
+    2. *Mezcladora:* `polygon(28% 22%, 44% 22%, 44% 45%, 28% 45%)`. Muestra rotación continua de 360° del tambor, cascada interna de áridos y pulso de motor.
+    3. *Retroexcavadora:* `polygon(44% 1%, 68% 1%, 68% 24%, 44% 24%)`. Muestra articulación hidráulica del aguilón, pluma de escape diésel y vibración de orugas.
+    4. *Vibrocompactador:* `polygon(83% 14%, 99% 14%, 99% 37%, 83% 37%)`. Muestra oscilación excéntrica del tambor pata de cabra y destello estroboscópico ámbar en el techo.
+    5. *Martillo:* `polygon(77% 56%, 99% 56%, 99% 92%, 77% 92%)`. Muestra carrera percusiva vertical de 26 Hz, estallido de polvo/esquirlas de concreto y absorción de impacto del operario.
+  - **Regla Estricta Cumplida (0.00% Movimiento Espurio):** Al activar una fuente, ÚNICAMENTE esa máquina entra en movimiento. Las restantes 4 fuentes permanecen 100% inmóviles, congeladas en el fondo estático de alta resolución.
+- **Micro-Efectos Físicos en Tiempo Real a 60 FPS (`overviewCanvas`):**
+  - Trazado dinámico de partículas de corte (aserrado/agua), esquirlas de demolición de pavimento, estroboscópico de advertencia y pluma de escape sincronizados con `activeOverviewSources`.
+- **Botones de Bocinas Interactivos (`🔊`/`🔇`):**
+  - Cortadora de disco: `(17.4%, 75.0%)`
+  - Martillo neumático: `(85.8%, 74.9%)`
+  - Mezcladora trompo: `(35.6%, 33.2%)`
+  - Retroexcavadora: `(56.0%, 12.4%)`
+  - Vibrocompactador: `(91.2%, 25.4%)`
 - **Mini Mini Sonómetro Móvil Arrastrable:**
-  - Réplica en miniatura del sonómetro integrador con cápsula de micrófono, capuchón antiviento y cuerpo instrumental.
-  - Pantalla LCD digital mini que muestra el nivel en dBA en tiempo real sincronizado a 60 FPS con el sonómetro principal.
-  - Arrastrable libremente por todo el plano para acercarlo o alejarlo de las fuentes sonoras y verificar la divergencia acústica.
+  - Réplica en miniatura del sonómetro integrador con display LCD digital en tiempo real a 60 FPS, arrastrable libremente por el plano panorámico.
 - **Cotas en Barra Inferior:**
   - `↔ Ancho: 45.0 m · ↕ Largo: 32.0 m · Escala: 1 cm = 5 m`
 - **Herramienta Cinta Métrica:** Mide distancias en metros y calcula la atenuación acústica teórica en campo libre ($\Delta L = 20\log_{10}(d)$).
