@@ -12,7 +12,7 @@
 ### 1. Resumen Ejecutivo del Proyecto
 Aplicación web institucional de simulación acústica y metrológica en tiempo real para Higiene Industrial y Seguridad y Salud en el Trabajo (SST), desarrollada con arquitectura puramente nativa (**HTML5 + Vanilla JavaScript + Web Audio API + Canvas 2D a 60 FPS**), sin dependencias externas pesadas. Diseñada con la identidad visual oficial institucional sobre **base blanca**, acceso académico restringido por contraseña (`CETO2026`), ausencia total de marcas comerciales de fabricantes, exportación autónoma de informes técnicos oficiales en PDF (**jsPDF + autoTable**) con soporte offline local, y despliegue en GitHub Pages.
 
-La versión actual integra **Plano General Panorámico Fotorrealista para los 5 Sectores Económicos**, con **animación cinético-acústica aislada por fuente en Canvas 2D**, **memoria interna acumulativa para mediciones individuales y combinadas**, y un módulo de **Identificación del Estudiante Evaluador** para la emisión oficial del informe de laboratorio.
+La versión actual integra **Arquitectura de Animación Cinética Fidedigna y Reactiva al Audio** tanto en **Primer Plano (Single Machine View)** como en **Plano General Panorámico (Overview Mode)** para los 5 Sectores Económicos, **Síntesis Procedural de Voces Humanas con Formantes Vocálicos F1/F2 para Call Center**, **Telemetría Láser Sutil de Distancia ISO 9612**, **Memoria Interna Acumulativa para mediciones individuales y combinadas**, y módulo de **Identificación del Estudiante Evaluador** para la emisión oficial de informes periciales en PDF.
 
 ---
 
@@ -112,7 +112,51 @@ Cada sector cuenta con su propio **Plano General Panorámico 16:9 de Ultra-Alta 
 
 ---
 
-### 5. Memoria Interna de Mediciones y Reporte Académico Oficial
+---
+
+### 5. Arquitectura de Animación Cinética Reactiva al Audio (Primer Plano y Plano General)
+
+Para responder a la directriz técnica de que **las máquinas y las personas deben verse en movimiento y animarse de manera real al activar el audio**, y detenerse inmediatamente al apagar o silenciar el sonido, se implementó una arquitectura híbrida de alta fidelidad:
+
+1. **Animación en Primer Plano (Vista Detallada de Máquina / Trabajador):**
+   - **Oficina Abierta Call Center (`call_center_animated.webp`):**
+     - **Articulación Fono-Articular Realista:** Modelado dinámico de visemas donde los labios, la mandíbula inferior y la cavidad bucal se mueven a cadencia de habla humana real (3 sílabas por ciclo, apertura de labios y visualización de dientes).
+     - **Gesticulación Natural:** Balanceo y cabeceo suave de la teleoperadora mientras conversa por la diadema telefónica.
+     - **Diadema Telefónica con LED de Transmisión Activa:** Indicador luminoso verde (`#10b981`) pulsante en la cápsula del micrófono al transmitir audio.
+     - **Digitación en Teclado:** Movimiento biomecánico de las manos digitando rápidamente en el teclado ergonómico.
+     - **Operadores en Segundo Plano:** Teleoperadores en cubículos adyacentes gesticulando y hablando con sus clientes.
+     - **Pantalla CRM:** Cursor parpadeante y refresco dinámico de datos.
+   - **Cortadora de Disco para Concreto (`cortadora_disco_animated.webp`):**
+     - Giro a ultra-alta velocidad (4.200 RPM) del disco diamantado con desenfoque radial de movimiento.
+     - Fricción abrasiva con chispas incandescentes saliendo de la hendidura de corte.
+     - Pulverización continua de agua de refrigeración y suspensión de lodo (*slurry*).
+     - Vibración mecánica intensa del motor a 50 Hz en manos y brazos del operario (HAV).
+   - **Martillo Neumático Rompepavimentos (`martillo_neumatico_animated.webp`):**
+     - Percusión vertical severa a 26 Hz con carrera de 14 px.
+     - Fractura de losa de concreto con esquirlas, fragmentos y nube de polvo expandiéndose.
+     - Vibración de cuerpo entero y extremidades superiores en el trabajador con EPP.
+   - **Amoladora / Pulidora Angular Industrial (`pulidora_bosch_gws_animated.webp`):**
+     - Giro del disco abrasivo de 230 mm a 8.500 RPM.
+     - Cascada espectacular de chispas incandescentes blancas y anaranjadas sobre la viga de acero.
+     - Punto de contacto al rojo vivo.
+   - **Mezcladora Trompo con Volteo de Áridos (`mezcladora_trompo_animated.webp`):**
+     - Rotación continua del tambor basculante con volteo de cantos rodados, arena y cemento.
+   - **Vibrocompactador Pata de Cabra (`vibrocompactador_pata_cabra_animated.webp`):**
+     - Densificación sísmica del terreno a 30 Hz con vibración de suelo y cabina del operador.
+   - **Regla Estricta:** Al encender el sonómetro o audio (`isOperating = isPowered && !isAudioMuted`), la imagen conmuta automáticamente al WebP animado. Al apagar o mutear, vuelve inmediatamente a la fotografía estática de alta resolución con el estado `⚪ EN ESPERA · MOTOR DETENIDO`.
+
+2. **Animación en Plano General (Overview Multisectorial con `clip-path` Disjunto):**
+   - Para los 5 sectores se generaron composiciones panorámicas animadas continuas (`sector_a_construccion_animated.webp`, `sector_b_manufactura_animated.webp`, `sector_c_comercio_animated.webp`, `sector_d_mineria_animated.webp`, `sector_e_servicios_animated.webp`).
+   - Cada máquina en el plano cuenta con su propia capa superpuesta recortada mediante polígonos CSS `clip-path` estrictamente disjuntos.
+   - **Aislamiento Acústico-Cinético 100% Estricto:** La máquina en el plano general **únicamente se anima si su botón de bocina (`🔊`) está activado y el audio no está silenciado** (`.overview-machine-anim.is-active`).
+   - Si una máquina está apagada, su capa permanece con `opacity: 0`, mostrando la fotografía estática en reposo. Cero movimiento espurio o solapado.
+
+3. **Telemetría Láser Sutil Normalizada (ISO 9612):**
+   - En primer plano: haz colimado de 1.5 px con halo difuso tenue y punto láser pulsante sobre el foco acústico auditado, indicando la distancia al micrófono (`🔴 TELEMETRÍA LÁSER SONÓMETRO · d = 1.0 m`) en sincronía con el deslizador `#distSlider`.
+   - En el LCD del sonómetro Extech: tag de telemetría en tiempo real `🔴 LÁSER: X.X m`.
+   - En el plano general: haz láser dinámico proyectado desde la cápsula del mini sonómetro móvil hacia cada máquina activa con cálculo euclidiano métrico en tiempo real.
+
+### 6. Memoria Interna de Mediciones y Reporte Académico Oficial
 
 1. **Memoria Interna Acumulativa (`evaluatedPoints`):**
    - Almacena de forma persistente durante la sesión todas las mediciones realizadas por el estudiante.
