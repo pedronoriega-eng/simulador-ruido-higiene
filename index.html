@@ -1059,15 +1059,18 @@
         }
 
         .stage-viewport {
+            aspect-ratio: 16 / 9;
             width: 100%;
-            min-height: 440px;
-            height: clamp(440px, 48vh, 600px);
+            height: auto !important;
+            min-height: 380px;
+            max-height: 520px;
             position: relative;
-            background: radial-gradient(ellipse at 50% 20%, #172338 0%, #0b1019 60%, #05070c 100%);
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            margin: 0 auto;
         }
 
         /* Suelo industrial con demarcación de seguridad */
@@ -2563,33 +2566,21 @@
                 </div>
             </div>
 
-            <!-- CAPA 2: REJILLA DE 5 MÁQUINAS POR SECTOR -->
-            <div class="machines-strip" id="machinesStrip">
-                <!-- Inyectado por JS -->
-            </div>
         </section>
 
-        <!-- ESPACIO PRINCIPAL: ESCENARIO HIPERREALISTA + SONÓMETRO EXTECH 407780A -->
+        <!-- ESPACIO PRINCIPAL: PLANO GENERAL DEL SECTOR + SONÓMETRO EXTECH 407780A -->
         <div class="stage-workspace">
             
-            <!-- COLUMNA IZQUIERDA: ESCENARIO HIPERREALISTA DE LA MÁQUINA + VISORES CANVAS -->
+            <!-- COLUMNA IZQUIERDA: PLANO GENERAL DEL SECTOR + VISORES CANVAS -->
             <div class="stage-container">
                 
-                <!-- CAJA DEL ESCENARIO 3D INDUSTRIAL -->
+                <!-- CAJA DEL ESCENARIO INDUSTRIAL PLANO GENERAL -->
                 <div class="stage-box">
                     <div class="stage-header">
                         <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
                             <div class="stage-title">
-                                <span id="stageMachineName">Sector A: Obras Civiles y Construcción</span>
-                                <span class="stage-badge-hd" id="stageModeBadge">HD FOTORREALISTA</span>
-                            </div>
-                            <div style="display:flex; gap:0.35rem; align-items:center; margin-left:0.5rem;">
-                                <button class="btn-top active" id="btnModeSingle" title="Inspección fotorrealista de máquina individual">
-                                    🔍 Vista Detallada Máquina
-                                </button>
-                                <button class="btn-top" id="btnModeOverview" title="Plano acústico interactivo con composición de todas las máquinas del sector">
-                                    🗺️ Plano General del Sector
-                                </button>
+                                <span id="stageMachineName">Sector A: Construcción de Infraestructura · Plano General</span>
+                                <span class="stage-badge-hd" id="stageModeBadge">PLANO GENERAL (45.0m x 32.0m)</span>
                             </div>
                         </div>
                         <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
@@ -2605,27 +2596,10 @@
                         </div>
                     </div>
 
-                    <!-- VIEWPORT DEL TALLER / PLANO ACÚSTICO -->
-                    <div class="stage-viewport" id="stageViewport">
-                        <!-- MODO 1: SUELO Y MÁQUINA INDIVIDUAL -->
-                        <div class="stage-floor" id="stageFloor">
-                            <div class="stage-hazard-line"></div>
-                            <div class="stage-shadow"></div>
-                        </div>
-
-                        <!-- CAPA ILUSTRACIÓN O FOTOGRAFÍA INDIVIDUAL -->
-                        <div class="machine-svg-layer" id="machineSvgContainer">
-                            <!-- Inyectado dinámicamente según la máquina -->
-                        </div>
-
-                        <!-- CANVAS DE FÍSICA Y PARTÍCULAS (MODO INDIVIDUAL) -->
-                        <canvas id="fxCanvas" width="880" height="420"></canvas>
-
-                        <!-- BALIZAS DINÁMICAS ISO 9612 (MODO INDIVIDUAL) -->
-                        <div id="hotspotContainer" style="position:absolute; inset:0; pointer-events:none;"></div>
-
-                        <!-- MODO 2: PLANO GENERAL DEL SECTOR CON FOTOGRAFÍA PANORÁMICA LIMPIA Y MOVIMIENTO AISLADO -->
-                        <div class="sector-overview-layer" id="sectorOverviewContainer" style="display:none;">
+                    <!-- VIEWPORT DEL PLANO ACÚSTICO GENERAL -->
+                    <div class="stage-viewport overview-mode-active" id="stageViewport">
+                        <!-- PLANO GENERAL DEL SECTOR CON FOTOGRAFÍA PANORÁMICA LIMPIA Y MOVIMIENTO AISLADO -->
+                        <div class="sector-overview-layer" id="sectorOverviewContainer" style="display:flex;">
                             <!-- Fotografía base panorámica estática de alta resolución -->
                             <img id="overviewBgImg" src="assets/machines/sector_a_construccion_overview.jpg?v=approved_dist_2026_v4" alt="Plano General Multisectorial" class="overview-bg-photo static-layer">
 
@@ -2671,20 +2645,8 @@
                         </div>
                     </div>
 
-                    <!-- BARRA DE CONTROLES INFERIOR DEL ESCENARIO -->
-                    <div class="stage-controls-bar" id="singleMachineControls">
-                        <div style="display:flex; align-items:center; gap:0.75rem;">
-                            <span>Distancia a la Fuente Acústica: <strong id="distLabel" style="color:#38bdf8;">1.0 m</strong></span>
-                            <input type="range" id="distSlider" min="1.0" max="15.0" step="0.5" value="1.0" style="width:140px; cursor:pointer;">
-                            <span id="attLabel" style="color:var(--text-dim); font-size:0.72rem;">(-0.0 dB)</span>
-                        </div>
-                        <div id="selectedHotspotText" style="color:#f59e0b; font-weight:700;">
-                            Haga clic en una baliza para auditar el foco
-                        </div>
-                    </div>
-
-                    <!-- BARRA MULTI-FUENTE Y COTAS (ACTIVA EN MODO PLANO GENERAL) -->
-                    <div class="overview-multisource-bar" id="overviewControlsBar" style="display:none; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                    <!-- BARRA MULTI-FUENTE Y COTAS (ACTIVA EN EL PLANO GENERAL DEL SECTOR) -->
+                    <div class="overview-multisource-bar" id="overviewControlsBar" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
                         <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
                             <div class="overview-dim-tag" id="overviewDimTag" style="background:#f8fafc; border:1.5px solid var(--ceto-orange); padding:4px 12px; border-radius:8px; font-size:0.75rem; font-weight:800; color:#0f172a; display:flex; gap:0.6rem; align-items:center;">
                                 <span>↔ Ancho: <strong style="color:var(--ceto-orange);">45.0 m</strong></span>
@@ -3821,7 +3783,7 @@
         let isAudioMuted = false;
 
         // Modo de visualización: 'single' (inspección detallada de máquina) o 'overview' (plano general del sector)
-        let viewMode = 'single';
+        let viewMode = 'overview';
         const activeOverviewSources = new Set(['cortadora_disco', 'martillo_neumatico', 'mezcladora_trompo', 'retroexcavadora', 'vibrocompactador']);
         let sonometerPos = { xPct: 50, yPct: 65 }; // Posición inicial del sonómetro en el plano (45m x 32m)
         let isDraggingSonometer = false;
@@ -5172,6 +5134,7 @@
 
         function renderMachineIllustration() {
             const container = document.getElementById('machineSvgContainer');
+            if (!container) return;
             document.getElementById('stageMachineName').textContent = currentMachine.name;
             const id = currentMachine.id;
 
@@ -6493,6 +6456,7 @@
         // ==========================================
         function renderMachinesStrip() {
             const container = document.getElementById('machinesStrip');
+            if (!container) return;
             container.innerHTML = '';
             const sec = SECTORS[currentSector];
 
@@ -6538,30 +6502,28 @@
                 currentSector = tab.getAttribute('data-sec');
                 currentMachine = SECTORS[currentSector].machines[0];
 
-                renderMachinesStrip();
-                renderMachineIllustration();
+                const sec = SECTORS[currentSector];
+                const bgImg = document.getElementById('overviewBgImg');
+                if (bgImg && sec.overviewPhoto) {
+                    bgImg.src = sec.overviewPhoto;
+                }
+                const dim = sec.dimensions || { width: 45.0, depth: 32.0 };
+                const stageBadge = document.getElementById('stageModeBadge');
+                if (stageBadge) stageBadge.textContent = `PLANO GENERAL (${dim.width.toFixed(1)}m x ${dim.depth.toFixed(1)}m)`;
+                const stageTitle = document.getElementById('stageMachineName');
+                if (stageTitle) stageTitle.textContent = `${sec.name} · Plano General Multisectorial`;
 
-                if (viewMode === 'overview') {
-                    // Mantener vista de plano general con el sector seleccionado
-                    const sec = SECTORS[currentSector];
-                    const bgImg = document.getElementById('overviewBgImg');
-                    if (bgImg && sec.overviewPhoto) {
-                        bgImg.src = sec.overviewPhoto;
-                    }
-                    const stageBadge = document.getElementById('stageModeBadge');
-                    const dim = sec.dimensions || { width: 45.0, depth: 32.0 };
-                    if (stageBadge) stageBadge.textContent = `PLANO GENERAL (${dim.width}m x ${dim.depth}m)`;
-                    const stageTitle = document.getElementById('stageMachineName');
-                    if (stageTitle) stageTitle.textContent = `${sec.name} · Plano General Multisectorial`;
-
-                    // Actualizar las cotas, balizas con bocinas y chips del sector seleccionado
-                    updateOverviewDimensionsUI();
-                    renderOverviewMachineBeacons();
-                    renderMultiSourceChips();
-                    updateSonometerPinPosition();
-                    updateOverviewAcousticGains();
+                // Activar por defecto todas las máquinas del nuevo sector seleccionado
+                activeOverviewSources.clear();
+                if (sec && sec.machines) {
+                    sec.machines.forEach(m => activeOverviewSources.add(m.id));
                 }
 
+                updateOverviewDimensionsUI();
+                renderOverviewMachineBeacons();
+                renderMultiSourceChips();
+                updateSonometerPinPosition();
+                updateOverviewAcousticGains();
                 playCurrentAudio();
             });
         });
@@ -6837,9 +6799,32 @@
             document.querySelectorAll('.sector-tab').forEach(t => {
                 t.classList.toggle('active', t.getAttribute('data-sec') === p.sec);
             });
-            currentMachine = SECTORS[p.sec].machines.find(m => m.id === p.machId);
-            renderMachinesStrip();
-            renderMachineIllustration();
+            currentMachine = SECTORS[p.sec].machines.find(m => m.id === p.machId) || SECTORS[p.sec].machines[0];
+
+            const sec = SECTORS[currentSector];
+            const bgImg = document.getElementById('overviewBgImg');
+            if (bgImg && sec.overviewPhoto) {
+                bgImg.src = sec.overviewPhoto;
+            }
+            const dim = sec.dimensions || { width: 45.0, depth: 32.0 };
+            const stageBadge = document.getElementById('stageModeBadge');
+            if (stageBadge) stageBadge.textContent = `PLANO GENERAL (${dim.width.toFixed(1)}m x ${dim.depth.toFixed(1)}m)`;
+            const stageTitle = document.getElementById('stageMachineName');
+            if (stageTitle) stageTitle.textContent = `${sec.name} · ${currentMachine.name}`;
+
+            // Enfocar la máquina específica de la práctica en el plano
+            activeOverviewSources.clear();
+            activeOverviewSources.add(currentMachine.id);
+            if (currentMachine.coords) {
+                sonometerPos.xPct = currentMachine.coords.x;
+                sonometerPos.yPct = Math.min(88, currentMachine.coords.y + 12);
+            }
+
+            updateOverviewDimensionsUI();
+            renderOverviewMachineBeacons();
+            renderMultiSourceChips();
+            updateSonometerPinPosition();
+            updateOverviewAcousticGains();
 
             freqWeighting = p.setup.w; updateWeightingUI();
             timeWeighting = p.setup.s; updateSpeedUI();
@@ -7338,7 +7323,7 @@
         }
 
         function setStageViewMode(mode) {
-            viewMode = mode;
+            viewMode = 'overview';
             const btnSingle = document.getElementById('btnModeSingle');
             const btnOverview = document.getElementById('btnModeOverview');
             const floor = document.getElementById('stageFloor');
@@ -8540,8 +8525,19 @@
             overviewCanvas = document.getElementById('overviewCanvas');
             overviewCtx = overviewCanvas ? overviewCanvas.getContext('2d') : null;
 
-            renderMachinesStrip();
-            renderMachineIllustration();
+            const sec = SECTORS[currentSector];
+            const dim = (sec && sec.dimensions) || { width: 45.0, depth: 32.0 };
+            const stageBadge = document.getElementById('stageModeBadge');
+            if (stageBadge) stageBadge.textContent = `PLANO GENERAL (${dim.width.toFixed(1)}m x ${dim.depth.toFixed(1)}m)`;
+            const stageTitle = document.getElementById('stageMachineName');
+            if (stageTitle && sec) stageTitle.textContent = `${sec.name} · Plano General Multisectorial`;
+
+            updateOverviewDimensionsUI();
+            renderOverviewMachineBeacons();
+            renderMultiSourceChips();
+            updateSonometerPinPosition();
+            updateOverviewAcousticGains();
+
             updateWeightingUI();
             updateSpeedUI();
             initSonometerMapEvents();

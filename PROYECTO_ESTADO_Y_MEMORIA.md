@@ -1,7 +1,7 @@
 # 🧠 Memoria Técnica y Estado del Proyecto
 ## Simulador de Higiene Industrial y Ruido Ocupacional
 ### Laboratorio Virtual - SG-SST (Colombia)
-**Fecha de Actualización:** 16 de Octubre de 2026  
+**Fecha de Actualización:** 26 de Octubre de 2026  
 **Repositorio GitHub:** [https://github.com/pedronoriega-eng/simulador-ruido-higiene.git](https://github.com/pedronoriega-eng/simulador-ruido-higiene.git)  
 **Rama:** `main`  
 **Autor:** Pedro Noriega  
@@ -12,7 +12,7 @@
 ### 1. Resumen Ejecutivo del Proyecto
 Aplicación web institucional de simulación acústica y metrológica en tiempo real para Higiene Industrial y Seguridad y Salud en el Trabajo (SST), desarrollada con arquitectura puramente nativa (**HTML5 + Vanilla JavaScript + Web Audio API + Canvas 2D a 60 FPS**), sin dependencias externas pesadas. Diseñada con la identidad visual oficial institucional sobre **base blanca**, acceso académico restringido por contraseña (`CETO2026`), ausencia total de marcas comerciales de fabricantes, exportación autónoma de informes técnicos oficiales en PDF (**jsPDF + autoTable**) con soporte offline local, y despliegue en GitHub Pages.
 
-La versión actual integra **Arquitectura de Animación Cinética Fidedigna y Reactiva al Audio** tanto en **Primer Plano (Single Machine View)** como en **Plano General Panorámico (Overview Mode)** para los 5 Sectores Económicos, **Síntesis Procedural de Voces Humanas con Formantes Vocálicos F1/F2 para Call Center**, **Telemetría Láser Sutil de Distancia ISO 9612**, **Memoria Interna Acumulativa para mediciones individuales y combinadas**, y módulo de **Identificación del Estudiante Evaluador** para la emisión oficial de informes periciales en PDF.
+La versión actual consolida el **Plano General Panorámico (Overview Mode)** como la **vista única y exclusiva del laboratorio** para todas las actividades económicas (Sectores A, B, C, D y E), eliminando la sección de vista detallada individual y optimizando la ergonomía visual. En este espacio los estudiantes seleccionan e interactúan directamente con cada una de las 5 fuentes acústicas por sector mediante balizas con botones de bocina (`🔊`/`🔇`), barras de chips multi-fuente con cotas dimensionales métricas, animación cinético-acústica selectiva con recorte poligonal `clip-path`, mini sonómetro móvil arrastrable con telemetría láser en tiempo real (NTC-ISO 9612:2009), y registro persistente de puntos en la memoria técnica del laboratorio para la emisión oficial de informes periciales en PDF.
 
 ---
 
@@ -220,11 +220,10 @@ Simulador_Ruido/
 ### 7. Historial de Commits y Estado del Repositorio
 - **Rama:** `main`
 - **Commits Clave:**
-  - `feat`: Planos generales panorámicos 16:9 limpios para Sectores B, C, D y E con física aislada en Canvas 2D.
-  - `feat`: Memoria interna acumulativa para mediciones individuales y combinadas.
-  - `feat`: Módulo de datos del estudiante evaluador y reporte técnico oficial en PDF con firmas y reinicio.
-  - `2617e03`: Escena animada Sector A Construcción con sincronización cinético-acústica selectiva.
-  - `8556930`: Actualización de memoria técnica con tema blanco, plano despejado, mini sonómetro y logo único.
+  - `feat`: Unificación y exclusividad del Plano General del Sector para los 5 sectores económicos, eliminando la sección de vista detallada individual.
+  - `2c6d202`: Animación cinética fidedigna reactiva al audio en primer plano y plano general para los 5 sectores.
+  - `912f493`: Planos generales multisectoriales (B, C, D, E), memoria interna acumulativa y reporte de estudiante en PDF.
+  - `9ee94e7`: Restaurar imagen aprobada con máquinas separadas espacialmente, calibración exacta y cache buster v4.
   - `011cf17`: Identidad institucional Tecnológica del Oriente, acceso por contraseña CETO2026, eliminación marcas fabricantes.
 - **Estado de Trabajo:** Totalmente sincronizado con el repositorio remoto (`origin/main`). Árbol de trabajo limpio.
 
