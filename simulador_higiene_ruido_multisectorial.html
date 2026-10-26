@@ -7220,6 +7220,30 @@
                         const mx = (m.coords.x / 100) * w;
                         const my = (m.coords.y / 100) * h;
 
+                        // Guía visual elegante que conecta la bocina en espacio libre con la máquina en la foto
+                        const callout = (typeof MACHINE_BADGE_CALLOUTS !== 'undefined' && MACHINE_BADGE_CALLOUTS[m.id]) 
+                            ? MACHINE_BADGE_CALLOUTS[m.id] 
+                            : { x: m.coords.x, y: Math.max(8, m.coords.y - 14) };
+                        const bx = (callout.x / 100) * w;
+                        const by = (callout.y / 100) * h;
+
+                        overviewCtx.save();
+                        overviewCtx.strokeStyle = 'rgba(230, 120, 23, 0.4)';
+                        overviewCtx.lineWidth = 1.0;
+                        overviewCtx.setLineDash([3, 3]);
+                        overviewCtx.beginPath();
+                        overviewCtx.moveTo(bx, by);
+                        overviewCtx.lineTo(mx, my);
+                        overviewCtx.stroke();
+                        overviewCtx.setLineDash([]);
+
+                        // Micro punto focal limpio en la máquina (no tapa nada)
+                        overviewCtx.beginPath();
+                        overviewCtx.arc(mx, my, 2.5, 0, Math.PI * 2);
+                        overviewCtx.fillStyle = '#e67817';
+                        overviewCtx.fill();
+                        overviewCtx.restore();
+
                         // 1. Ondas acústicas concéntricas radiadas expansivamente por la bocina activa
                         for (let i = 0; i < 4; i++) {
                             const prog = ((waveTime * 0.85 + i / 4) % 1);
@@ -7749,6 +7773,46 @@
             }
         }
 
+        
+        // Coordenadas calibradas en ESPACIO TOTALMENTE VACÍO (cielo, muro, suelo libre)
+        // para que las bocinas NUNCA tapen a las máquinas ni a los trabajadores
+        const MACHINE_BADGE_CALLOUTS = {
+            // SECTOR A: CONSTRUCCIÓN
+            'cortadora_disco': { x: 7.0, y: 88.0 },
+            'martillo_neumatico': { x: 92.5, y: 62.0 },
+            'mezcladora_trompo': { x: 23.0, y: 32.0 },
+            'retroexcavadora': { x: 56.0, y: 4.5 },
+            'vibrocompactador': { x: 79.0, y: 19.0 },
+
+            // SECTOR B: MANUFACTURA
+            'prensa_excentrica_ep500': { x: 6.5, y: 88.0 },
+            'martinete_forja_industrial': { x: 24.5, y: 36.0 },
+            'pulidora_bosch_gws': { x: 41.5, y: 88.0 },
+            'compresor_kaeser_csdx165': { x: 66.0, y: 36.0 },
+            'ventilador_centrifugo_industrial': { x: 93.5, y: 82.0 },
+
+            // SECTOR C: COMERCIO Y OCIO
+            'karting_indoor': { x: 6.5, y: 88.0 },
+            'discoteca_subwoofers': { x: 20.0, y: 20.0 },
+            'restaurante_aforo': { x: 51.0, y: 78.0 },
+            'campana_extractora': { x: 75.0, y: 18.0 },
+            'bolera_bowling': { x: 94.0, y: 88.0 },
+
+            // SECTOR D: MINERÍA
+            'voladura_banco': { x: 18.0, y: 12.0 },
+            'jumbo_perforacion': { x: 36.0, y: 44.0 },
+            'trituradora_mandibulas': { x: 54.0, y: 14.0 },
+            'zaranda_vibratoria': { x: 64.0, y: 35.0 },
+            'dumper_minero': { x: 88.0, y: 92.0 },
+
+            // SECTOR E: SERVICIOS Y OFICINAS
+            'datacenter_servidores': { x: 7.0, y: 78.0 },
+            'call_center': { x: 20.0, y: 88.0 },
+            'plotter_imprenta': { x: 51.0, y: 28.0 },
+            'cafeteria_corporativa': { x: 66.5, y: 42.0 },
+            'despacho_avenida': { x: 89.0, y: 34.0 }
+        };
+
         function renderOverviewMachineBeacons() {
             renderOverviewAnimationClips();
             const layer = document.getElementById('overviewMachinesLayer');
@@ -7760,15 +7824,23 @@
 
             sec.machines.forEach(m => {
                 const isActive = activeOverviewSources.has(m.id);
-                const isTop = (m.coords.y < 22);
+                // Usar coordenadas en espacio totalmente despejado para que NUNCA tape la máquina
+                const callout = (typeof MACHINE_BADGE_CALLOUTS !== 'undefined' && MACHINE_BADGE_CALLOUTS[m.id]) 
+                    ? MACHINE_BADGE_CALLOUTS[m.id] 
+                    : { x: m.coords.x, y: Math.max(8, m.coords.y - 14) };
+
+                const isTop = (callout.y < 22);
+                const isLeft = (callout.x < 24);
+                const isRight = (callout.x > 76);
+
+                // 1. Baliza / Bocina ubicada en espacio 100% libre de obstrucción
                 const beacon = document.createElement('div');
-                const isLeft = (m.coords.x < 24);
-                const isRight = (m.coords.x > 76);
                 beacon.className = `machine-map-beacon ${isActive ? 'is-active' : 'is-off'} ${isTop ? 'float-down' : ''} ${isLeft ? 'align-left' : ''} ${isRight ? 'align-right' : ''}`;
-                beacon.style.left = m.coords.x + '%';
-                beacon.style.top = m.coords.y + '%';
+                beacon.style.left = callout.x + '%';
+                beacon.style.top = callout.y + '%';
                 beacon.setAttribute('role', 'button');
                 beacon.setAttribute('aria-label', `${m.name}: ${isActive ? 'Activa' : 'Silenciada'}`);
+                beacon.title = `${m.name} (${m.baseSpl} dBA) - Clic para ${isActive ? 'silenciar' : 'activar'}`;
 
                 beacon.innerHTML = `
                     <div class="beacon-speaker-capsule">
@@ -7783,7 +7855,21 @@
                     </div>
                 `;
 
-                beacon.addEventListener('click', (e) => {
+                // 2. Zona táctil interactiva invisible sobre la propia máquina (permite hacer clic sobre la foto directamente)
+                const machineHotspot = document.createElement('div');
+                machineHotspot.className = 'machine-focal-hotspot';
+                machineHotspot.style.position = 'absolute';
+                machineHotspot.style.left = m.coords.x + '%';
+                machineHotspot.style.top = m.coords.y + '%';
+                machineHotspot.style.transform = 'translate(-50%, -50%)';
+                machineHotspot.style.width = '44px';
+                machineHotspot.style.height = '44px';
+                machineHotspot.style.cursor = 'pointer';
+                machineHotspot.style.borderRadius = '50%';
+                machineHotspot.style.zIndex = '28';
+                machineHotspot.title = `${m.name} - Clic para ${isActive ? 'silenciar' : 'activar'}`;
+
+                function toggleSound(e) {
                     e.stopPropagation();
                     initAudio();
                     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
@@ -7796,9 +7882,13 @@
                     renderMultiSourceChips();
                     updateOverviewAcousticGains();
                     playCurrentAudio();
-                });
+                }
+
+                beacon.addEventListener('click', toggleSound);
+                machineHotspot.addEventListener('click', toggleSound);
 
                 layer.appendChild(beacon);
+                layer.appendChild(machineHotspot);
             });
         }
 
