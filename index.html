@@ -5551,6 +5551,7 @@
 
         function renderHotspotBeacons() {
             const container = document.getElementById('hotspotContainer');
+            if (!container) return;
             container.innerHTML = '';
             if (!showHotspots) return;
 
@@ -5580,7 +5581,7 @@
         // 8. FÍSICA Y PARTÍCULAS EN CANVAS 2D (60 FPS)
         // ==========================================
         const fxCanvas = document.getElementById('fxCanvas');
-        const fxCtx = fxCanvas.getContext('2d');
+        const fxCtx = fxCanvas ? fxCanvas.getContext('2d') : null;
         let fxTime = 0;
 
                 // =========================================================================
@@ -5661,6 +5662,7 @@
         }
 
         function updateAndDrawParticles(dt) {
+            if (!fxCanvas || !fxCtx) return;
             fxTime += dt;
             const w = fxCanvas.width;
             const h = fxCanvas.height;
@@ -6497,6 +6499,8 @@
         // Sector tabs
         document.querySelectorAll('.sector-tab').forEach(tab => {
             tab.addEventListener('click', () => {
+                initAudio();
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                 document.querySelectorAll('.sector-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentSector = tab.getAttribute('data-sec');
@@ -6641,20 +6645,25 @@
             }
         });
 
-        // Slider distancia
-        document.getElementById('distSlider').addEventListener('input', (e) => {
-            distanceMeters = parseFloat(e.target.value);
-            document.getElementById('distLabel').textContent = distanceMeters.toFixed(1) + ' m';
-            const att = 20 * Math.log10(distanceMeters);
-            document.getElementById('attLabel').textContent = `(-${att.toFixed(1)} dB)`;
-            const laserTag = document.getElementById('lcdLaserDistTag');
-            if (laserTag) {
-                laserTag.innerHTML = `<span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#ef4444; box-shadow:0 0 6px #ef4444; animation:laserBlink 1.2s infinite;"></span> LÁSER: ${distanceMeters.toFixed(1)} m`;
-            }
-            if (distanceGain && audioCtx) {
-                distanceGain.gain.setTargetAtTime(1.0 / distanceMeters, audioCtx.currentTime, 0.05);
-            }
-        });
+        // Slider distancia (si existe en DOM)
+        const distSliderEl = document.getElementById('distSlider');
+        if (distSliderEl) {
+            distSliderEl.addEventListener('input', (e) => {
+                distanceMeters = parseFloat(e.target.value);
+                const distLabelEl = document.getElementById('distLabel');
+                if (distLabelEl) distLabelEl.textContent = distanceMeters.toFixed(1) + ' m';
+                const att = 20 * Math.log10(distanceMeters);
+                const attLabelEl = document.getElementById('attLabel');
+                if (attLabelEl) attLabelEl.textContent = `(-${att.toFixed(1)} dB)`;
+                const laserTag = document.getElementById('lcdLaserDistTag');
+                if (laserTag) {
+                    laserTag.innerHTML = `<span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#ef4444; box-shadow:0 0 6px #ef4444; animation:laserBlink 1.2s infinite;"></span> LÁSER: ${distanceMeters.toFixed(1)} m`;
+                }
+                if (distanceGain && audioCtx) {
+                    distanceGain.gain.setTargetAtTime(1.0 / distanceMeters, audioCtx.currentTime, 0.05);
+                }
+            });
+        }
 
         // Tasa q (Res. 1792 q=5 vs ACGIH q=3)
         document.getElementById('btnToggleQ').addEventListener('click', () => {
@@ -7483,6 +7492,8 @@
 
                 beacon.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    initAudio();
+                    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                     if (activeOverviewSources.has(m.id)) {
                         activeOverviewSources.delete(m.id);
                     } else {
@@ -7512,6 +7523,8 @@
                 chip.className = `source-chip ${isActive ? 'active' : ''}`;
                 chip.innerHTML = `<span>${isActive ? '🔊' : '🔇'}</span> <span>${m.name}</span>`;
                 chip.addEventListener('click', () => {
+                    initAudio();
+                    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                     if (activeOverviewSources.has(m.id)) {
                         activeOverviewSources.delete(m.id);
                     } else {
@@ -8521,6 +8534,14 @@
         // 14. ARRANQUE DEL SIMULADOR
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
+            // Desbloquear audio en la primera interacción del usuario con cualquier parte de la página
+            const unlockAudioContext = () => {
+                initAudio();
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            };
+            window.addEventListener('click', unlockAudioContext, { once: true });
+            window.addEventListener('keydown', unlockAudioContext, { once: true });
+
             checkCetoAuth();
             overviewCanvas = document.getElementById('overviewCanvas');
             overviewCtx = overviewCanvas ? overviewCanvas.getContext('2d') : null;
