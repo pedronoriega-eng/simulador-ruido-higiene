@@ -276,3 +276,27 @@ Simulador_Ruido/
   - *Sector D (Minería y Canteras):* **94.3 dBA** ambiente (picos de voladura > 140 dBC).
   - *Sector E (Servicios y Oficinas):* **66.9 dBA** ambiente (Call Center a 63.5 dBA).
 
+---
+
+### 10. Optimización Visual Ergonómica: Balizas Acústicas Flotantes y Despliegue de Onda
+
+- **Problema Visual Identificado:**
+  1. *Obstrucción de la Escena Fotográfica:* Las balizas previas presentaban botones circulares opacos de 38px o barras de texto de 280px ubicadas directamente sobre las coordenadas de la maquinaria, cubriendo al operario, herramientas críticas (disco de corte, vástago del martillo, lingote en yunque) y mobiliario.
+  2. *Desfase y Truncamiento de Ondas en Canvas:* La etiqueta `<canvas id="overviewCanvas">` poseía dimensiones de atributo fijas `width="880" height="420"`, mientras que el contenedor responsivo 16:9 se renderizaba a `916px × 515px`. Ello causaba un desfase de 71px en los centros de emisión y truncaba las ondas en el fondo inferior.
+  3. *Encajonamiento Letterbox:* El uso de `max-height: 520px` y `object-fit: contain` provocaba franjas de encajonamiento en pantallas panorámicas.
+
+- **Solución de Diseño e Ingeniería Implementada:**
+  1. **Cápsula Glassmórfica Compacta (`.beacon-speaker-capsule`):**
+     - Botón translúcido ergonómico de solo 26px de altura y 68px de ancho total (`rgba(15, 23, 42, 0.82)` con desenfoque de fondo `backdrop-filter: blur(8px)` y borde naranja institucional `1.5px solid var(--ceto-orange)`).
+     - Exhibe únicamente el icono de bocina (`🔊`/`🔇`) y el nivel de presión sonora conciso (`104.5 dB`), reduciendo la ocupación visual en más de un 75% y dejando el 95% de la imagen fotográfica libre de cualquier interferencia.
+     - Animación perimetral de radiación pulsante (`beaconWavePulse`) concéntrica al icono emisor.
+  2. **Tooltip Flotante Inteligente (`.beacon-hover-tooltip`):**
+     - Muestra el nombre técnico completo, régimen temporal y estado de emisión únicamente al situar el cursor (hover), con direccionamiento dinámico anti-desbordamiento lateral (`.align-left`, `.align-right`) y vertical (`.float-down`).
+  3. **Canvas 2D Sincronizado Dinámicamente:**
+     - En `drawOverviewScene`, el ancho y alto del `<canvas>` se igualan en cada fotograma a `clientWidth` y `clientHeight` del contenedor panorámico (`916x515`), eliminando cualquier desfase entre el haz láser, las ondas acústicas y las balizas DOM.
+  4. **Expansión Omnidireccional de Ondas Acústicas:**
+     - Cuatro frentes de onda armónicos concéntricos con degradado físico cuadrático inverso, expandiéndose hasta un radio de `0.55 × min(w, h)` con codificación de color por tipo de fuente (rojo impacto, ámbar fluctuante, celeste continuo).
+  5. **Contenedor Panorámico Inmersivo:**
+     - `object-fit: cover` con ratio 16:9 y soporte de hasta 640px de altura en monitores de alta resolución sin barras negras ni deformación.
+
+

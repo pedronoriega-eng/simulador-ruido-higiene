@@ -1063,7 +1063,7 @@
             width: 100%;
             height: auto !important;
             min-height: 380px;
-            max-height: 520px;
+            max-height: 640px;
             position: relative;
             background: #ffffff;
             display: flex;
@@ -1071,6 +1071,8 @@
             justify-content: center;
             overflow: hidden;
             margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
 
         /* Suelo industrial con demarcación de seguridad */
@@ -1882,9 +1884,12 @@
             width: 100%;
             height: auto !important;
             min-height: 380px;
-            max-height: 520px;
+            max-height: 640px;
             margin: 0 auto;
             background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
 
         .sector-overview-layer {
@@ -1905,7 +1910,7 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             object-position: center center;
             user-select: none;
             pointer-events: none;
@@ -1941,83 +1946,184 @@
             object-position: center center;
         }
 
-        /* Balizas de Maquinaria en el Plano: SOLO BOCINAS */
+        /* Balizas de Maquinaria en el Plano: Bocinas Acústicas Compactas de Alta Fidelidad (Cero Obstrucción Visual) */
+        #overviewCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100% !important;
+            height: 100% !important;
+            pointer-events: none;
+            z-index: 12;
+        }
+
         .machine-map-beacon {
             position: absolute;
-            transform: translate(-50%, -50%);
             cursor: pointer;
-            z-index: 22;
+            z-index: 24;
             user-select: none;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s;
         }
 
         .machine-map-beacon:hover {
-            transform: translate(-50%, -50%) scale(1.18);
-            z-index: 30;
+            transform: translate(-50%, -50%) scale(1.12);
+            z-index: 40;
         }
 
-        .beacon-speaker-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
+        /* Cápsula compacta de la bocina: diseño micro-glassmorphism que NO tapa la imagen de la máquina */
+        .beacon-speaker-capsule {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            position: relative;
+            gap: 5px;
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1.5px solid var(--ceto-orange);
+            border-radius: 20px;
+            padding: 3px 8px 3px 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 10px rgba(230, 120, 23, 0.35);
+            color: #ffffff;
             transition: all 0.25s ease;
         }
 
-        .beacon-speaker-btn.active {
-            background: linear-gradient(135deg, #f97316 0%, #e67817 100%);
-            color: #ffffff;
-            border: 2.5px solid #ffffff;
-            box-shadow: 0 4px 16px rgba(230, 120, 23, 0.75), 0 2px 6px rgba(0,0,0,0.3);
-        }
-
-        .beacon-speaker-btn.inactive {
-            background: #ffffff;
-            color: #64748b;
-            border: 2px solid #cbd5e1;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            opacity: 0.95;
-        }
-
-        .speaker-ripple-ring {
-            position: absolute;
-            inset: -6px;
+        /* Icono de bocina emisor */
+        .beacon-speaker-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            border: 2px solid rgba(230, 120, 23, 0.7);
-            animation: speakerWavePing 1.8s infinite cubic-bezier(0, 0, 0.2, 1);
-            pointer-events: none;
+            background: rgba(230, 120, 23, 0.25);
+            font-size: 13px;
+            line-height: 1;
+            position: relative;
         }
 
-        @keyframes speakerWavePing {
-            0% { transform: scale(0.9); opacity: 0.9; }
-            100% { transform: scale(1.7); opacity: 0; }
-        }
-
-        .beacon-hover-tooltip {
-            display: none;
+        /* Ondas de emisión circundantes a la bocina activa */
+        .machine-map-beacon.is-active .beacon-speaker-icon::before {
+            content: '';
             position: absolute;
-            bottom: 44px;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1.5px solid var(--ceto-orange);
+            animation: beaconWavePulse 1.8s infinite ease-out;
+        }
+
+        @keyframes beaconWavePulse {
+            0% { transform: scale(0.7); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        /* Nivel SPL conciso */
+        .beacon-speaker-spl {
+            font-size: 0.72rem;
+            font-weight: 800;
+            font-family: monospace;
+            color: #fed7aa;
+            letter-spacing: 0.2px;
+        }
+
+        /* Estado apagado / silenciado: translúcido discreto para mínima interferencia visual */
+        .machine-map-beacon.is-off .beacon-speaker-capsule {
+            background: rgba(15, 23, 42, 0.45);
+            border-color: rgba(203, 213, 225, 0.4);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            opacity: 0.72;
+        }
+
+        .machine-map-beacon.is-off .beacon-speaker-icon {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        .machine-map-beacon.is-off .beacon-speaker-spl {
+            color: #94a3b8;
+        }
+
+        /* Tooltip flotante informativo que solo aparece al pasar el cursor (NO estorba la visual) */
+        .beacon-hover-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(230, 120, 23, 0.5);
+            border-radius: 8px;
+            padding: 6px 12px;
+            white-space: nowrap;
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 600;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+
+        .beacon-hover-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.95);
-            color: #ffffff;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 50;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
-            border: 1px solid var(--ceto-orange);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(15, 23, 42, 0.94);
         }
 
         .machine-map-beacon:hover .beacon-hover-tooltip {
-            display: block;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Ajuste horizontal de tooltips en bordes laterales para evitar recortes */
+        .machine-map-beacon.align-left .beacon-hover-tooltip {
+            left: 0;
+            transform: translateY(4px);
+        }
+        .machine-map-beacon.align-left:hover .beacon-hover-tooltip {
+            transform: translateY(0);
+        }
+        .machine-map-beacon.align-left .beacon-hover-tooltip::after {
+            left: 16px;
+            transform: none;
+        }
+
+        .machine-map-beacon.align-right .beacon-hover-tooltip {
+            left: auto;
+            right: 0;
+            transform: translateY(4px);
+        }
+        .machine-map-beacon.align-right:hover .beacon-hover-tooltip {
+            transform: translateY(0);
+        }
+        .machine-map-beacon.align-right .beacon-hover-tooltip::after {
+            left: auto;
+            right: 16px;
+            transform: none;
+        }
+
+        /* Inversión de tooltip hacia abajo para máquinas en la parte superior */
+        .machine-map-beacon.float-down .beacon-hover-tooltip {
+            bottom: auto;
+            top: calc(100% + 8px);
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        .machine-map-beacon.float-down .beacon-hover-tooltip::after {
+            top: auto;
+            bottom: 100%;
+            border-top: none;
+            border-bottom: 5px solid rgba(15, 23, 42, 0.94);
+        }
+
+        .machine-map-beacon.float-down:hover .beacon-hover-tooltip {
+            transform: translateX(-50%) translateY(0);
         }
 
         /* MINI MINI SONÓMETRO MÓVIL EN EL PLANO */
@@ -7028,10 +7134,13 @@
         let waveTime = 0;
         function drawOverviewScene(dt, instantSPL) {
             if (!overviewCtx || !overviewCanvas) return;
-            if (overviewCanvas.width !== overviewCanvas.clientWidth || overviewCanvas.height !== overviewCanvas.clientHeight) {
-                if (overviewCanvas.clientWidth > 0 && overviewCanvas.clientHeight > 0) {
-                    overviewCanvas.width = overviewCanvas.clientWidth;
-                    overviewCanvas.height = overviewCanvas.clientHeight;
+            const overviewCont = document.getElementById('sectorOverviewContainer');
+            if (overviewCont) {
+                const cw = overviewCont.clientWidth;
+                const ch = overviewCont.clientHeight;
+                if (cw > 0 && ch > 0 && (overviewCanvas.width !== cw || overviewCanvas.height !== ch)) {
+                    overviewCanvas.width = cw;
+                    overviewCanvas.height = ch;
                 }
             }
             waveTime += dt;
@@ -7111,19 +7220,19 @@
                         const mx = (m.coords.x / 100) * w;
                         const my = (m.coords.y / 100) * h;
 
-                        // 1. Ondas acústicas concéntricas radiadas por la máquina activa
-                        for (let i = 0; i < 3; i++) {
-                            const prog = ((waveTime * 0.95 + i / 3) % 1);
-                            const rad = Math.max(8, prog * Math.min(w, h) * 0.38);
-                            const alpha = (1 - prog) * 0.38;
+                        // 1. Ondas acústicas concéntricas radiadas expansivamente por la bocina activa
+                        for (let i = 0; i < 4; i++) {
+                            const prog = ((waveTime * 0.85 + i / 4) % 1);
+                            const rad = Math.max(12, prog * Math.min(w, h) * 0.55);
+                            const alpha = (1 - prog) * 0.42;
                             overviewCtx.beginPath();
                             overviewCtx.arc(mx, my, rad, 0, Math.PI * 2);
                             overviewCtx.strokeStyle = m.type === 'impacto' 
-                                ? `rgba(248, 113, 113, ${alpha})` 
+                                ? `rgba(239, 68, 68, ${alpha})` 
                                 : m.type === 'intermitente' 
-                                    ? `rgba(251, 191, 36, ${alpha})` 
+                                    ? `rgba(245, 158, 11, ${alpha})` 
                                     : `rgba(56, 189, 248, ${alpha})`;
-                            overviewCtx.lineWidth = 2.0;
+                            overviewCtx.lineWidth = 2.2 * (1 - prog * 0.45);
                             overviewCtx.stroke();
                         }
 
@@ -7651,18 +7760,27 @@
 
             sec.machines.forEach(m => {
                 const isActive = activeOverviewSources.has(m.id);
+                const isTop = (m.coords.y < 22);
                 const beacon = document.createElement('div');
-                beacon.className = `machine-map-beacon ${isActive ? 'is-active' : 'is-off'}`;
+                const isLeft = (m.coords.x < 24);
+                const isRight = (m.coords.x > 76);
+                beacon.className = `machine-map-beacon ${isActive ? 'is-active' : 'is-off'} ${isTop ? 'float-down' : ''} ${isLeft ? 'align-left' : ''} ${isRight ? 'align-right' : ''}`;
                 beacon.style.left = m.coords.x + '%';
                 beacon.style.top = m.coords.y + '%';
-                beacon.title = `${m.name} (${m.splRange}) - Clic para ${isActive ? 'APAGAR' : 'ACTIVAR'} ruido`;
+                beacon.setAttribute('role', 'button');
+                beacon.setAttribute('aria-label', `${m.name}: ${isActive ? 'Activa' : 'Silenciada'}`);
 
                 beacon.innerHTML = `
-                    <div class="beacon-speaker-btn ${isActive ? 'active' : 'inactive'}">
-                        <span class="speaker-icon">${isActive ? '🔊' : '🔇'}</span>
-                        ${isActive ? '<span class="speaker-ripple-ring"></span>' : ''}
+                    <div class="beacon-speaker-capsule">
+                        <span class="beacon-speaker-icon">${isActive ? '🔊' : '🔇'}</span>
+                        <span class="beacon-speaker-spl">${m.baseSpl} dB</span>
                     </div>
-                    <div class="beacon-hover-tooltip">${m.name} · ${isActive ? 'ACTIVA' : 'APAGADA'}</div>
+                    <div class="beacon-hover-tooltip">
+                        <div style="font-weight:700; color:#fed7aa; margin-bottom:2px;">${m.name}</div>
+                        <div style="font-size:0.68rem; color:#94a3b8;">
+                            ${m.type.toUpperCase()} • Nivel: ${m.baseSpl} dBA • ${isActive ? '🔊 Ruido ACTIVO (clic para silenciar)' : '🔇 SILENCIADA (clic para activar)'}
+                        </div>
+                    </div>
                 `;
 
                 beacon.addEventListener('click', (e) => {
