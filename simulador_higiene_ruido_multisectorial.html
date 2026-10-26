@@ -3959,11 +3959,22 @@
             analyser.fftSize = 2048;
             analyser.smoothingTimeConstant = 0.15;
 
+            // Compresor limitador de protección auditiva para el usuario:
+            // Permite al Analyser medir el rango dinámico científico 100% físico (30 a >140 dB),
+            // mientras protege los altavoces y oídos del usuario contra picos dolorosos.
+            const userLimiter = audioCtx.createDynamicsCompressor();
+            userLimiter.threshold.setValueAtTime(-14, audioCtx.currentTime);
+            userLimiter.knee.setValueAtTime(10, audioCtx.currentTime);
+            userLimiter.ratio.setValueAtTime(12, audioCtx.currentTime);
+            userLimiter.attack.setValueAtTime(0.002, audioCtx.currentTime);
+            userLimiter.release.setValueAtTime(0.18, audioCtx.currentTime);
+
             masterGain = audioCtx.createGain();
-            masterGain.gain.setValueAtTime(0.75, audioCtx.currentTime);
+            masterGain.gain.setValueAtTime(0.65, audioCtx.currentTime);
 
             distanceGain.connect(analyser);
-            analyser.connect(masterGain);
+            analyser.connect(userLimiter);
+            userLimiter.connect(masterGain);
             masterGain.connect(audioCtx.destination);
         }
 
@@ -3997,100 +4008,198 @@
         }
 
         // ==========================================
-        // 6. SÍNTESIS DE LAS MÁQUINAS
+        // 6. SÍNTESIS DE LAS MÁQUINAS Y CALIBRACIÓN ACÚSTICA
         // ==========================================
-        // 6.1 MÓDULOS DE SÍNTESIS PROCEDURAL WEB AUDIO (SECTOR A Y MULTISECTORIAL)
+        // Factores de normalización para que cada sintetizador produzca exactamente 85.0 dBA RMS a 1.0 m.
+        // La potencia real de cada fuente se modula según baseSpl y atenuación geométrica física 1/r.
+        const SYNTH_CALIBRATION = {
+            'saw': 1.0900,
+            'hammer': 0.3000,
+            'mixer': 1.3891,
+            'diesel': 0.6483,
+            'roller': 0.7897,
+            'punch': 1.1111,
+            'forging': 0.7008,
+            'grinder': 0.8384,
+            'compressor': 1.3643,
+            'blower': 1.1144,
+            'kart': 1.1125,
+            'club': 1.5964,
+            'lombard': 0.8845,
+            'hood': 0.9449,
+            'bowling': 1.0385,
+            'blast': 6.4972,
+            'jumbo': 0.8625,
+            'crusher': 0.5854,
+            'screen': 0.8995,
+            'truck': 1.1156,
+            'datacenter': 0.5140,
+            'callcenter': 1.0426,
+            'plotter': 1.0000,
+            'coffee': 0.9525,
+            'traffic': 1.0139
+        };
+
+        // 6.1 MÓDULOS DE SÍNTESIS PROCEDURAL WEB AUDIO DE ALTA FIDELIDAD
         function createSawSynth(outNode, t, gainMult = 1.0) {
-            // Cortadora de disco para concreto (STIHL TS / Husqvarna diamantada)
+            // Cortadora de disco para concreto diamantada (STIHL TS / Husqvarna)
+            // Motor 2T a combustión (142 Hz con armónicos cortantes)
             const engineOsc = audioCtx.createOscillator();
             engineOsc.type = 'sawtooth';
-            engineOsc.frequency.setValueAtTime(145, t);
+            engineOsc.frequency.setValueAtTime(142, t);
             const engineFilter = audioCtx.createBiquadFilter();
             engineFilter.type = 'lowpass';
-            engineFilter.frequency.setValueAtTime(1100, t);
+            engineFilter.frequency.setValueAtTime(850, t);
             const engineGain = audioCtx.createGain();
-            engineGain.gain.setValueAtTime(0.32 * gainMult, t);
+            engineGain.gain.setValueAtTime(0.30 * gainMult, t);
             engineOsc.connect(engineFilter);
             engineFilter.connect(engineGain);
             engineGain.connect(outNode);
             engineOsc.start(t);
             activeSynths.push(engineOsc);
 
-            // Chillido metálico de alta frecuencia del disco diamantado (4200 RPM -> 4200 Hz y 8400 Hz)
-            const bladeOsc = audioCtx.createOscillator();
-            bladeOsc.type = 'sine';
-            bladeOsc.frequency.setValueAtTime(4200, t);
-            const bladeGain = audioCtx.createGain();
-            bladeGain.gain.setValueAtTime(0.38 * gainMult, t);
-            bladeOsc.connect(bladeGain);
-            bladeGain.connect(outNode);
-            bladeOsc.start(t);
-            activeSynths.push(bladeOsc);
+            // Chillido agudo diamantado con modulación FM (3800 Hz modulado por el ciclo del motor 142 Hz)
+            const bladeMod = audioCtx.createOscillator();
+            bladeMod.type = 'sawtooth';
+            bladeMod.frequency.setValueAtTime(142, t);
+            const bladeModGain = audioCtx.createGain();
+            bladeModGain.gain.setValueAtTime(320, t);
+            bladeMod.connect(bladeModGain);
 
+            const bladeCarrier = audioCtx.createOscillator();
+            bladeCarrier.type = 'sine';
+            bladeCarrier.frequency.setValueAtTime(3800, t);
+            bladeModGain.connect(bladeCarrier.frequency);
+
+            const bladeFilt = audioCtx.createBiquadFilter();
+            bladeFilt.type = 'bandpass';
+            bladeFilt.frequency.setValueAtTime(3800, t);
+            bladeFilt.Q.setValueAtTime(3.5, t);
+            const bladeGain = audioCtx.createGain();
+            bladeGain.gain.setValueAtTime(0.35 * gainMult, t);
+
+            bladeCarrier.connect(bladeFilt);
+            bladeFilt.connect(bladeGain);
+            bladeGain.connect(outNode);
+            bladeMod.start(t);
+            bladeCarrier.start(t);
+            activeSynths.push(bladeMod, bladeCarrier);
+
+            // Armónico agudo del disco de acero
             const harmBlade = audioCtx.createOscillator();
             harmBlade.type = 'sine';
-            harmBlade.frequency.setValueAtTime(8400, t);
+            harmBlade.frequency.setValueAtTime(7600, t);
             const harmGain = audioCtx.createGain();
-            harmGain.gain.setValueAtTime(0.12 * gainMult, t);
+            harmGain.gain.setValueAtTime(0.08 * gainMult, t);
             harmBlade.connect(harmGain);
             harmGain.connect(outNode);
             harmBlade.start(t);
             activeSynths.push(harmBlade);
 
-            // Fricción abrasiva continua de corte en concreto (White noise bandpass 4.6 kHz)
+            // Fricción abrasiva continua de corte en concreto (White noise bandpass 4.2 kHz)
             const nSrc = audioCtx.createBufferSource();
             nSrc.buffer = whiteBuffer;
             nSrc.loop = true;
             const nFilter = audioCtx.createBiquadFilter();
             nFilter.type = 'bandpass';
-            nFilter.frequency.setValueAtTime(4600, t);
+            nFilter.frequency.setValueAtTime(4200, t);
             nFilter.Q.setValueAtTime(2.2, t);
             const nGain = audioCtx.createGain();
-            nGain.gain.setValueAtTime(0.45 * gainMult, t);
+            nGain.gain.setValueAtTime(0.40 * gainMult, t);
             nSrc.connect(nFilter);
             nFilter.connect(nGain);
             nGain.connect(outNode);
             nSrc.start(t);
             activeSynths.push(nSrc);
 
+            // Chorro de agua de refrigeración y siseo de corte húmedo
+            const wSrc = audioCtx.createBufferSource();
+            wSrc.buffer = whiteBuffer;
+            wSrc.loop = true;
+            const wFilter = audioCtx.createBiquadFilter();
+            wFilter.type = 'highpass';
+            wFilter.frequency.setValueAtTime(6000, t);
+            const wGain = audioCtx.createGain();
+            wGain.gain.setValueAtTime(0.12 * gainMult, t);
+            wSrc.connect(wFilter);
+            wFilter.connect(wGain);
+            wGain.connect(outNode);
+            wSrc.start(t);
+            activeSynths.push(wSrc);
+
             const timer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
                 const cutting = Math.random() > 0.35;
-                bladeGain.gain.setTargetAtTime(cutting ? 0.45 * gainMult : 0.15 * gainMult, now, 0.08);
-                nGain.gain.setTargetAtTime(cutting ? 0.55 * gainMult : 0.18 * gainMult, now, 0.08);
+                bladeGain.gain.setTargetAtTime(cutting ? 0.45 * gainMult : 0.16 * gainMult, now, 0.08);
+                nGain.gain.setTargetAtTime(cutting ? 0.50 * gainMult : 0.18 * gainMult, now, 0.08);
             }, 1400);
             synthIntervals.push(timer);
         }
 
         function createHammerSynth(outNode, t, gainMult = 1.0) {
-            // Martillo neumático rompepavimentos (26 Hz percusión + despresurización 6 bar)
+            // Martillo neumático rompepavimentos (25 Hz percusión + despresurización 6 bar)
             const timer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(280, now);
-                osc.frequency.exponentialRampToValueAtTime(75, now + 0.025);
 
+                // 1. Pistonazo de choque (golpe contundente con barrido rápido 340 Hz -> 50 Hz)
+                const osc = audioCtx.createOscillator();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(340, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.024);
                 const g = audioCtx.createGain();
                 g.gain.setValueAtTime(0.001, now);
-                g.gain.linearRampToValueAtTime(2.2 * gainMult, now + 0.002);
-                g.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+                g.gain.linearRampToValueAtTime(2.4 * gainMult, now + 0.002);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 0.030);
+                osc.connect(g);
+                g.connect(outNode);
+                osc.start(now);
+                osc.stop(now + 0.032);
 
-                osc.connect(g); g.connect(outNode);
-                osc.start(now); osc.stop(now + 0.035);
-
+                // 2. Escape violento de aire comprimido a 6 bar a través de los silenciadores
                 const bSrc = audioCtx.createBufferSource();
                 bSrc.buffer = whiteBuffer;
                 const bp = audioCtx.createBiquadFilter();
-                bp.type = 'bandpass'; bp.frequency.setValueAtTime(1800, now);
+                bp.type = 'bandpass';
+                bp.frequency.setValueAtTime(1150, now);
+                bp.Q.setValueAtTime(1.5, now);
                 const bg = audioCtx.createGain();
-                bg.gain.setValueAtTime(1.4 * gainMult, now);
-                bg.gain.exponentialRampToValueAtTime(0.01, now + 0.028);
+                bg.gain.setValueAtTime(1.5 * gainMult, now);
+                bg.gain.exponentialRampToValueAtTime(0.01, now + 0.026);
+                bSrc.connect(bp);
+                bp.connect(bg);
+                bg.connect(outNode);
+                bSrc.start(now);
+                bSrc.stop(now + 0.028);
 
-                bSrc.connect(bp); bp.connect(bg); bg.connect(outNode);
-                bSrc.start(now); bSrc.stop(now + 0.03);
-            }, 38);
+                // 3. Fractura de concreto y rebote de acero
+                const cSrc = audioCtx.createBufferSource();
+                cSrc.buffer = whiteBuffer;
+                const hp = audioCtx.createBiquadFilter();
+                hp.type = 'highpass';
+                hp.frequency.setValueAtTime(2600, now);
+                const cg = audioCtx.createGain();
+                cg.gain.setValueAtTime(0.8 * gainMult, now);
+                cg.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+                cSrc.connect(hp);
+                hp.connect(cg);
+                cg.connect(outNode);
+                cSrc.start(now);
+                cSrc.stop(now + 0.018);
+
+                // 4. Retumbo subsónico de suelo
+                const sub = audioCtx.createOscillator();
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(42, now);
+                const sg = audioCtx.createGain();
+                sg.gain.setValueAtTime(1.6 * gainMult, now);
+                sg.gain.exponentialRampToValueAtTime(0.01, now + 0.035);
+                sub.connect(sg);
+                sg.connect(outNode);
+                sub.start(now);
+                sub.stop(now + 0.038);
+            }, 40);
             synthIntervals.push(timer);
         }
 
@@ -4098,9 +4207,9 @@
             // Mezcladora Trompo con volteo de áridos
             const gearOsc = audioCtx.createOscillator();
             gearOsc.type = 'triangle';
-            gearOsc.frequency.setValueAtTime(320, t);
+            gearOsc.frequency.setValueAtTime(240, t);
             const gearGain = audioCtx.createGain();
-            gearGain.gain.setValueAtTime(0.24 * gainMult, t);
+            gearGain.gain.setValueAtTime(0.22 * gainMult, t);
             gearOsc.connect(gearGain);
             gearGain.connect(outNode);
             gearOsc.start(t);
@@ -4108,23 +4217,24 @@
 
             const drumOsc = audioCtx.createOscillator();
             drumOsc.type = 'sine';
-            drumOsc.frequency.setValueAtTime(36, t);
+            drumOsc.frequency.setValueAtTime(38, t);
             const drumGain = audioCtx.createGain();
-            drumGain.gain.setValueAtTime(0.35 * gainMult, t);
+            drumGain.gain.setValueAtTime(0.30 * gainMult, t);
             drumOsc.connect(drumGain);
             drumGain.connect(outNode);
             drumOsc.start(t);
             activeSynths.push(drumOsc);
 
+            // Volteo de cantos rodados y mortero
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = pinkBuffer;
             pSrc.loop = true;
             const pFilter = audioCtx.createBiquadFilter();
             pFilter.type = 'bandpass';
-            pFilter.frequency.setValueAtTime(1050, t);
-            pFilter.Q.setValueAtTime(1.8, t);
+            pFilter.frequency.setValueAtTime(850, t);
+            pFilter.Q.setValueAtTime(1.4, t);
             const gravelGain = audioCtx.createGain();
-            gravelGain.gain.setValueAtTime(0.40 * gainMult, t);
+            gravelGain.gain.setValueAtTime(0.38 * gainMult, t);
             pSrc.connect(pFilter);
             pFilter.connect(gravelGain);
             gravelGain.connect(outNode);
@@ -4134,9 +4244,9 @@
             const timer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
-                gravelGain.gain.setTargetAtTime(0.65 * gainMult, now, 0.1);
+                gravelGain.gain.setTargetAtTime(0.62 * gainMult, now, 0.1);
                 setTimeout(() => {
-                    if (audioCtx) gravelGain.gain.setTargetAtTime(0.25 * gainMult, audioCtx.currentTime, 0.4);
+                    if (audioCtx) gravelGain.gain.setTargetAtTime(0.24 * gainMult, audioCtx.currentTime, 0.4);
                 }, 500);
             }, 2200);
             synthIntervals.push(timer);
@@ -4146,52 +4256,64 @@
             // Retroexcavadora sobre orugas (Motor turbodiésel 6 cilindros bajo demanda hidráulica)
             const osc1 = audioCtx.createOscillator();
             osc1.type = 'sawtooth';
-            osc1.frequency.setValueAtTime(48, t);
+            osc1.frequency.setValueAtTime(64, t);
             const f1 = audioCtx.createBiquadFilter();
             f1.type = 'lowpass';
-            f1.frequency.setValueAtTime(220, t);
+            f1.frequency.setValueAtTime(260, t);
             const g1 = audioCtx.createGain();
-            g1.gain.setValueAtTime(0.38 * gainMult, t);
+            g1.gain.setValueAtTime(0.36 * gainMult, t);
             osc1.connect(f1); f1.connect(g1); g1.connect(outNode);
             osc1.start(t);
             activeSynths.push(osc1);
 
             const osc2 = audioCtx.createOscillator();
             osc2.type = 'triangle';
-            osc2.frequency.setValueAtTime(96, t);
+            osc2.frequency.setValueAtTime(128, t);
             const g2 = audioCtx.createGain();
-            g2.gain.setValueAtTime(0.28 * gainMult, t);
+            g2.gain.setValueAtTime(0.24 * gainMult, t);
             osc2.connect(g2); g2.connect(outNode);
             osc2.start(t);
             activeSynths.push(osc2);
 
+            // Silbido de bomba hidráulica de pistones axiales bajo carga
+            const hydOsc = audioCtx.createOscillator();
+            hydOsc.type = 'sine';
+            hydOsc.frequency.setValueAtTime(540, t);
+            const hydGain = audioCtx.createGain();
+            hydGain.gain.setValueAtTime(0.18 * gainMult, t);
+            hydOsc.connect(hydGain); hydGain.connect(outNode);
+            hydOsc.start(t);
+            activeSynths.push(hydOsc);
+
+            // Silbido del turbocompresor
             const turboOsc = audioCtx.createOscillator();
             turboOsc.type = 'sine';
-            turboOsc.frequency.setValueAtTime(2250, t);
+            turboOsc.frequency.setValueAtTime(2350, t);
             const turboGain = audioCtx.createGain();
-            turboGain.gain.setValueAtTime(0.08 * gainMult, t);
+            turboGain.gain.setValueAtTime(0.07 * gainMult, t);
             turboOsc.connect(turboGain); turboGain.connect(outNode);
             turboOsc.start(t);
             activeSynths.push(turboOsc);
 
+            // Flujo de escape diésel
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = pinkBuffer; pSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
-            bp.type = 'bandpass'; bp.frequency.setValueAtTime(450, t);
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(420, t);
             const pg = audioCtx.createGain();
-            pg.gain.setValueAtTime(0.25 * gainMult, t);
+            pg.gain.setValueAtTime(0.22 * gainMult, t);
             pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
             pSrc.start(t);
             activeSynths.push(pSrc);
         }
 
         function createRollerSynth(outNode, t, gainMult = 1.0) {
-            // Vibrocompactador Pata de Cabra (30 Hz excéntrica de baja frecuencia + diésel pesado)
+            // Vibrocompactador Pata de Cabra (29 Hz excéntrica de baja frecuencia + diésel pesado)
             const vibOsc = audioCtx.createOscillator();
             vibOsc.type = 'sine';
-            vibOsc.frequency.setValueAtTime(30, t);
+            vibOsc.frequency.setValueAtTime(29, t);
             const vibGain = audioCtx.createGain();
-            vibGain.gain.setValueAtTime(0.55 * gainMult, t);
+            vibGain.gain.setValueAtTime(0.58 * gainMult, t);
             vibOsc.connect(vibGain);
             vibGain.connect(outNode);
             vibOsc.start(t);
@@ -4199,9 +4321,9 @@
 
             const pOsc = audioCtx.createOscillator();
             pOsc.type = 'triangle';
-            pOsc.frequency.setValueAtTime(60, t);
+            pOsc.frequency.setValueAtTime(58, t);
             const pGain = audioCtx.createGain();
-            pGain.gain.setValueAtTime(0.28 * gainMult, t);
+            pGain.gain.setValueAtTime(0.32 * gainMult, t);
             pOsc.connect(pGain);
             pGain.connect(outNode);
             pOsc.start(t);
@@ -4209,96 +4331,135 @@
 
             const mot = audioCtx.createOscillator();
             mot.type = 'sawtooth';
-            mot.frequency.setValueAtTime(78, t);
+            mot.frequency.setValueAtTime(74, t);
             const mFilt = audioCtx.createBiquadFilter();
             mFilt.type = 'lowpass';
-            mFilt.frequency.setValueAtTime(180, t);
+            mFilt.frequency.setValueAtTime(190, t);
             const motGain = audioCtx.createGain();
-            motGain.gain.setValueAtTime(0.32 * gainMult, t);
+            motGain.gain.setValueAtTime(0.30 * gainMult, t);
             mot.connect(mFilt); mFilt.connect(motGain); motGain.connect(outNode);
             mot.start(t);
             activeSynths.push(mot);
         }
 
         function createCompressorSynth(outNode, t, gainMult = 1.0) {
+            // Compresor rotativo de tornillo industrial (90 kW)
+            // Tono helicoidal de engrane de rotores Sigma Profile (880 Hz y 1760 Hz)
             const lobs = audioCtx.createOscillator();
-            lobs.type = 'sine'; lobs.frequency.setValueAtTime(1450, t);
-            const lg = audioCtx.createGain(); lg.gain.setValueAtTime(0.3 * gainMult, t);
+            lobs.type = 'sine'; lobs.frequency.setValueAtTime(880, t);
+            const lg = audioCtx.createGain(); lg.gain.setValueAtTime(0.28 * gainMult, t);
+
+            const lobs2 = audioCtx.createOscillator();
+            lobs2.type = 'sine'; lobs2.frequency.setValueAtTime(1760, t);
+            const lg2 = audioCtx.createGain(); lg2.gain.setValueAtTime(0.12 * gainMult, t);
+
             const mot = audioCtx.createOscillator();
             mot.type = 'triangle'; mot.frequency.setValueAtTime(120, t);
-            const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.12 * gainMult, t);
+            const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.15 * gainMult, t);
+
             const wSrc = audioCtx.createBufferSource();
             wSrc.buffer = whiteBuffer; wSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
-            bp.type = 'bandpass'; bp.frequency.setValueAtTime(3200, t); bp.Q.setValueAtTime(2.0, t);
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(2900, t); bp.Q.setValueAtTime(1.8, t);
+            const wg = audioCtx.createGain(); wg.gain.setValueAtTime(0.25 * gainMult, t);
+
             lobs.connect(lg); lg.connect(outNode);
+            lobs2.connect(lg2); lg2.connect(outNode);
             mot.connect(mg); mg.connect(outNode);
-            wSrc.connect(bp); bp.connect(outNode);
-            lobs.start(); mot.start(); wSrc.start();
-            activeSynths.push(lobs, mot, wSrc);
+            wSrc.connect(bp); bp.connect(wg); wg.connect(outNode);
+            lobs.start(); lobs2.start(); mot.start(); wSrc.start();
+            activeSynths.push(lobs, lobs2, mot, wSrc);
         }
 
         function createGrinderSynth(outNode, t, gainMult = 1.0) {
+            // Amoladora angular industrial (Disco 230 mm) a 8500 RPM
             const mot = audioCtx.createOscillator();
-            mot.type = 'sawtooth'; mot.frequency.setValueAtTime(5200, t);
-            const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.35 * gainMult, t);
+            mot.type = 'sawtooth'; mot.frequency.setValueAtTime(490, t);
+            const mg = audioCtx.createGain(); mg.gain.setValueAtTime(0.32 * gainMult, t);
+
+            const harm = audioCtx.createOscillator();
+            harm.type = 'triangle'; harm.frequency.setValueAtTime(1470, t);
+            const hg = audioCtx.createGain(); hg.gain.setValueAtTime(0.15 * gainMult, t);
+
             const wSrc = audioCtx.createBufferSource();
             wSrc.buffer = whiteBuffer; wSrc.loop = true;
             const hp = audioCtx.createBiquadFilter();
-            hp.type = 'highpass'; hp.frequency.setValueAtTime(3800, t);
-            const wg = audioCtx.createGain(); wg.gain.setValueAtTime(0.3 * gainMult, t);
+            hp.type = 'highpass'; hp.frequency.setValueAtTime(3400, t);
+            const wg = audioCtx.createGain(); wg.gain.setValueAtTime(0.30 * gainMult, t);
+
             mot.connect(mg); mg.connect(outNode);
+            harm.connect(hg); hg.connect(outNode);
             wSrc.connect(hp); hp.connect(wg); wg.connect(outNode);
-            mot.start(); wSrc.start();
-            activeSynths.push(mot, wSrc);
+            mot.start(); harm.start(); wSrc.start();
+            activeSynths.push(mot, harm, wSrc);
+
             const timer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
-                const isGrinding = Math.random() > 0.4;
-                wg.gain.setTargetAtTime(isGrinding ? 1.4 * gainMult : 0.25 * gainMult, now, 0.05);
+                const isGrinding = Math.random() > 0.35;
+                wg.gain.setTargetAtTime(isGrinding ? 1.2 * gainMult : 0.22 * gainMult, now, 0.05);
             }, 1200);
             synthIntervals.push(timer);
         }
 
         function createPunchSynth(outNode, t, gainMult = 1.0) {
+            // Prensa mecánica de estampado (500 kN, 136.5 dBC Peak)
             const hum = audioCtx.createOscillator();
             hum.type = 'triangle'; hum.frequency.setValueAtTime(60, t);
-            const hg = audioCtx.createGain(); hg.gain.setValueAtTime(0.2 * gainMult, t);
+            const hg = audioCtx.createGain(); hg.gain.setValueAtTime(0.18 * gainMult, t);
             hum.connect(hg); hg.connect(outNode); hum.start();
             activeSynths.push(hum);
+
             const strike = () => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
+
+                // Impacto contundente en matriz de estampado
                 const sub = audioCtx.createOscillator();
-                sub.type = 'sine'; sub.frequency.setValueAtTime(85, now);
-                sub.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+                sub.type = 'sine'; sub.frequency.setValueAtTime(90, now);
+                sub.frequency.exponentialRampToValueAtTime(24, now + 0.14);
                 const sg = audioCtx.createGain();
                 sg.gain.setValueAtTime(0.001, now);
-                sg.gain.linearRampToValueAtTime(4.5 * gainMult, now + 0.002);
-                sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+                sg.gain.linearRampToValueAtTime(5.0 * gainMult, now + 0.002);
+                sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
                 sub.connect(sg); sg.connect(outNode);
-                sub.start(now); sub.stop(now + 0.18);
+                sub.start(now); sub.stop(now + 0.20);
+
+                // Resonancia metálica aguda de la bancada y chapa estampada
                 const clang = audioCtx.createOscillator();
-                clang.type = 'square'; clang.frequency.setValueAtTime(1250, now);
-                clang.frequency.exponentialRampToValueAtTime(480, now + 0.09);
+                clang.type = 'square'; clang.frequency.setValueAtTime(1400, now);
+                clang.frequency.exponentialRampToValueAtTime(520, now + 0.10);
                 const cg = audioCtx.createGain();
                 cg.gain.setValueAtTime(0.001, now);
-                cg.gain.linearRampToValueAtTime(3.0 * gainMult, now + 0.002);
-                cg.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+                cg.gain.linearRampToValueAtTime(3.2 * gainMult, now + 0.002);
+                cg.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
                 clang.connect(cg); cg.connect(outNode);
-                clang.start(now); clang.stop(now + 0.24);
+                clang.start(now); clang.stop(now + 0.26);
+
+                // Soplado neumático de eyección de pieza
+                const pSrc = audioCtx.createBufferSource();
+                pSrc.buffer = whiteBuffer;
+                const bp = audioCtx.createBiquadFilter();
+                bp.type = 'bandpass'; bp.frequency.setValueAtTime(1800, now);
+                const pg = audioCtx.createGain();
+                pg.gain.setValueAtTime(0.001, now + 0.12);
+                pg.gain.linearRampToValueAtTime(0.8 * gainMult, now + 0.14);
+                pg.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+                pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
+                pSrc.start(now + 0.12); pSrc.stop(now + 0.35);
             };
             strike();
-            const timer = setInterval(strike, 1800);
+            const timer = setInterval(strike, 2000);
             synthIntervals.push(timer);
         }
 
         function createForgingSynth(outNode, t, gainMult = 1.0) {
+            // Martinete de forja pesada con lingote a 1100°C (138.2 dBC Peak)
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = pinkBuffer; pSrc.loop = true;
             const lp = audioCtx.createBiquadFilter();
-            lp.type = 'lowpass'; lp.frequency.setValueAtTime(220, t);
-            const lpg = audioCtx.createGain(); lpg.gain.setValueAtTime(0.35 * gainMult, t);
+            lp.type = 'lowpass'; lp.frequency.setValueAtTime(250, t);
+            const lpg = audioCtx.createGain(); lpg.gain.setValueAtTime(0.32 * gainMult, t);
             pSrc.connect(lp); lp.connect(lpg); lpg.connect(outNode);
             pSrc.start();
             activeSynths.push(pSrc);
@@ -4306,46 +4467,51 @@
             const strikeForge = () => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
+
+                // Conmoción masiva en yunque y lingote incandescente
                 const sub = audioCtx.createOscillator();
-                sub.type = 'sine'; sub.frequency.setValueAtTime(65, now);
-                sub.frequency.exponentialRampToValueAtTime(24, now + 0.18);
+                sub.type = 'sine'; sub.frequency.setValueAtTime(68, now);
+                sub.frequency.exponentialRampToValueAtTime(18, now + 0.20);
                 const sg = audioCtx.createGain();
                 sg.gain.setValueAtTime(0.001, now);
-                sg.gain.linearRampToValueAtTime(5.5 * gainMult, now + 0.002);
-                sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                sg.gain.linearRampToValueAtTime(6.2 * gainMult, now + 0.002);
+                sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
                 sub.connect(sg); sg.connect(outNode);
-                sub.start(now); sub.stop(now + 0.28);
+                sub.start(now); sub.stop(now + 0.30);
 
+                // Campana acústica metálica del yunque de acero masivo
                 const anvil = audioCtx.createOscillator();
-                anvil.type = 'triangle'; anvil.frequency.setValueAtTime(860, now);
-                anvil.frequency.exponentialRampToValueAtTime(320, now + 0.12);
+                anvil.type = 'triangle'; anvil.frequency.setValueAtTime(780, now);
+                anvil.frequency.exponentialRampToValueAtTime(310, now + 0.14);
                 const ag = audioCtx.createGain();
                 ag.gain.setValueAtTime(0.001, now);
                 ag.gain.linearRampToValueAtTime(3.8 * gainMult, now + 0.001);
-                ag.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+                ag.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
                 anvil.connect(ag); ag.connect(outNode);
-                anvil.start(now); anvil.stop(now + 0.35);
+                anvil.start(now); anvil.stop(now + 0.36);
 
+                // Lluvia de cascarilla y vapor de agua
                 const wSrc = audioCtx.createBufferSource();
                 wSrc.buffer = whiteBuffer;
                 const bp = audioCtx.createBiquadFilter();
-                bp.type = 'bandpass'; bp.frequency.setValueAtTime(2400, now); bp.Q.setValueAtTime(1.8, now);
+                bp.type = 'bandpass'; bp.frequency.setValueAtTime(2200, now); bp.Q.setValueAtTime(1.6, now);
                 const wg = audioCtx.createGain();
                 wg.gain.setValueAtTime(0.001, now);
-                wg.gain.linearRampToValueAtTime(2.2 * gainMult, now + 0.01);
-                wg.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                wg.gain.linearRampToValueAtTime(2.4 * gainMult, now + 0.008);
+                wg.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
                 wSrc.connect(bp); bp.connect(wg); wg.connect(outNode);
-                wSrc.start(now); wSrc.stop(now + 0.18);
+                wSrc.start(now); wSrc.stop(now + 0.19);
             };
             strikeForge();
-            const timer = setInterval(strikeForge, 1350);
+            const timer = setInterval(strikeForge, 1400);
             synthIntervals.push(timer);
         }
 
         function createBlowerSynth(outNode, t, gainMult = 1.0) {
+            // Ventilador centrífugo industrial de tiro forzado
             const bpf = audioCtx.createOscillator();
             bpf.type = 'sine'; bpf.frequency.setValueAtTime(480, t);
-            const bg = audioCtx.createGain(); bg.gain.setValueAtTime(0.38 * gainMult, t);
+            const bg = audioCtx.createGain(); bg.gain.setValueAtTime(0.34 * gainMult, t);
             bpf.connect(bg); bg.connect(outNode); bpf.start();
             activeSynths.push(bpf);
 
@@ -4358,31 +4524,26 @@
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = pinkBuffer; pSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
-            bp.type = 'bandpass'; bp.frequency.setValueAtTime(750, t); bp.Q.setValueAtTime(1.2, t);
-            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.48 * gainMult, t);
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(720, t); bp.Q.setValueAtTime(1.2, t);
+            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.44 * gainMult, t);
             pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
             pSrc.start();
             activeSynths.push(pSrc);
 
             const rumble = audioCtx.createOscillator();
-            rumble.type = 'triangle'; rumble.frequency.setValueAtTime(32, t);
-            const rg = audioCtx.createGain(); rg.gain.setValueAtTime(0.18 * gainMult, t);
+            rumble.type = 'triangle'; rumble.frequency.setValueAtTime(34, t);
+            const rg = audioCtx.createGain(); rg.gain.setValueAtTime(0.20 * gainMult, t);
             rumble.connect(rg); rg.connect(outNode); rumble.start();
             activeSynths.push(rumble);
         }
 
-                // =========================================================================
-        // SINTETIZADORES PROCEDURALES WEB AUDIO ADICIONALES (SECTORES C, D, E Y OFICINAS)
-        // =========================================================================
-
         // 1. OFICINAS / CALL CENTER: VOCES REALES DE TELEOPERADORES, CENTRALITA PBX Y TECLEO
         function createCallCenterSynth(outNode, t, gainMult = 1.0) {
-            // VOZ 1: Teleoperadora femenina en primer plano atendiendo llamada
+            // VOZ 1: Teleoperadora femenina atendiendo llamada
             const v1Osc = audioCtx.createOscillator();
             v1Osc.type = 'sawtooth';
             v1Osc.frequency.setValueAtTime(215, t);
 
-            // Inflexiones y entonación prosódica del habla
             const v1Lfo = audioCtx.createOscillator();
             v1Lfo.frequency.setValueAtTime(0.85, t);
             const v1LfoGain = audioCtx.createGain();
@@ -4392,7 +4553,6 @@
             v1Lfo.start(t);
             activeSynths.push(v1Lfo);
 
-            // Formantes vocales F1 y F2 (tracto vocal humano)
             const v1F1 = audioCtx.createBiquadFilter();
             v1F1.type = 'bandpass';
             v1F1.frequency.setValueAtTime(560, t);
@@ -4449,7 +4609,7 @@
             v2Osc.start(t);
             activeSynths.push(v2Osc);
 
-            // MURMULLO MULTILOCUTOR DE SALA (Crowd Babble)
+            // Murmullo multilocutor de fondo
             const babbleSrc = audioCtx.createBufferSource();
             babbleSrc.buffer = pinkBuffer;
             babbleSrc.loop = true;
@@ -4465,7 +4625,6 @@
             babbleSrc.start(t);
             activeSynths.push(babbleSrc);
 
-            // ARTICULACIÓN SILÁBICA DINÁMICA (Genera palabras, pausas y fonemas continuos)
             const speechTimer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
@@ -4480,7 +4639,7 @@
             }, 175);
             synthIntervals.push(speechTimer);
 
-            // TECLEO CONTINUO DE COMPUTADORA CRM
+            // Tecleo continuo de computadoras
             const typingTimer = setInterval(() => {
                 if (!audioCtx) return;
                 if (Math.random() > 0.28) {
@@ -4500,7 +4659,7 @@
             }, 90);
             synthIntervals.push(typingTimer);
 
-            // TIMBRE TELEFÓNICO DE CENTRALITA PBX (Dual tone 440+480 Hz periódico)
+            // Timbre telefónico de centralita PBX a intervalos
             const pbxTimer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
@@ -4524,12 +4683,12 @@
         function createKartSynth(outNode, t, gainMult = 1.0) {
             const engineOsc = audioCtx.createOscillator();
             engineOsc.type = 'sawtooth';
-            engineOsc.frequency.setValueAtTime(95, t);
+            engineOsc.frequency.setValueAtTime(85, t);
             const engineFilter = audioCtx.createBiquadFilter();
             engineFilter.type = 'lowpass';
-            engineFilter.frequency.setValueAtTime(900, t);
+            engineFilter.frequency.setValueAtTime(850, t);
             const engineGain = audioCtx.createGain();
-            engineGain.gain.setValueAtTime(0.35 * gainMult, t);
+            engineGain.gain.setValueAtTime(0.34 * gainMult, t);
             engineOsc.connect(engineFilter);
             engineFilter.connect(engineGain);
             engineGain.connect(outNode);
@@ -4539,7 +4698,7 @@
             const kartTimer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
-                const rpmFreq = 80 + Math.random() * 110;
+                const rpmFreq = 75 + Math.random() * 115;
                 engineOsc.frequency.setTargetAtTime(rpmFreq, now, 0.15);
                 engineGain.gain.setTargetAtTime((0.28 + (rpmFreq / 190) * 0.22) * gainMult, now, 0.12);
 
@@ -4548,7 +4707,7 @@
                     sSrc.buffer = whiteBuffer;
                     const sFilter = audioCtx.createBiquadFilter();
                     sFilter.type = 'bandpass';
-                    sFilter.frequency.setValueAtTime(2900, now);
+                    sFilter.frequency.setValueAtTime(2700, now);
                     sFilter.Q.setValueAtTime(3.5, now);
                     const sGain = audioCtx.createGain();
                     sGain.gain.setValueAtTime(0.001, now);
@@ -4568,10 +4727,10 @@
                 const now = audioCtx.currentTime;
                 const kick = audioCtx.createOscillator();
                 kick.type = 'sine';
-                kick.frequency.setValueAtTime(135, now);
+                kick.frequency.setValueAtTime(130, now);
                 kick.frequency.exponentialRampToValueAtTime(42, now + 0.09);
                 const kickGain = audioCtx.createGain();
-                kickGain.gain.setValueAtTime(1.1 * gainMult, now);
+                kickGain.gain.setValueAtTime(1.3 * gainMult, now);
                 kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
                 kick.connect(kickGain); kickGain.connect(outNode);
                 kick.start(now); kick.stop(now + 0.42);
@@ -4579,10 +4738,10 @@
                 const hhSrc = audioCtx.createBufferSource();
                 hhSrc.buffer = whiteBuffer;
                 const hhFilt = audioCtx.createBiquadFilter();
-                hhFilt.type = 'highpass'; hhFilt.frequency.setValueAtTime(8000, now + 0.23);
+                hhFilt.type = 'highpass'; hhFilt.frequency.setValueAtTime(7500, now + 0.23);
                 const hhGain = audioCtx.createGain();
                 hhGain.gain.setValueAtTime(0.001, now + 0.23);
-                hhGain.gain.linearRampToValueAtTime(0.18 * gainMult, now + 0.235);
+                hhGain.gain.linearRampToValueAtTime(0.16 * gainMult, now + 0.235);
                 hhGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
                 hhSrc.connect(hhFilt); hhFilt.connect(hhGain); hhGain.connect(outNode);
                 hhSrc.start(now + 0.23); hhSrc.stop(now + 0.35);
@@ -4590,8 +4749,8 @@
             synthIntervals.push(beatTimer);
 
             const sub = audioCtx.createOscillator();
-            sub.type = 'sine'; sub.frequency.setValueAtTime(55, t);
-            const subGain = audioCtx.createGain(); subGain.gain.setValueAtTime(0.35 * gainMult, t);
+            sub.type = 'sine'; sub.frequency.setValueAtTime(50, t);
+            const subGain = audioCtx.createGain(); subGain.gain.setValueAtTime(0.38 * gainMult, t);
             sub.connect(subGain); subGain.connect(outNode);
             sub.start(t);
             activeSynths.push(sub);
@@ -4631,8 +4790,8 @@
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = pinkBuffer; pSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
-            bp.type = 'bandpass'; bp.frequency.setValueAtTime(480, t); bp.Q.setValueAtTime(1.2, t);
-            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.42 * gainMult, t);
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(500, t); bp.Q.setValueAtTime(1.2, t);
+            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.40 * gainMult, t);
             pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
             pSrc.start(t);
             activeSynths.push(pSrc);
@@ -4640,8 +4799,8 @@
             const wSrc = audioCtx.createBufferSource();
             wSrc.buffer = whiteBuffer; wSrc.loop = true;
             const hp = audioCtx.createBiquadFilter();
-            hp.type = 'highpass'; hp.frequency.setValueAtTime(2600, t);
-            const wg = audioCtx.createGain(); wg.gain.setValueAtTime(0.22 * gainMult, t);
+            hp.type = 'highpass'; hp.frequency.setValueAtTime(2400, t);
+            const wg = audioCtx.createGain(); wg.gain.setValueAtTime(0.24 * gainMult, t);
             wSrc.connect(hp); hp.connect(wg); wg.connect(outNode);
             wSrc.start(t);
             activeSynths.push(wSrc);
@@ -4650,9 +4809,9 @@
         // 6. BOLERA / BOWLING: RODAMIENTO DE BOLA + IMPACTO DE BOLOS
         function createBowlingSynth(outNode, t, gainMult = 1.0) {
             const rollOsc = audioCtx.createOscillator();
-            rollOsc.type = 'triangle'; rollOsc.frequency.setValueAtTime(140, t);
+            rollOsc.type = 'triangle'; rollOsc.frequency.setValueAtTime(135, t);
             const rollFilter = audioCtx.createBiquadFilter();
-            rollFilter.type = 'lowpass'; rollFilter.frequency.setValueAtTime(240, t);
+            rollFilter.type = 'lowpass'; rollFilter.frequency.setValueAtTime(220, t);
             const rollGain = audioCtx.createGain(); rollGain.gain.setValueAtTime(0.25 * gainMult, t);
             rollOsc.connect(rollFilter); rollFilter.connect(rollGain); rollGain.connect(outNode);
             rollOsc.start(t);
@@ -4662,11 +4821,11 @@
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
                 const strikeOsc = audioCtx.createOscillator();
-                strikeOsc.type = 'triangle'; strikeOsc.frequency.setValueAtTime(520, now);
-                strikeOsc.frequency.exponentialRampToValueAtTime(120, now + 0.12);
+                strikeOsc.type = 'triangle'; strikeOsc.frequency.setValueAtTime(480, now);
+                strikeOsc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
                 const strikeGain = audioCtx.createGain();
                 strikeGain.gain.setValueAtTime(0.001, now);
-                strikeGain.gain.linearRampToValueAtTime(1.3 * gainMult, now + 0.005);
+                strikeGain.gain.linearRampToValueAtTime(1.4 * gainMult, now + 0.005);
                 strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
                 strikeOsc.connect(strikeGain); strikeGain.connect(outNode);
                 strikeOsc.start(now); strikeOsc.stop(now + 0.3);
@@ -4674,9 +4833,9 @@
                 const pSrc = audioCtx.createBufferSource();
                 pSrc.buffer = whiteBuffer;
                 const bp = audioCtx.createBiquadFilter();
-                bp.type = 'bandpass'; bp.frequency.setValueAtTime(1600, now);
+                bp.type = 'bandpass'; bp.frequency.setValueAtTime(1700, now);
                 const pg = audioCtx.createGain();
-                pg.gain.setValueAtTime(0.6 * gainMult, now);
+                pg.gain.setValueAtTime(0.65 * gainMult, now);
                 pg.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
                 pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
                 pSrc.start(now); pSrc.stop(now + 0.28);
@@ -4684,30 +4843,30 @@
             synthIntervals.push(strikeTimer);
         }
 
-        // 7. VOLADURA EN BANCO CON ANFO (MINERÍA DETONACIÓN EXPANSIVA)
+        // 7. VOLADURA EN BANCO CON ANFO (MINERÍA DETONACIÓN EXPANSIVA > 142 dBC Peak)
         function createBlastSynth(outNode, t, gainMult = 1.0) {
             const triggerBlast = () => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
                 const subOsc = audioCtx.createOscillator();
-                subOsc.type = 'sine'; subOsc.frequency.setValueAtTime(45, now);
-                subOsc.frequency.exponentialRampToValueAtTime(22, now + 0.45);
+                subOsc.type = 'sine'; subOsc.frequency.setValueAtTime(42, now);
+                subOsc.frequency.exponentialRampToValueAtTime(18, now + 0.45);
                 const subGain = audioCtx.createGain();
                 subGain.gain.setValueAtTime(0.001, now);
-                subGain.gain.linearRampToValueAtTime(2.6 * gainMult, now + 0.008);
-                subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+                subGain.gain.linearRampToValueAtTime(3.5 * gainMult, now + 0.008);
+                subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.70);
                 subOsc.connect(subGain); subGain.connect(outNode);
                 subOsc.start(now); subOsc.stop(now + 0.75);
 
                 const bSrc = audioCtx.createBufferSource();
                 bSrc.buffer = pinkBuffer;
                 const lp = audioCtx.createBiquadFilter();
-                lp.type = 'lowpass'; lp.frequency.setValueAtTime(350, now);
+                lp.type = 'lowpass'; lp.frequency.setValueAtTime(320, now);
                 const bg = audioCtx.createGain();
-                bg.gain.setValueAtTime(2.2 * gainMult, now);
-                bg.gain.exponentialRampToValueAtTime(0.01, now + 0.85);
+                bg.gain.setValueAtTime(2.6 * gainMult, now);
+                bg.gain.exponentialRampToValueAtTime(0.01, now + 0.90);
                 bSrc.connect(lp); lp.connect(bg); bg.connect(outNode);
-                bSrc.start(now); bSrc.stop(now + 0.9);
+                bSrc.start(now); bSrc.stop(now + 0.95);
             };
             triggerBlast();
             const blastTimer = setInterval(triggerBlast, 3800);
@@ -4717,8 +4876,8 @@
         // 8. JUMBO ELECTROHIDRÁULICO DE PERFORACIÓN DE ROCA (50 Hz + BOMBA HIDRÁULICA)
         function createJumboSynth(outNode, t, gainMult = 1.0) {
             const pumpOsc = audioCtx.createOscillator();
-            pumpOsc.type = 'sine'; pumpOsc.frequency.setValueAtTime(2800, t);
-            const pumpGain = audioCtx.createGain(); pumpGain.gain.setValueAtTime(0.18 * gainMult, t);
+            pumpOsc.type = 'sine'; pumpOsc.frequency.setValueAtTime(2650, t);
+            const pumpGain = audioCtx.createGain(); pumpGain.gain.setValueAtTime(0.16 * gainMult, t);
             pumpOsc.connect(pumpGain); pumpGain.connect(outNode);
             pumpOsc.start(t);
             activeSynths.push(pumpOsc);
@@ -4727,8 +4886,8 @@
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(1450, now);
-                osc.frequency.exponentialRampToValueAtTime(320, now + 0.014);
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(1250, now);
+                osc.frequency.exponentialRampToValueAtTime(280, now + 0.014);
                 const g = audioCtx.createGain();
                 g.gain.setValueAtTime(0.001, now);
                 g.gain.linearRampToValueAtTime(1.8 * gainMult, now + 0.002);
@@ -4744,7 +4903,7 @@
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = pinkBuffer; pSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
-            bp.type = 'bandpass'; bp.frequency.setValueAtTime(380, t); bp.Q.setValueAtTime(1.2, t);
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(360, t); bp.Q.setValueAtTime(1.2, t);
             const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.35 * gainMult, t);
             pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
             pSrc.start(t);
@@ -4754,14 +4913,14 @@
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
                 const rockOsc = audioCtx.createOscillator();
-                rockOsc.type = 'sawtooth'; rockOsc.frequency.setValueAtTime(95, now);
+                rockOsc.type = 'sawtooth'; rockOsc.frequency.setValueAtTime(90, now);
                 const rockGain = audioCtx.createGain();
                 rockGain.gain.setValueAtTime(0.001, now);
                 rockGain.gain.linearRampToValueAtTime(1.4 * gainMult, now + 0.02);
                 rockGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
                 rockOsc.connect(rockGain); rockGain.connect(outNode);
                 rockOsc.start(now); rockOsc.stop(now + 0.25);
-            }, 260);
+            }, 280);
             synthIntervals.push(crushTimer);
         }
 
@@ -4769,7 +4928,7 @@
         function createScreenSynth(outNode, t, gainMult = 1.0) {
             const vOsc = audioCtx.createOscillator();
             vOsc.type = 'triangle'; vOsc.frequency.setValueAtTime(16, t);
-            const vGain = audioCtx.createGain(); vGain.gain.setValueAtTime(0.28 * gainMult, t);
+            const vGain = audioCtx.createGain(); vGain.gain.setValueAtTime(0.30 * gainMult, t);
             vOsc.connect(vGain); vGain.connect(outNode);
             vOsc.start(t);
             activeSynths.push(vOsc);
@@ -4777,27 +4936,27 @@
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = whiteBuffer; pSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
-            bp.type = 'bandpass'; bp.frequency.setValueAtTime(2400, t); bp.Q.setValueAtTime(1.8, t);
-            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.38 * gainMult, t);
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(2300, t); bp.Q.setValueAtTime(1.6, t);
+            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.40 * gainMult, t);
             pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
             pSrc.start(t);
             activeSynths.push(pSrc);
         }
 
-        // 11. DUMPER MINERO 300 TONELADAS (MOTOR V16 DIÉSEL + TURBO)
+        // 11. DUMPER MINERO 300 TONELADAS (MOTOR V16 DIÉSEL BITURBO)
         function createTruckSynth(outNode, t, gainMult = 1.0) {
             const d1 = audioCtx.createOscillator();
-            d1.type = 'sawtooth'; d1.frequency.setValueAtTime(65, t);
+            d1.type = 'sawtooth'; d1.frequency.setValueAtTime(62, t);
             const f1 = audioCtx.createBiquadFilter();
-            f1.type = 'lowpass'; f1.frequency.setValueAtTime(450, t);
-            const g1 = audioCtx.createGain(); g1.gain.setValueAtTime(0.45 * gainMult, t);
+            f1.type = 'lowpass'; f1.frequency.setValueAtTime(420, t);
+            const g1 = audioCtx.createGain(); g1.gain.setValueAtTime(0.46 * gainMult, t);
             d1.connect(f1); f1.connect(g1); g1.connect(outNode);
             d1.start(t);
             activeSynths.push(d1);
 
             const turbo = audioCtx.createOscillator();
-            turbo.type = 'sine'; turbo.frequency.setValueAtTime(2200, t);
-            const tg = audioCtx.createGain(); tg.gain.setValueAtTime(0.18 * gainMult, t);
+            turbo.type = 'sine'; turbo.frequency.setValueAtTime(2150, t);
+            const tg = audioCtx.createGain(); tg.gain.setValueAtTime(0.16 * gainMult, t);
             turbo.connect(tg); tg.connect(outNode);
             turbo.start(t);
             activeSynths.push(turbo);
@@ -4809,14 +4968,21 @@
             pSrc.buffer = whiteBuffer; pSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
             bp.type = 'bandpass'; bp.frequency.setValueAtTime(2200, t); bp.Q.setValueAtTime(1.8, t);
-            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.42 * gainMult, t);
+            const pg = audioCtx.createGain(); pg.gain.setValueAtTime(0.40 * gainMult, t);
             pSrc.connect(bp); bp.connect(pg); pg.connect(outNode);
             pSrc.start(t);
             activeSynths.push(pSrc);
 
+            const fanWhine = audioCtx.createOscillator();
+            fanWhine.type = 'sine'; fanWhine.frequency.setValueAtTime(1850, t);
+            const fg = audioCtx.createGain(); fg.gain.setValueAtTime(0.14 * gainMult, t);
+            fanWhine.connect(fg); fg.connect(outNode);
+            fanWhine.start(t);
+            activeSynths.push(fanWhine);
+
             const hum = audioCtx.createOscillator();
             hum.type = 'sine'; hum.frequency.setValueAtTime(120, t);
-            const hg = audioCtx.createGain(); hg.gain.setValueAtTime(0.15 * gainMult, t);
+            const hg = audioCtx.createGain(); hg.gain.setValueAtTime(0.16 * gainMult, t);
             hum.connect(hg); hg.connect(outNode);
             hum.start(t);
             activeSynths.push(hum);
@@ -4834,7 +5000,7 @@
             const stepTimer = setInterval(() => {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
-                const freq = 420 + Math.random() * 380;
+                const freq = 420 + Math.random() * 360;
                 stepper.frequency.setTargetAtTime(freq, now, 0.08);
             }, 650);
             synthIntervals.push(stepTimer);
@@ -4864,8 +5030,8 @@
             const pSrc = audioCtx.createBufferSource();
             pSrc.buffer = pinkBuffer; pSrc.loop = true;
             const lp = audioCtx.createBiquadFilter();
-            lp.type = 'lowpass'; lp.frequency.setValueAtTime(320, t);
-            const lg = audioCtx.createGain(); lg.gain.setValueAtTime(0.48 * gainMult, t);
+            lp.type = 'lowpass'; lp.frequency.setValueAtTime(300, t);
+            const lg = audioCtx.createGain(); lg.gain.setValueAtTime(0.46 * gainMult, t);
             pSrc.connect(lp); lp.connect(lg); lg.connect(outNode);
             pSrc.start(t);
             activeSynths.push(pSrc);
@@ -4876,7 +5042,7 @@
             pSrc.buffer = pinkBuffer; pSrc.loop = true;
             const bp = audioCtx.createBiquadFilter();
             bp.type = 'bandpass'; bp.frequency.setValueAtTime(900, t);
-            const g = audioCtx.createGain(); g.gain.setValueAtTime(0.6 * gainMult, t);
+            const g = audioCtx.createGain(); g.gain.setValueAtTime(0.50 * gainMult, t);
             pSrc.connect(bp); bp.connect(g); g.connect(outNode);
             pSrc.start();
             activeSynths.push(pSrc);
@@ -4884,36 +5050,39 @@
 
         function createMachineSynth(synthType, destGain, gainMult = 1.0) {
             const t = audioCtx.currentTime;
-            if (synthType === 'saw') createSawSynth(destGain, t, gainMult);
-            else if (synthType === 'hammer') createHammerSynth(destGain, t, gainMult);
-            else if (synthType === 'mixer') createMixerSynth(destGain, t, gainMult);
-            else if (synthType === 'diesel') createDieselSynth(destGain, t, gainMult);
-            else if (synthType === 'roller') createRollerSynth(destGain, t, gainMult);
-            else if (synthType === 'compressor') createCompressorSynth(destGain, t, gainMult);
-            else if (synthType === 'grinder') createGrinderSynth(destGain, t, gainMult);
-            else if (synthType === 'punch') createPunchSynth(destGain, t, gainMult);
-            else if (synthType === 'forging') createForgingSynth(destGain, t, gainMult);
-            else if (synthType === 'blower') createBlowerSynth(destGain, t, gainMult);
-            else if (synthType === 'callcenter') createCallCenterSynth(destGain, t, gainMult);
-            else if (synthType === 'kart') createKartSynth(destGain, t, gainMult);
-            else if (synthType === 'club') createClubSynth(destGain, t, gainMult);
-            else if (synthType === 'lombard') createLombardSynth(destGain, t, gainMult);
-            else if (synthType === 'hood') createHoodSynth(destGain, t, gainMult);
-            else if (synthType === 'bowling') createBowlingSynth(destGain, t, gainMult);
-            else if (synthType === 'blast') createBlastSynth(destGain, t, gainMult);
-            else if (synthType === 'jumbo') createJumboSynth(destGain, t, gainMult);
-            else if (synthType === 'crusher') createCrusherSynth(destGain, t, gainMult);
-            else if (synthType === 'screen') createScreenSynth(destGain, t, gainMult);
-            else if (synthType === 'truck') createTruckSynth(destGain, t, gainMult);
-            else if (synthType === 'datacenter') createDataCenterSynth(destGain, t, gainMult);
-            else if (synthType === 'plotter') createPlotterSynth(destGain, t, gainMult);
-            else if (synthType === 'coffee') createCoffeeSynth(destGain, t, gainMult);
-            else if (synthType === 'traffic') createTrafficSynth(destGain, t, gainMult);
-            else createDefaultSynth(destGain, t, gainMult);
+            const calib = SYNTH_CALIBRATION[synthType] !== undefined ? SYNTH_CALIBRATION[synthType] : 1.0;
+            const totalGain = gainMult * calib;
+
+            if (synthType === 'saw') createSawSynth(destGain, t, totalGain);
+            else if (synthType === 'hammer') createHammerSynth(destGain, t, totalGain);
+            else if (synthType === 'mixer') createMixerSynth(destGain, t, totalGain);
+            else if (synthType === 'diesel') createDieselSynth(destGain, t, totalGain);
+            else if (synthType === 'roller') createRollerSynth(destGain, t, totalGain);
+            else if (synthType === 'compressor') createCompressorSynth(destGain, t, totalGain);
+            else if (synthType === 'grinder') createGrinderSynth(destGain, t, totalGain);
+            else if (synthType === 'punch') createPunchSynth(destGain, t, totalGain);
+            else if (synthType === 'forging') createForgingSynth(destGain, t, totalGain);
+            else if (synthType === 'blower') createBlowerSynth(destGain, t, totalGain);
+            else if (synthType === 'callcenter') createCallCenterSynth(destGain, t, totalGain);
+            else if (synthType === 'kart') createKartSynth(destGain, t, totalGain);
+            else if (synthType === 'club') createClubSynth(destGain, t, totalGain);
+            else if (synthType === 'lombard') createLombardSynth(destGain, t, totalGain);
+            else if (synthType === 'hood') createHoodSynth(destGain, t, totalGain);
+            else if (synthType === 'bowling') createBowlingSynth(destGain, t, totalGain);
+            else if (synthType === 'blast') createBlastSynth(destGain, t, totalGain);
+            else if (synthType === 'jumbo') createJumboSynth(destGain, t, totalGain);
+            else if (synthType === 'crusher') createCrusherSynth(destGain, t, totalGain);
+            else if (synthType === 'screen') createScreenSynth(destGain, t, totalGain);
+            else if (synthType === 'truck') createTruckSynth(destGain, t, totalGain);
+            else if (synthType === 'datacenter') createDataCenterSynth(destGain, t, totalGain);
+            else if (synthType === 'plotter') createPlotterSynth(destGain, t, totalGain);
+            else if (synthType === 'coffee') createCoffeeSynth(destGain, t, totalGain);
+            else if (synthType === 'traffic') createTrafficSynth(destGain, t, totalGain);
+            else createDefaultSynth(destGain, t, totalGain);
         }
 
         // ==========================================
-        // 6.2 GESTIÓN DE AUDIO (INDIVIDUAL Y PLANO GENERAL)
+        // 6.2 GESTIÓN DE AUDIO Y PROPAGACIÓN ACÚSTICA FÍSICA (ISO 9612 / RES. 1792)
         // ==========================================
         function playCurrentMachine() {
             initAudio();
@@ -4922,7 +5091,9 @@
 
             const t = audioCtx.currentTime;
             const out = audioCtx.createGain();
-            out.gain.setValueAtTime(1.0, t);
+            // Potencia de la fuente según baseSpl (referencia calibrada 85.0 dBA = 1.0)
+            const splFactor = Math.pow(10, ((currentMachine.baseSpl || 85.0) - 85.0) / 20.0);
+            out.gain.setValueAtTime(splFactor, t);
             out.connect(distanceGain);
             activeSynths.push(out);
 
@@ -4939,7 +5110,6 @@
             const sec = SECTORS[currentSector];
             if (!sec || !sec.machines) return;
 
-            // Restablecer ganancia maestra de distancia en el plano general
             if (distanceGain) {
                 distanceGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
             }
@@ -4950,17 +5120,21 @@
 
             sec.machines.forEach(m => {
                 if (activeOverviewSources.has(m.id)) {
-                    // Distancia física al sonómetro en metros según dimensiones del sector
+                    // Distancia física al sonómetro en metros según dimensiones reales del sector
                     const dxM = (sonometerPos.xPct - m.coords.x) * scaleX;
                     const dyM = (sonometerPos.yPct - m.coords.y) * scaleY;
                     const distM = Math.max(1.0, Math.sqrt(dxM * dxM + dyM * dyM));
-                    // Factor de atenuación geométrica por divergencia esférica (1/r)
-                    const attGain = Math.min(1.0, 1.0 / distM);
+
+                    // Factor de potencia acústica según baseSpl de la máquina (ISO 9612)
+                    // Referencia 85.0 dBA a 1 metro = factor 1.0
+                    const splFactor = Math.pow(10, ((m.baseSpl || 85.0) - 85.0) / 20.0);
+                    // Atenuación física por divergencia geométrica esférica (1/r)
+                    const attGain = (1.0 / distM) * splFactor;
 
                     const mGain = audioCtx.createGain();
                     mGain.gain.setValueAtTime(attGain, audioCtx.currentTime);
                     mGain.connect(distanceGain);
-                    multiSourceGains[m.id] = { node: mGain, dist: distM, baseSpl: m.baseSpl };
+                    multiSourceGains[m.id] = { node: mGain, dist: distM, baseSpl: m.baseSpl, splFactor };
                     activeSynths.push(mGain);
 
                     createMachineSynth(m.synth, mGain, 1.0);
@@ -4992,7 +5166,8 @@
                     const dyM = (sonometerPos.yPct - m.coords.y) * scaleY;
                     const distM = Math.max(1.0, Math.sqrt(dxM * dxM + dyM * dyM));
                     entry.dist = distM;
-                    const attGain = Math.min(1.0, 1.0 / distM);
+                    const splFactor = entry.splFactor || Math.pow(10, ((m.baseSpl || 85.0) - 85.0) / 20.0);
+                    const attGain = (1.0 / distM) * splFactor;
                     entry.node.gain.setTargetAtTime(attGain, now, 0.05);
                 }
             });

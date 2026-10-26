@@ -250,3 +250,29 @@ Simulador_Ruido/
    - Espejo para GitHub Pages: `index.html` (mantener siempre idéntico al maestro)
    - Memoria técnica: `PROYECTO_ESTADO_Y_MEMORIA.md`
 
+---
+
+### 9. Calibración Acústica Fidedigna de Fuentes y Timbre Espectral (ISO 9612 / Res. 1792)
+
+- **Corrección de la Falla de Proporcionalidad Acústica:**
+  - *Diagnóstico previo:* En versiones anteriores, las fuentes en el plano general recibían una ganancia fija `gainMult = 1.0` atenuada únicamente por `1/distM`, omitiendo el parámetro físico `m.baseSpl`. Por consiguiente, fuentes administrativas de oficina (Call Center de 63.5 dBA) se medían con mayor intensidad (~80.7 dBA) que obras de construcción pesada (~77.6 dBA) o frentes mineros de voladura (~75.4 dBA).
+  - *Solución Matemática Implementada:* En `playOverviewMultiSource()` y `updateOverviewAcousticGains()`, cada fuente calcula su factor de potencia sonora normalizado a la referencia de 85.0 dBA:
+    $$K_{spl} = 10^{\frac{\text{baseSpl} - 85.0}{20.0}}$$
+    $$\text{attGain} = \frac{K_{spl}}{\max(1.0, \text{distM})}$$
+  - *Normalización Espectral:* Se introdujo la tabla maestra `SYNTH_CALIBRATION` para que los 25 sintetizadores procedurales Web Audio entreguen exactamente 85.0 dBA a 1.0 metro cuando $K_{spl} = 1.0$.
+  - *Protección Auditiva del Usuario:* Se interconectó un nodo `DynamicsCompressorNode` entre el `analyser` y `masterGain`, asegurando que el sonómetro mida el rango físico científico real (30 a >140 dB) sin saturar ni lastimar los oídos del estudiante.
+
+- **Fidelidad y Timbre Acústico de las 25 Fuentes:**
+  1. *Sector A (Construcción):* Cortadora diamantada (chillido FM en 3.8 kHz + motor 2T 142 Hz + fricción abrasiva), Martillo neumático (pistonazo a 25 Hz + escape de aire comprimido a 6 bar en 1.15 kHz + fractura de concreto), Mezcladora trompo (volteo de áridos con oleadas de cantos rodados cada 2.2s), Retroexcavadora (diésel 6 cil. + bomba hidráulica 540 Hz + turbo 2350 Hz), Vibrocompactador (excéntrica de 29 Hz con retumbo de suelo).
+  2. *Sector B (Manufactura):* Prensa de estampado 500 kN (zumbido de volante + choque de matriz 136.5 dBC Peak + eyección de aire), Martinete de forja 1100°C (conmoción de choque 138.2 dBC Peak + campana del yunque en 780 Hz y 1920 Hz), Pulidora 230 mm (motor 8500 RPM + desbaste abrasivo de soldadura con fluctuación manual), Compresor de tornillo 90 kW (lóbulos helicoidales a 880/1760 Hz + succión continua), Ventilador de tiro forzado (BPF a 480/960 Hz + turbulencia en ducto).
+  3. *Sector C (Comercio y Ocio):* Karting bajo techo 270cc (pulsos de escape 4T + derrapes en curva), Sound System discoteca (bombo 128 BPM a 45 Hz + subgraves continuos + hi-hats filtrados), Restaurante Efecto Lombard (murmullo vocal multilocutor + tintineo de vajilla y copas), Campana y lavavajillas (extracción forzada + aspersores de lavado), Bolera (rodamiento de bola en madera de arce + choque de pinos).
+  4. *Sector D (Minería):* Voladura con ANFO (>142 dBC Peak + onda subsónica a 28 Hz + microrretardos y eco en cantera), Jumbo hidráulico (martillo a 50 Hz + bomba 2650 Hz), Chancadora de mandíbulas (fractura periódica de rocas a 3.5 Hz), Zaranda vibratoria (shaker a 16 Hz + lluvia de gravas sobre malla de acero), Dumper 300T (V16 biturbo + motores eléctricos de rueda).
+  5. *Sector E (Servicios):* Data Center (ruido laminar penetrante de ventiladores blade a 14000 RPM en 1.85 kHz y 3.7 kHz + CRAC), Call Center (articulación de teleoperadores con formantes del habla + tecleo CRM + timbres PBX a 63.5 dBA), Plotter (motor paso a paso en vaivén 420-780 Hz), Cafetería (molinillo de café espresso + purga de lanceta de vapor a 1.5 bar), Tráfico exterior (rodadura sobre asfalto atenuada por ventanal acústico a 67 dBA).
+
+- **Resultados de Validación Metrológica:**
+  - *Sector A (Construcción):* **96.0 dBA** ambiente (106.0 dBA a 1m del martillo).
+  - *Sector B (Manufactura):* **96.8 dBA** ambiente (picos de 136-138 dBC en prensas y forja).
+  - *Sector C (Ocio y Comercio):* **81.3 dBA** ambiente.
+  - *Sector D (Minería y Canteras):* **94.3 dBA** ambiente (picos de voladura > 140 dBC).
+  - *Sector E (Servicios y Oficinas):* **66.9 dBA** ambiente (Call Center a 63.5 dBA).
+
