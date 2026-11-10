@@ -5,12 +5,12 @@
 **Repositorio GitHub:** [https://github.com/pedronoriega-eng/simulador-ruido-higiene.git](https://github.com/pedronoriega-eng/simulador-ruido-higiene.git)  
 **Rama:** `main`  
 **Autor:** Pedro Noriega  
-**Credencial de Acceso Académico:** `CETO2026` (Protegida)
+**Credencial de Acceso Académico:** `@ruido_1983` (Protegida)
 
 ---
 
 ### 1. Resumen Ejecutivo del Proyecto
-Aplicación web institucional de simulación acústica y metrológica en tiempo real para Higiene Industrial y Seguridad y Salud en el Trabajo (SST), desarrollada con arquitectura puramente nativa (**HTML5 + Vanilla JavaScript + Web Audio API + Canvas 2D a 60 FPS**), sin dependencias externas pesadas. Diseñada con la identidad visual oficial institucional sobre **base blanca**, acceso académico restringido por contraseña (`CETO2026`), ausencia total de marcas comerciales de fabricantes, exportación autónoma de informes técnicos oficiales en PDF (**jsPDF + autoTable**) con soporte offline local, y despliegue en GitHub Pages.
+Aplicación web institucional de simulación acústica y metrológica en tiempo real para Higiene Industrial y Seguridad y Salud en el Trabajo (SST), desarrollada con arquitectura puramente nativa (**HTML5 + Vanilla JavaScript + Web Audio API + Canvas 2D a 60 FPS**), sin dependencias externas pesadas. Diseñada con la identidad visual oficial institucional sobre **base blanca**, acceso académico restringido por contraseña (`@ruido_1983`), ausencia total de marcas comerciales de fabricantes, exportación autónoma de informes técnicos oficiales en PDF (**jsPDF + autoTable**) con soporte offline local, y despliegue en GitHub Pages.
 
 La versión actual consolida el **Plano General Panorámico (Overview Mode)** como la **vista única y exclusiva del laboratorio** para todas las actividades económicas (Sectores A, B, C, D y E), eliminando la sección de vista detallada individual y optimizando la ergonomía visual. En este espacio los estudiantes seleccionan e interactúan directamente con cada una de las 5 fuentes acústicas por sector mediante balizas con botones de bocina (`🔊`/`🔇`), barras de chips multi-fuente con cotas dimensionales métricas, animación cinético-acústica selectiva con recorte poligonal `clip-path`, mini sonómetro móvil arrastrable con telemetría láser en tiempo real (NTC-ISO 9612:2009), y registro persistente de puntos en la memoria técnica del laboratorio para la emisión oficial de informes periciales en PDF.
 
@@ -26,8 +26,8 @@ La versión actual consolida el **Plano General Panorámico (Overview Mode)** co
    - **Cabecera Principal:** Contiene únicamente el **Logo Oficial Institucional** (`assets/logo_tecnologica_oriente.png`), sin textos adjuntos con el nombre de la institución.
    - **Ventana de Autenticación (`#cetoAuthModal`):** Tarjeta blanca con borde naranja, logo institucional centrado y formulario de clave de acceso.
    - **Sonómetro Extech:** Placa de cabecera con el logo oficial y rotulación técnica IEC 61672-1:2013 Clase 2.
-3. **Acceso Académico Restringido por Contraseña (`CETO2026`):**
-   - Requiere la clave institucional `CETO2026`.
+3. **Acceso Académico Restringido por Contraseña (`@ruido_1983`):**
+   - Requiere la clave institucional `@ruido_1983`.
    - La contraseña no se muestra en pantalla.
    - Persistencia de sesión mediante `sessionStorage` para no volver a solicitar la clave tras recargar en la misma sesión.
    - Botón **"🔒 Bloquear"** en la barra superior para rebloquear la aplicación de manera inmediata.
@@ -239,7 +239,7 @@ Simulador_Ruido/
 2. **Abrir en Navegador:**
    - Navegar a `http://localhost:3000` o `http://localhost:3000/simulador_higiene_ruido_multisectorial.html`
 3. **Iniciar Sesión:**
-   - Introducir la clave académica `CETO2026`.
+   - Introducir la clave académica `@ruido_1983`.
 4. **Verificar Estado del Repositorio:**
    ```powershell
    git status

@@ -8,7 +8,7 @@ Simulador interactivo institucional de instrumentación acústica y evaluación 
 ## 🔐 Control de Acceso Académico
 
 - **Portal Institucional de Acceso:** Protegido por contraseña para estudiantes, docentes e investigadores.
-- **Contraseña Institucional Autorizada:** **`CETO2026`**
+- **Contraseña Institucional Autorizada:** **`@ruido_1983`**
 - **Institución:** Corporación Tecnológica del Oriente ([https://tecnologicadeloriente.edu.co/](https://tecnologicadeloriente.edu.co/))
 
 ---

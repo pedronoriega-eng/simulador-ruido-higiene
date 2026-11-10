@@ -2553,7 +2553,7 @@
 <body>
 
     <!-- =========================================================================
-         PORTAL DE ACCESO INSTITUCIONAL POR CONTRASEÑA (CETO2026)
+         PORTAL DE ACCESO INSTITUCIONAL POR CONTRASEÑA
          ========================================================================= -->
     <div id="cetoAuthModal" class="ceto-auth-overlay">
         <div class="ceto-auth-card">
@@ -3940,10 +3940,10 @@
 
         // Audio Web API
                 // =========================================================================
-        // CONTROL DE ACCESO INSTITUCIONAL POR CONTRASEÑA (CETO2026)
+        // CONTROL DE ACCESO INSTITUCIONAL POR CONTRASEÑA
         // =========================================================================
         function checkCetoAuth() {
-            const isAuth = sessionStorage.getItem('ceto_auth_token') === 'CETO2026_VALID';
+            const isAuth = sessionStorage.getItem('ceto_auth_token') === 'RUIDO1983_VALID';
             const modal = document.getElementById('cetoAuthModal');
             if (modal) {
                 modal.style.display = isAuth ? 'none' : 'flex';
@@ -3961,8 +3961,8 @@
             const errBox = document.getElementById('cetoAuthError');
             const val = pwdInput ? pwdInput.value.trim() : '';
 
-            if (val === '@ruido_1983') {
-                sessionStorage.setItem('ceto_auth_token', 'CETO2026_VALID');
+            if (val === '@ruido_1983' || val === '[@ruido_1983]') {
+                sessionStorage.setItem('ceto_auth_token', 'RUIDO1983_VALID');
                 if (errBox) errBox.style.display = 'none';
                 const card = document.querySelector('.ceto-auth-card');
                 if (card) card.classList.add('ceto-unlock-success');
